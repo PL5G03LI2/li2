@@ -3,6 +3,9 @@
 #include <math.h>
 #include "tabuleiro.h"
 
+
+
+    
 int main()
 {
     char *tabuleiro = "abcdeabcdefhijklmnophsjcw";
