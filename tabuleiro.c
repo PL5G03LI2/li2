@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <strings.h>
+#include "strings.h"
 
 char get_pos(char *tabuleiro, int x, int y, int height, int width)
 {
