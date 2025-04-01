@@ -1,20 +1,37 @@
 #include <stdio.h>
 #include "strings.h"
+#include "tabuleiro.h"
 
-char get_pos(char *tabuleiro, int x, int y, int height, int width)
+struct Tab
 {
-    return tabuleiro[y * 5 + x];
+    char *data;
+    int height;
+    int width;
+};
+
+int assert_pos(struct Tab *tabuleiro, int x, int y)
+{
+    if (x < 0 || x > tabuleiro->height || y < 0 || y > tabuleiro->width)
+        return 1;
+    return 0;
 }
 
-void set_pos(char *tabuleiro, int x, int y, char c, int height, int width)
+char get_pos(struct Tab *tabuleiro, int x, int y)
 {
-    tabuleiro[y * 5 + x] = c;
+    if (!assert_pos(tabuleiro, x, y))
+        return NULL;
+    return tabuleiro->data[y * tabuleiro->height + x];
 }
 
-void set_branco(char *tabuleiro, int x, int y, int height, int width)
+void set_pos(struct Tab *tabuleiro, int x, int y, char c)
 {
-    if (y <= height && x <= width)
-        tabuleiro[y * height + x] = toUpper(get_pos(tabuleiro, x, y, height, width));
+    tabuleiro->data[y * tabuleiro->height + x] = c;
+}
+
+void set_branco(struct Tab *tabuleiro, int x, int y)
+{
+    if (assert_pos(tabuleiro, x, y))
+        tabuleiro->data[y * tabuleiro->height + x] = toUpper(get_pos(tabuleiro, x, y));
 }
 
 void print_tabuleiro(char *tabuleiro, int height, int width)
