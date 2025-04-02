@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include "jogo/tabuleiro.h"
-
+#include "helpers/comandos.h"
 
 
     
