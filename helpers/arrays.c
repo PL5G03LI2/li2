@@ -1,11 +1,6 @@
 #include <stdlib.h>
+#include "arrays.h"
 #include "tabuleiro.h"
-
-typedef struct node
-{
-    Tab tab;
-    struct node *next;
-} TabHistory;
 
 TabHistory *push(TabHistory *previous, Tab tab)
 {
