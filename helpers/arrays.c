@@ -1,18 +1,19 @@
 #include <stdlib.h>
+#include "tabuleiro.h"
 
 typedef struct node
 {
-    void *data;
+    Tab *tab;
     struct node *next;
-} Node;
+} TabHistory;
 
-Node *push(Node *previous, void *data)
+TabHistory *push(TabHistory *previous, Tab *tab)
 {
-    Node *new = (Node *)malloc(sizeof(Node));
+    TabHistory *new = (TabHistory *)malloc(sizeof(TabHistory));
 
     previous->next = new;
 
-    new->data = data;
+    new->tab = tab;
     new->next = NULL;
 
     return previous;
