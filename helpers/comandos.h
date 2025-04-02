@@ -4,7 +4,7 @@
 
 // Definição da estrutura Tabuleiro que representa um jogo
 // Esta estrutura contém os dados essenciais para manipular o tabuleiro
-typedef struct {
+typedef struct Tab {
     char *data;     // Array unidimensional que armazena as células do tabuleiro em formato linha-coluna
     int height;     // Número de linhas do tabuleiro
     int width;      // Número de colunas do tabuleiro
@@ -28,7 +28,7 @@ void set_branco(Tabuleiro *tab, int x, int y);
 
 // Imprime o tabuleiro para o stdout, formatado com espaços entre caracteres
 // Apresenta a visualização completa do estado atual do jogo
-void print_tabuleiro(Tabuleiro *tab);
+void print_tabuleiro(Tabuleiro *tab, int width, int height);
 
 // Carrega um tabuleiro a partir de um ficheiro especificado
 // Retorna 1 se o carregamento for bem-sucedido, 0 caso contrário

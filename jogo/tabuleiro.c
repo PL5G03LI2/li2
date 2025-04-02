@@ -2,12 +2,11 @@
 #include "strings.h"
 #include "tabuleiro.h"
 
-struct Tab
-{
-    char *data;
-    int height;
-    int width;
-};
+typedef struct Tab {
+    char *data;     
+    int height;     
+    int width;     
+} Tabuleiro;
 
 int assert_pos(struct Tab *tabuleiro, int x, int y)
 {

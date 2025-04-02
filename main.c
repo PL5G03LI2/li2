@@ -9,6 +9,6 @@
 int main()
 {
     char *tabuleiro = "abcdeabcdefhijklmnophsjcw";
-    print_tabuleiro(tabuleiro, 5, 5);
+    print_tabuleiro(tabuleiro,5,5);
     return 0;
 }
