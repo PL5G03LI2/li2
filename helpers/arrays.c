@@ -56,3 +56,22 @@ Tab pop(TabHistory **head)
 
     return poppedTab;
 }
+
+Tab *get_elem(TabHistory **head, int index)
+{
+    if (index < 0)
+        return NULL;
+
+    TabHistory *current = *head;
+    while (index--)
+    {
+        if (current == NULL || current->next == NULL)
+            return NULL;
+        current = current->next;
+    }
+
+    if (current == NULL)
+        return NULL;
+
+    return &(current->tab);
+}
