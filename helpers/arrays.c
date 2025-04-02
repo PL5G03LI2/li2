@@ -39,7 +39,7 @@ Tab pop(TabHistory **head)
         return poppedTab;
     }
 
-    // percorre a lista até ao penúltimo elemto
+    // percorre a lista até ao penúltimo elemento
     TabHistory *current = *head;
     TabHistory *previous = NULL;
     while (current->next != NULL)
