@@ -8,6 +8,8 @@ typedef struct node
 
 /*
  Push a new tabuleiro to the history stack.
+
+ @note To create a new list, just pass NULL as the previous parameter.
 */
 TabHistory *push(TabHistory *previous, Tab tab);
 
