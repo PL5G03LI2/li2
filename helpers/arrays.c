@@ -75,3 +75,18 @@ Tab *get_elem(TabHistory **head, int index)
 
     return &(current->tab);
 }
+
+void destroy(TabHistory **head)
+{
+    TabHistory *current = *head;
+    TabHistory *next;
+
+    while (current != NULL)
+    {
+        next = current->next;
+        free(current);
+        current = next;
+    }
+
+    *head = NULL;
+}

@@ -21,3 +21,8 @@ Tab pop(TabHistory **head);
  @returns NULL if the index is out of bounds.
 */
 Tab *get_elem(TabHistory **head, int index);
+
+/*
+ Free the memory allocated for the history stack.
+*/
+void destroy(TabHistory **head);
