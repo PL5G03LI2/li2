@@ -1,5 +1,3 @@
-#ifndef TABULEIRO_H
-#define TABULEIRO_H
 #include "../jogo/tabuleiro.h"
 
 // Carrega um tabuleiro a partir de um ficheiro especificado
@@ -14,5 +12,3 @@ int salvar_tabuleiro(Tab *tab, const char *filename);
 // Confirma que não há repetições de caracteres nas linhas e colunas
 // Retorna 1 se o tabuleiro for válido, 0 caso contrário
 int validar_tabuleiro(Tab *tab);
-
-#endif
