@@ -1,4 +1,4 @@
-#include "tabuleiro.h"
+#include "../jogo/tabuleiro.h"
 
 // Carrega um tabuleiro a partir de um ficheiro especificado
 // Retorna 1 se o carregamento for bem-sucedido, 0 caso contrário

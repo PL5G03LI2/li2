@@ -2,13 +2,6 @@
 #include "strings.h"
 #include "tabuleiro.h"
 
-typedef struct tabuleiro
-{
-    char *data;
-    int height;
-    int width;
-} Tab;
-
 int assert_pos(Tab *tabuleiro, int x, int y)
 {
     if (x < 0 || x > tabuleiro->height || y < 0 || y > tabuleiro->width)
@@ -34,13 +27,13 @@ void set_branco(Tab *tabuleiro, int x, int y)
         tabuleiro->data[y * tabuleiro->height + x] = toUpper(get_pos(tabuleiro, x, y));
 }
 
-void print_tabuleiro(char *tabuleiro, int height, int width)
+void print_tabuleiro(Tab *tabuleiro, int height, int width)
 {
     for (int i = 0; i < height; i++)
     {
         for (int j = 0; j < width; j++)
         {
-            printf("%c", tabuleiro[i * 5 + j]);
+            printf("%c", tabuleiro->data[i * 5 + j]);
         }
         printf("\n");
     }
