@@ -1,9 +1,9 @@
-struct Tab
+typedef struct tab
 {
     char *data;
     int height;
     int width;
-};
+} Tab;
 
 /*
  Ensures a valid position.
@@ -11,7 +11,7 @@ struct Tab
  @returns 1 if position is valid.
  @returns 0 otherwise.
 */
-int assert_pos(struct Tab *tabuleiro, int x, int y);
+int assert_pos(Tab *tabuleiro, int x, int y);
 
 /*
  Retorna o char na coordenada (x, y)
