@@ -6,7 +6,7 @@
 #include "comandos.h"
 #include "strings.h"
 
-int carregar_tabuleiro(Tabuleiro **tab, const char *filename)
+int carregar_tabuleiro(Tab **tab, const char *filename)
 {
     FILE *file = fopen(filename, "r");
     if (!file)
@@ -15,7 +15,7 @@ int carregar_tabuleiro(Tabuleiro **tab, const char *filename)
     int height, width;
     fscanf(file, "%d %d", &height, &width);
 
-    *tab = malloc(sizeof(Tabuleiro));
+    *tab = malloc(sizeof(Tab));
     (*tab)->height = height;
     (*tab)->width = width;
     (*tab)->data = malloc(height * width * sizeof(char));
@@ -32,7 +32,7 @@ int carregar_tabuleiro(Tabuleiro **tab, const char *filename)
     return 1;
 }
 
-int salvar_tabuleiro(Tabuleiro *tab, const char *filename)
+int salvar_tabuleiro(Tab *tab, const char *filename)
 {
     FILE *file = fopen(filename, "w");
     if (!file)
@@ -52,7 +52,7 @@ int salvar_tabuleiro(Tabuleiro *tab, const char *filename)
     return 1;
 }
 
-int validar_tabuleiro(Tabuleiro *tab)
+int validar_tabuleiro(Tab *tab)
 {
     for (int i = 0; i < tab->height; i++)
     {

@@ -31,4 +31,4 @@ void set_branco(Tab *tabuleiro, int x, int y);
 /*
  Imprime o tabuleiro para o ecrã
 */
-void print_tabuleiro(struct Tab *tabuleiro, int width, int height);
+void print_tabuleiro(Tab *tabuleiro, int width, int height);
