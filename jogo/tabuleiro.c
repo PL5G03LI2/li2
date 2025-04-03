@@ -27,7 +27,7 @@ char get_elem(Tab *tabuleiro, int x, int y)
 {
     if (!assert_pos(tabuleiro, x, y))
         return '\0';
-    return tabuleiro->data[y * tabuleiro->height + x];
+    return tabuleiro->data[calc_index(tabuleiro, x, y)];
 }
 
 void set_elem(Tab *tabuleiro, int x, int y, char c)
@@ -38,7 +38,7 @@ void set_elem(Tab *tabuleiro, int x, int y, char c)
 void toggle_branco(Tab *tabuleiro, int x, int y)
 {
     if (assert_pos(tabuleiro, x, y))
-        tabuleiro->data[y * tabuleiro->height + x] = toUpper(get_pos(tabuleiro, x, y));
+        tabuleiro->data[calc_index(tabuleiro, x, y)] = toUpper(get_elem(tabuleiro, x, y));
 }
 
 void print_tabuleiro(Tab *tabuleiro, int height, int width)
