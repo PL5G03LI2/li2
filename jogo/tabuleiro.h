@@ -1,5 +1,11 @@
 typedef struct
 {
+    int x;
+    int y;
+} iVec2;
+
+typedef struct
+{
     char c;
     int marked;
 } Piece;
@@ -56,3 +62,8 @@ void toggle_branco(Tab *tabuleiro, int x, int y);
  Imprime o tabuleiro para o ecrã
 */
 void print_tabuleiro(Tab *tabuleiro, int width, int height);
+
+/*
+ Toggle marked status of a piece and toggles branco of all ortogonal neighbours
+*/
+void toggle_marked(Tab *tabuleiro, int x, int y);
