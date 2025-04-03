@@ -18,13 +18,13 @@ int carregar_tabuleiro(Tab **tab, const char *filename)
     *tab = malloc(sizeof(Tab));
     (*tab)->height = height;
     (*tab)->width = width;
-    (*tab)->data = malloc(height * width * sizeof(char));
+    (*tab)->data = malloc(height * width * sizeof(Piece));
 
     for (int i = 0; i < height; i++)
     {
         for (int j = 0; j < width; j++)
         {
-            fscanf(file, " %c", &(*tab)->data[i * width + j]);
+            fscanf(file, " %c", &(*tab)->data[i * width + j].c);
         }
     }
 

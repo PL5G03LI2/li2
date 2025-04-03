@@ -1,6 +1,12 @@
 typedef struct
 {
-    char *data;
+    char c;
+    int marked;
+} Piece;
+
+typedef struct
+{
+    Piece *data;
     int height;
     int width;
 } Tab;
