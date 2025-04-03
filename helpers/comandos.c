@@ -18,13 +18,13 @@ int carregar_tabuleiro(Tab **tab, const char *filename)
     *tab = malloc(sizeof(Tab));
     (*tab)->height = height;
     (*tab)->width = width;
-    (*tab)->data = malloc(height * width * sizeof(char));
+    (*tab)->data = malloc(height * width * sizeof(Piece));
 
     for (int i = 0; i < height; i++)
     {
         for (int j = 0; j < width; j++)
         {
-            fscanf(file, " %c", &(*tab)->data[i * width + j]);
+            fscanf(file, " %c", &(*tab)->data[i * width + j].c);
         }
     }
 
@@ -43,7 +43,7 @@ int salvar_tabuleiro(Tab *tab, const char *filename)
     {
         for (int j = 0; j < tab->width; j++)
         {
-            fprintf(file, "%c", get_pos(tab, i, j));
+            fprintf(file, "%c", get_elem(tab, i, j));
         }
         fprintf(file, "\n");
     }
@@ -58,20 +58,20 @@ int validar_tabuleiro(Tab *tab)
     {
         for (int j = 0; j < tab->width; j++)
         {
-            char c = get_pos(tab, i, j);
+            char c = get_elem(tab, i, j);
 
             if (c == '#')
                 continue;
 
             for (int k = 0; k < tab->width; k++)
             {
-                if (k != j && get_pos(tab, i, k) == c)
+                if (k != j && get_elem(tab, i, k) == c)
                     return 0;
             }
 
             for (int k = 0; k < tab->height; k++)
             {
-                if (k != i && get_pos(tab, k, j) == c)
+                if (k != i && get_elem(tab, k, j) == c)
                     return 0;
             }
         }
