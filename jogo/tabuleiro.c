@@ -12,8 +12,7 @@ int assert_pos(Tab *tabuleiro, int x, int y)
 char get_pos(Tab *tabuleiro, int x, int y)
 {
     if (!assert_pos(tabuleiro, x, y))
-        return '\0';
-        // return NULL;
+        return NULL;
     return tabuleiro->data[y * tabuleiro->height + x];
 }
 
