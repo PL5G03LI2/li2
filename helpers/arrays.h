@@ -1,4 +1,4 @@
-#include "tabuleiro.h"
+#include "../jogo/tabuleiro.h"
 
 typedef struct node
 {

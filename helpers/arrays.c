@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include "arrays.h"
-#include "tabuleiro.h"
+#include "../jogo/tabuleiro.h"
 
 TabHistory *push(TabHistory *previous, Tab tab)
 {
