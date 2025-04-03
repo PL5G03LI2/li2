@@ -9,19 +9,19 @@ int assert_pos(Tab *tabuleiro, int x, int y)
     return 1;
 }
 
-char get_pos(Tab *tabuleiro, int x, int y)
+char get_elem(Tab *tabuleiro, int x, int y)
 {
     if (!assert_pos(tabuleiro, x, y))
         return '\0';
     return tabuleiro->data[y * tabuleiro->height + x];
 }
 
-void set_pos(Tab *tabuleiro, int x, int y, char c)
+void set_elem(Tab *tabuleiro, int x, int y, char c)
 {
     tabuleiro->data[y * tabuleiro->height + x] = c;
 }
 
-void set_branco(Tab *tabuleiro, int x, int y)
+void toggle_branco(Tab *tabuleiro, int x, int y)
 {
     if (assert_pos(tabuleiro, x, y))
         tabuleiro->data[y * tabuleiro->height + x] = toUpper(get_pos(tabuleiro, x, y));

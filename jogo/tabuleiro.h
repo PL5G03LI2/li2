@@ -16,17 +16,17 @@ int assert_pos(Tab *tabuleiro, int x, int y);
 /*
  Retorna o char na coordenada (x, y)
 */
-char get_pos(Tab *tabuleiro, int x, int y);
+char get_elem(Tab *tabuleiro, int x, int y);
 
 /*
  Set's the given character, c, at the position in the board
 */
-void set_pos(Tab *tabuleiro, int x, int y, char c);
+void set_elem(Tab *tabuleiro, int x, int y, char c);
 
 /*
  Set a position to white letter (Uppercase)
 */
-void set_branco(Tab *tabuleiro, int x, int y);
+void toggle_branco(Tab *tabuleiro, int x, int y);
 
 /*
  Imprime o tabuleiro para o ecrã
