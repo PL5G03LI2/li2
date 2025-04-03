@@ -2,6 +2,20 @@
 #include "strings.h"
 #include "tabuleiro.h"
 
+int calc_index(Tab *tabuleiro, int x, int y)
+{
+    if (assert_pos(tabuleiro, x, y))
+        return y * tabuleiro->height + x;
+
+    return -1;
+}
+
+int assert_index(Tab *tabuleiro, int i)
+{
+    int max_i = tabuleiro->height * tabuleiro->width;
+    return (0 <= i && i <= max_i);
+}
+
 int assert_pos(Tab *tabuleiro, int x, int y)
 {
     if (x < 0 || x > tabuleiro->height || y < 0 || y > tabuleiro->width)

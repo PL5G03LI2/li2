@@ -6,6 +6,22 @@ typedef struct tabuleiro
 } Tab;
 
 /*
+ Calculates the index of the position provided
+
+ @returns 0 <= index <= height * width;
+ @returns -1 if invalid;
+*/
+int calc_index(Tab *tabuleiro, int x, int y);
+
+/*
+ Ensures valid string index.
+
+ @returns 1 if index is in bounds.
+ @returns 0 otherwise.
+ */
+int assert_index(Tab *tabuleiro, int i);
+
+/*
  Ensures a valid position.
 
  @returns 1 if position is valid.
