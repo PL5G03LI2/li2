@@ -32,7 +32,8 @@ char get_elem(Tab *tabuleiro, int x, int y)
 
 void set_elem(Tab *tabuleiro, int x, int y, char c)
 {
-    tabuleiro->data[y * tabuleiro->height + x] = c;
+    if (assert_pos(tabuleiro, x, y))
+        tabuleiro->data[calc_index(tabuleiro, x, y)] = c;
 }
 
 void toggle_branco(Tab *tabuleiro, int x, int y)

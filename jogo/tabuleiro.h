@@ -36,6 +36,8 @@ char get_elem(Tab *tabuleiro, int x, int y);
 
 /*
  Set's the given character, c, at the position in the board
+
+ @note Has no effect if coords are out of bounds.
 */
 void set_elem(Tab *tabuleiro, int x, int y, char c);
 
