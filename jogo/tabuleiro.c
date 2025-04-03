@@ -27,13 +27,13 @@ char get_elem(Tab *tab, int x, int y)
 {
     if (!assert_pos(tab, x, y))
         return '\0';
-    return tab->data[calc_index(tab, x, y)];
+    return tab->data[calc_index(tab, x, y)].c;
 }
 
 void set_elem(Tab *tab, int x, int y, char c)
 {
     if (assert_pos(tab, x, y))
-        tab->data[calc_index(tab, x, y)] = c;
+        tab->data[calc_index(tab, x, y)].c = c;
 }
 
 void toggle_branco(Tab *tab, int x, int y)
@@ -47,7 +47,7 @@ void toggle_branco(Tab *tab, int x, int y)
         else
             c = toUpper(c);
 
-        tab->data[calc_index(tab, x, y)] = c;
+        tab->data[calc_index(tab, x, y)].c = c;
     }
 }
 
