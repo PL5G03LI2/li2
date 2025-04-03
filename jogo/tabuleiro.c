@@ -39,7 +39,16 @@ void set_elem(Tab *tab, int x, int y, char c)
 void toggle_branco(Tab *tab, int x, int y)
 {
     if (assert_pos(tab, x, y))
-        tab->data[calc_index(tab, x, y)] = toUpper(get_elem(tab, x, y));
+    {
+        char c = get_elem(tab, x, y);
+
+        if (isUpper(c))
+            c = toLower(c);
+        else
+            c = toUpper(c);
+
+        tab->data[calc_index(tab, x, y)] = c;
+    }
 }
 
 void print_tab(Tab *tab, int height, int width)

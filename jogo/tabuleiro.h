@@ -1,4 +1,4 @@
-typedef struct tabuleiro
+typedef struct
 {
     char *data;
     int height;
