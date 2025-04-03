@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "strings.h"
+#include "../helpers/strs.h"
 #include "tabuleiro.h"
 
 int calc_index(Tab *tab, int x, int y)
