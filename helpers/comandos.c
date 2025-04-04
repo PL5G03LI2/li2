@@ -6,12 +6,6 @@
 #include "comandos.h"
 #include "strings.h"
 
-typedef struct
-{
-    int code;
-    char **args;
-} Command;
-
 int await_command() {}
 
 Command parse_command() {}

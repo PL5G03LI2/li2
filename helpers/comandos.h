@@ -1,5 +1,11 @@
 #include "../jogo/tabuleiro.h"
 
+typedef struct
+{
+    int code;
+    char **args;
+} Command;
+
 // Carrega um tabuleiro a partir de um ficheiro especificado
 // Retorna 1 se o carregamento for bem-sucedido, 0 caso contrário
 int carregar_tabuleiro(Tab **tab, const char *filename);
