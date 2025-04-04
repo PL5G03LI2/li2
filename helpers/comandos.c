@@ -12,6 +12,12 @@ typedef struct
     char **args;
 } Command;
 
+int await_command() {}
+
+Command parse_command() {}
+
+int run_command(Command c) {}
+
 int carregar_tabuleiro(Tab **tab, const char *filename)
 {
     FILE *file = fopen(filename, "r");
