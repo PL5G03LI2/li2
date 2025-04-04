@@ -6,11 +6,11 @@
 #include "comandos.h"
 #include "strings.h"
 
-int await_command() {}
+int await_command(Command *c) {}
 
-Command parse_command() {}
+int parse_command(char *c) {}
 
-int run_command(Command c) {}
+int run_command(Command *c) {}
 
 int carregar_tabuleiro(Tab **tab, const char *filename)
 {
