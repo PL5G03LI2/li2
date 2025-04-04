@@ -6,6 +6,12 @@
 #include "comandos.h"
 #include "strings.h"
 
+typedef struct
+{
+    int code;
+    char **args;
+} Command;
+
 int carregar_tabuleiro(Tab **tab, const char *filename)
 {
     FILE *file = fopen(filename, "r");
