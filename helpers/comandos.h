@@ -6,6 +6,12 @@ typedef struct
     char **args;
 } Command;
 
+int await_command(Command *c);
+
+int parse_command(char *c);
+
+int run_command(Command *c);
+
 // Carrega um tabuleiro a partir de um ficheiro especificado
 // Retorna 1 se o carregamento for bem-sucedido, 0 caso contrário
 int carregar_tabuleiro(Tab **tab, const char *filename);
