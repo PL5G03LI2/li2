@@ -24,3 +24,10 @@ int salvar_tabuleiro(Tab *tab, const char *filename);
 // Confirma que não há repetições de caracteres nas linhas e colunas
 // Retorna 1 se o tabuleiro for válido, 0 caso contrário
 int validar_tabuleiro(Tab *tab);
+
+// Seleciona uma célula no tabuleiro e executa uma ação
+// Se action é 'b': converte o caractere da célula para maiúsculo (bloqueio)
+// Se action é 'r': reinicia a célula para '#' (vazia)
+// A função primeiro valida se a posição existe no tabuleiro
+// Se a posição for válida, executa a ação e retorna 1
+int selecionar_casa(Tab *tab, int x, int y, char action) {

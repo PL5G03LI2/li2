@@ -84,3 +84,19 @@ int validar_tabuleiro(Tab *tab)
     }
     return 1;
 }
+
+int selecionar_casa(Tab *tab, int x, int y, char action) {
+    if (!assert_pos(tab, x, y))
+        return 0;
+        
+    if (action == 'b') {
+        char c = get_elem(tab, x, y);
+        if (c != '#')
+            set_elem(tab, x, y, toUpper(c));
+    }
+    else if (action == 'r') {
+        set_elem(tab, x, y, '#');
+    }
+    
+    return 1;
+}
