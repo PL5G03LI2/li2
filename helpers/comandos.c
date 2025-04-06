@@ -14,11 +14,11 @@ int await_command(char *command) {
     return 1;
 }
 
-ParsedCommand parse_command(char *command) {
+int parse_command(char *command) {
     ParsedCommand result = {CMD_INVALID, {{0}}, 0};
     
     if (strlen(command) == 0)
-        return result;
+        return result.valid;
         
     switch(command[0]) {
         case 'g':
@@ -36,9 +36,15 @@ ParsedCommand parse_command(char *command) {
             break;
             
         case 'b':
+            if (strlen(command) > 1 && command[1] == ' ') {
             if (sscanf(command, "b %s", result.args[0]) == 1) {
                 result.type = CMD_WHITE;
                 result.valid = 1;
+            }
+            } else if (isdigit(command[1])) {
+            strncpy(result.args[0], command, sizeof(result.args[0])-1);
+            result.type = CMD_SELECT;
+            result.valid = 1;
             }
             break;
             
@@ -99,7 +105,7 @@ ParsedCommand parse_command(char *command) {
             }
     }
     
-    return result;
+    return result.valid;
 }
 
 int run_command(ParsedCommand cmd, Tab **tab) {
