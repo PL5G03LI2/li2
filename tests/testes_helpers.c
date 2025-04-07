@@ -94,8 +94,8 @@ void test_push_multiple(void)
         }
     }
 
-    // history = push(history, tab1);
-    // history = push(history, tab2);
+    history = push(history, tab1);
+    history = push(history, tab2);
 
     CU_ASSERT_PTR_NOT_NULL(history);
     CU_ASSERT_EQUAL(history->tab.data[0].c, 'd');
@@ -140,13 +140,13 @@ void test_pop_single(void)
 
     Tab popped = pop(&history);
 
-    CU_ASSERT_STRING_EQUAL(popped.data, "abc");
+    CU_ASSERT_STRING_EQUAL(popped.data, "abc"); // Ensure popped.data is correctly populated
     CU_ASSERT_EQUAL(popped.height, 5);
     CU_ASSERT_EQUAL(popped.width, 5);
-    CU_ASSERT_PTR_NULL(history); // List should be empty
+    CU_ASSERT_PTR_NULL(history); // List should be empty after pop
 
-    free(history->tab.data);
-    free(popped.data); // Free allocated memory
+    free(popped.data); // Free the memory that was allocated for popped data
+    free(history); // Free the history pointer, which was previously set to NULL in pop
 }
 
 void test_pop_multi(void)
@@ -187,10 +187,11 @@ void test_pop_multi(void)
     CU_ASSERT_PTR_NOT_NULL(history); // List should still contain "first"
     CU_ASSERT_STRING_EQUAL(history->tab.data, "first");
 
-    free(tab.data);
-    free(popped.data);
-    free(history->tab.data);
-    free(history);
+    // Only free the 'tab.data' pointers as required
+    free(tab.data);      // Free the allocated memory for "second"
+    free(popped.data);   // Free the memory that was popped
+    free(history->tab.data);  // Free the remaining "first" node's data
+    free(history);       // Free the remaining node ("first")
 }
 
 void test_get_hist_elem_empty(void)
@@ -330,7 +331,6 @@ void test_destroy_single(void)
 
     destroy(&history);
     CU_ASSERT_PTR_NULL(history); // The head should be NULL after destruction
-    free(history->tab.data);
 }
 
 void test_destroy_multi(void)
@@ -346,6 +346,7 @@ void test_destroy_multi(void)
     history->tab.width = 3;
     history->next = malloc(sizeof(TabHistory));
 
+    history->next->tab.data = malloc(sizeof(Piece) * 6);  // Allocate for the next node's tab data
     history->next->tab.data[0].c = 's';
     history->next->tab.data[1].c = 'e';
     history->next->tab.data[2].c = 'c';
@@ -356,12 +357,11 @@ void test_destroy_multi(void)
     history->next->tab.width = 4;
     history->next->next = NULL;
 
+    // Call destroy to free the entire list and its data
     destroy(&history);
 
+    // After destruction, history should be NULL
     CU_ASSERT_PTR_NULL(history); // The head should be NULL after destruction
-
-    free(history->tab.data);
-    free(history->next->tab.data);
 }
 
 void test_push(void)

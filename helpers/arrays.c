@@ -1,11 +1,18 @@
 #include <stdlib.h>
+#include <string.h>
 #include "arrays.h"
 #include "../jogo/tabuleiro.h"
 
 TabHistory *push(TabHistory *previous, Tab tab)
 {
     TabHistory *new = (TabHistory *)malloc(sizeof(TabHistory));
-    new->tab = tab;
+    new->tab.height = tab.height;
+    new->tab.width = tab.width;
+
+    // Deep copy the data array
+    new->tab.data = malloc(sizeof(Piece) * tab.height * tab.width);
+    memcpy(new->tab.data, tab.data, sizeof(Piece) * tab.height * tab.width);
+    
     new->next = NULL;
 
     if (previous == NULL) {
@@ -15,6 +22,7 @@ TabHistory *push(TabHistory *previous, Tab tab)
     previous->next = new;
     return previous;
 }
+
 
 Tab pop(TabHistory **head)
 {
@@ -48,8 +56,10 @@ Tab pop(TabHistory **head)
     // 'current' a este ponto deve ser o último elemento,
     // livra a memória e retorna.
     poppedTab = current->tab;
-    free(current);
+
+    // Make sure to free the last element correctly
     previous->next = NULL;
+    free(current);  // Free current node, not the data in `poppedTab` itself
 
     return poppedTab;
 }
@@ -81,9 +91,13 @@ void destroy(TabHistory **head)
     while (current != NULL)
     {
         next = current->next;
-        free(current);
+
+        // Free the tab.data for each node before freeing the node itself
+        free(current->tab.data);
+        
+        free(current);  // Now free the node
         current = next;
     }
 
-    *head = NULL;
+    *head = NULL;  // Set the head to NULL after the list is destroyed
 }
