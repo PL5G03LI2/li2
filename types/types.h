@@ -1,6 +1,12 @@
 #ifndef TYPES_H
 #define TYPES_H
 
+typedef enum
+{
+    false = 0,
+    true = 1
+} bool;
+
 typedef struct
 {
     int x;
