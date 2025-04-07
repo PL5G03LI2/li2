@@ -54,7 +54,8 @@ int repl(Tab *tabuleiro, char *cmd_str, ParsedCommand *cmd)
             return 1;
         }
 
-        print_tab(tabuleiro);
+        if (cmd->type != CMD_EXIT)
+            print_tab(tabuleiro);
     }
 
     return 0;
