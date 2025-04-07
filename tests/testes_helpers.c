@@ -98,10 +98,17 @@ void test_push_multiple(void)
     // history = push(history, tab2);
 
     CU_ASSERT_PTR_NOT_NULL(history);
-    CU_ASSERT_STRING_EQUAL(history->tab.data, "def"); // Last pushed tab should be first in list
-
+    CU_ASSERT_EQUAL(history->tab.data[0].c, 'd');
+    CU_ASSERT_EQUAL(history->tab.data[1].c, 'e');
+    CU_ASSERT_EQUAL(history->tab.data[2].c, 'f');
+    
     CU_ASSERT_PTR_NOT_NULL(history->next);
-    CU_ASSERT_STRING_EQUAL(history->next->tab.data, "abc");
+    CU_ASSERT_EQUAL(history->next->tab.data[0].c, 'a');
+    CU_ASSERT_EQUAL(history->next->tab.data[1].c, 'b');
+    CU_ASSERT_EQUAL(history->next->tab.data[2].c, 'c');
+
+CU_ASSERT_PTR_NULL(history->next->next);
+
 
     CU_ASSERT_PTR_NULL(history->next->next);
 

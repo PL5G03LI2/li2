@@ -5,12 +5,14 @@
 TabHistory *push(TabHistory *previous, Tab tab)
 {
     TabHistory *new = (TabHistory *)malloc(sizeof(TabHistory));
-
-    previous->next = new;
-
     new->tab = tab;
     new->next = NULL;
 
+    if (previous == NULL) {
+        return new;  // new becomes the head of the list
+    }
+
+    previous->next = new;
     return previous;
 }
 
