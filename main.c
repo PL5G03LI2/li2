@@ -88,5 +88,7 @@ int main()
     if (repl(tabuleiro, cmd_str, &cmd))
         return 1;
 
+    free_all(tabuleiro, cmd_str, &cmd);
+
     return 0;
 }
