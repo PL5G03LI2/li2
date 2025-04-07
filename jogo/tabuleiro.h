@@ -4,6 +4,14 @@
 #define TAB_H
 
 /*
+ Allocates and initializes tabuleiro.
+
+ @returns A pointer to the initialized tabuleiro.
+ @returns NULL in case of allocation failure.
+*/
+Tab *initialize_tabuleiro();
+
+/*
  Calculates the index of the position provided
 
  @returns 0 <= index <= height * width;
@@ -47,7 +55,7 @@ void toggle_branco(Tab *tabuleiro, int x, int y);
 /*
  Imprime o tabuleiro para o ecrã
 */
-void print_tabuleiro(Tab *tabuleiro, int width, int height);
+void print_tabuleiro(Tab *tabuleiro);
 
 /*
  Toggle marked status of a piece and toggles branco of all ortogonal neighbours

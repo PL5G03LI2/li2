@@ -1,6 +1,23 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "../helpers/strs.h"
 #include "tabuleiro.h"
+
+Tab *initialize_tabuleiro()
+{
+    Tab *tabuleiro = (Tab *)malloc(sizeof(Tab));
+
+    if (tabuleiro == NULL)
+        return NULL;
+
+    tabuleiro->height = 0;
+    tabuleiro->width = 0;
+    tabuleiro->sel_piece.x = 0;
+    tabuleiro->sel_piece.y = 0;
+    tabuleiro->data = NULL;
+
+    return tabuleiro;
+}
 
 int calc_index(Tab *tab, int x, int y)
 {
@@ -78,8 +95,11 @@ void toggle_marked(Tab *tab, int x, int y)
     // }
 }
 
-void print_tab(Tab *tab, int height, int width)
+void print_tab(Tab *tab)
 {
+    int height = tab->height;
+    int width = tab->width;
+
     for (int i = 0; i < height; i++)
     {
         for (int j = 0; j < width; j++)
