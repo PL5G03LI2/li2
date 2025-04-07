@@ -227,7 +227,7 @@ int salvar_tabuleiro(Tab *tab, const char *filename)
     return 0;
 }
 
-int validar_tabuleiro(Tab *tab)
+bool validar_tabuleiro(Tab *tab)
 {
     for (int i = 0; i < tab->height; i++)
     {
@@ -241,16 +241,16 @@ int validar_tabuleiro(Tab *tab)
             for (int k = 0; k < tab->width; k++)
             {
                 if (k != j && get_elem(tab, i, k) == c)
-                    return 0;
+                    return false;
             }
 
             for (int k = 0; k < tab->height; k++)
             {
                 if (k != i && get_elem(tab, k, j) == c)
-                    return 0;
+                    return false;
             }
         }
     }
 
-    return 1;
+    return true;
 }
