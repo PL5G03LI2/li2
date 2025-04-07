@@ -102,6 +102,7 @@ int parse_command(Tab *tab, char *command, ParsedCommand *result)
 {
     char **tokens = (char **)calloc(32, sizeof(char *));
     int tokenc = tokenize_cmd(command, tokens);
+    bool expects_coord = false;
 
     if (!tokenc)
     {
@@ -159,14 +160,16 @@ int parse_command(Tab *tab, char *command, ParsedCommand *result)
 
     case 'b':
         result->type = CMD_WHITE;
+        expects_coord = true;
         break;
 
     case 'r':
         result->type = CMD_CROSS;
+        expects_coord = true;
         break;
     }
 
-    if (tokenc == 1)
+    if (tokenc == 1 && expects_coord)
     {
         char *pos = (char *)calloc(3, sizeof(char));
         sprintf(pos, "%c%d", tab->sel_piece.x + 'a', tab->sel_piece.y);
