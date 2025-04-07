@@ -16,6 +16,7 @@ typedef struct
 typedef struct
 {
     Piece *data;
+    iVec2 sel_piece;
     int height;
     int width;
 } Tab;
