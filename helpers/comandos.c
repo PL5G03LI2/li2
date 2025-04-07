@@ -8,12 +8,12 @@
 #include "../types/types.h"
 #include "../jogo/tabuleiro.h"
 
-
-int await_command(char *command) {
+int await_command(char *command)
+{
     if (!fgets(command, 256, stdin))
-        return 0;
+        return 1;
     command[strcspn(command, "\n")] = 0;
-    return 1;
+    return 0;
 }
 
 int parse_command(char *command) {
@@ -110,24 +110,28 @@ int parse_command(char *command) {
     return result.valid;
 }
 
-int run_command(ParsedCommand cmd, Tab **tab) {
-    switch(cmd.type) {
+int run_command(ParsedCommand *cmd, Tab **tab)
+{
+    switch (cmd->type)
+    {
         case CMD_SAVE:
-            return salvar_tabuleiro(*tab, cmd.args[0]);
+        return salvar_tabuleiro(*tab, cmd->args[0]);
             
         case CMD_LOAD:
-            return carregar_tabuleiro(tab, cmd.args[0]);
+        return carregar_tabuleiro(tab, cmd->args[0]);
             
-        case CMD_WHITE: {
-            int x = cmd.args[0][0] - 'a';
-            int y = cmd.args[0][1] - '0';
+    case CMD_WHITE:
+    {
+        int x = cmd->args[0][0] - 'a';
+        int y = cmd->args[0][1] - '0';
             toggle_branco(*tab, x, y);
             return 1;
         }
             
-        case CMD_CROSS: {
-            int x = cmd.args[0][0] - 'a';
-            int y = cmd.args[0][1] - '0';
+    case CMD_CROSS:
+    {
+        int x = cmd->args[0][0] - 'a';
+        int y = cmd->args[0][1] - '0';
             toggle_marked(*tab, x, y);
             return 1;
         }

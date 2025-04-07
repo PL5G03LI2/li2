@@ -6,7 +6,6 @@
 // O comando lido é armazenado na variável 'command'
 // O tamanho máximo do comando é 256 caracteres
 // O comando deve ser terminado com '\n' (caractere de nova linha)
-
 int await_command(char *command);
 
 // Analisa um comando lido do utilizador
@@ -35,4 +34,3 @@ int salvar_tabuleiro(Tab *tab, const char *filename);
 // Confirma que não há repetições de caracteres nas linhas e colunas
 // Retorna 1 se o tabuleiro for válido, 0 caso contrário
 int validar_tabuleiro(Tab *tab);
-
