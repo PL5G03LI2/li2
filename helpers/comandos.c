@@ -49,6 +49,8 @@ int tokenize_cmd(char *command, char **args)
         tokenc++;
     }
 
+    free(token);
+
     return tokenc;
 }
 
