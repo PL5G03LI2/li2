@@ -1,6 +1,23 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "../helpers/strs.h"
 #include "tabuleiro.h"
+
+Tab *initialize_tabuleiro()
+{
+    Tab *tabuleiro = (Tab *)calloc(1, sizeof(Tab));
+
+    if (tabuleiro == NULL)
+        return NULL;
+
+    tabuleiro->height = 0;
+    tabuleiro->width = 0;
+    tabuleiro->sel_piece.x = 0;
+    tabuleiro->sel_piece.y = 0;
+    tabuleiro->data = NULL;
+
+    return tabuleiro;
+}
 
 int calc_index(Tab *tab, int x, int y)
 {
@@ -78,13 +95,43 @@ void toggle_marked(Tab *tab, int x, int y)
     // }
 }
 
-void print_tab(Tab *tab, int height, int width)
+void print_tab(Tab *tab)
 {
+    int height = tab->height;
+    int width = tab->width;
+
+    printf(" ");
+
+    for (int i = 0; i < width; i++)
+    {
+        printf(" %c", i + 'a');
+    }
+    printf("\n--");
+
+    for (int i = 0; i < width; i++)
+    {
+        printf("--");
+    }
+    printf("\n");
+
     for (int i = 0; i < height; i++)
     {
+        printf("%c|", i + '1');
         for (int j = 0; j < width; j++)
         {
-            printf("%c", tab->data[i * 5 + j].c);
+            bool selected = tab->sel_piece.x == j && tab->sel_piece.y == i;
+            Piece piece = tab->data[calc_index(tab, j, i)];
+            if (selected)
+                printf("\033[1m\033[7m");
+
+            if (piece.marked)
+                printf("#");
+            else
+                printf("%c", piece.c);
+
+            if (selected)
+                printf("\033[0m");
+            printf(" ");
         }
         printf("\n");
     }
