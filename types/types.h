@@ -52,6 +52,6 @@ typedef enum
 typedef struct
 {
     CommandType type;
-    char **args;
+    char **tokens;
 } ParsedCommand;
 #endif

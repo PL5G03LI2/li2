@@ -8,7 +8,7 @@
 #include "../types/types.h"
 #include "../jogo/tabuleiro.h"
 
-void free_tokens(char **tokens, int count)
+void free_all_tokens(char **tokens, int count)
 {
     if (!tokens)
         return;
@@ -35,7 +35,7 @@ int await_command(char *command)
     return 0;
 }
 
-int tokenize_cmd(char *command, char **args)
+int tokenize_cmd(char *command, char **tokens)
 {
     int tokenc = 0;
     char *token;
@@ -44,99 +44,134 @@ int tokenize_cmd(char *command, char **args)
 
     while (token && tokenc < 3)
     {
-        args[tokenc] = strdup(token);
+        tokens[tokenc] = strdup(token);
         token = strtok(NULL, " ");
         tokenc++;
     }
 
-    free(token);
-
     return tokenc;
+}
+
+iVec2 read_coordinate(char *coord_tkn)
+{
+    iVec2 result;
+    result.x = 0;
+    result.y = 0;
+    int i = 0;
+
+    // Read letters for x-coordinate
+    while (isalpha(coord_tkn[i]))
+    {
+        result.x = result.x * 26 + (coord_tkn[i] - 'a');
+        i++;
+    }
+
+    // Read numbers for y-coordinate
+    while (isdigit(coord_tkn[i]))
+    {
+        result.y = result.y * 10 + (coord_tkn[i] - '0');
+        i++;
+    }
+
+    return result;
+}
+
+char *write_coordinate(iVec2 coord, char *buffer)
+{
+    int x = coord.x;
+    int pos = 0;
+
+    if (x >= 26)
+    {
+        buffer[pos++] = 'a' + (x / 26 - 1);
+        x = x % 26;
+    }
+    buffer[pos++] = 'a' + x;
+
+    // Handle y-coordinate (convert to numbers)
+    pos += sprintf(buffer + pos, "%d", coord.y);
+
+    buffer[pos] = '\0';
+    return buffer;
+}
+
+void reset_cmd(ParsedCommand *cmd)
+{
+    cmd->type = CMD_INVALID;
+    for (int i = 0; i < 2; i++)
+    {
+        free(cmd->tokens[i]);
+        cmd->tokens[i] = NULL;
+    }
+    free(cmd->tokens);
+    cmd->tokens = NULL;
 }
 
 int parse_command(Tab *tab, char *command, ParsedCommand *result)
 {
-    char **tokens = (char **)calloc(3, sizeof(char *));
+    reset_cmd(result);
+    char **tokens = (char **)calloc(2, sizeof(char *));
     int tokenc = tokenize_cmd(command, tokens);
-    bool expects_coord = false;
+    bool expect_coords = false;
 
     if (!tokenc)
     {
-        free(tokens);
-        result->type = CMD_INVALID;
+        free_all_tokens(tokens, 3);
+
         return 1;
     }
 
-    int fst_tok_len = strlen(tokens[0]);
-
-    if (fst_tok_len == 2 && isLower(tokens[0][0]) && isdigit(tokens[0][1])) // SELECT COMMAND
+    if (strlen(tokens[0]) > 1) // select command
     {
         result->type = CMD_SELECT;
-        result->args[0] = strdup(tokens[0]); // Make a copy
-        free_tokens(tokens, tokenc);         // Free all tokens
-        return 0;
-    }
-
-    switch (tokens[0][0])
-    {
-        // commands with no arguments
-    case 'v':
-        result->type = CMD_VERIFY;
-        break;
-
-    case 'a':
-        result->type = CMD_HELP;
-        break;
-
-    case 'A':
-        result->type = CMD_HELP_ALL;
-        break;
-
-    case 'R':
-        result->type = CMD_SOLVE;
-        break;
-
-    case 'd':
-        result->type = CMD_UNDO;
-        break;
-
-    case 's':
-        result->type = CMD_EXIT;
-        break;
-
-    // commands with 1 argument
-    case 'g':
-        result->type = CMD_SAVE;
-        break;
-
-    case 'l':
-        result->type = CMD_LOAD;
-        break;
-
-    case 'b':
-        result->type = CMD_WHITE;
-        expects_coord = true;
-        break;
-
-    case 'r':
-        result->type = CMD_CROSS;
-        expects_coord = true;
-        break;
-    default:
-        result->type = CMD_INVALID;
-        free_tokens(tokens, tokenc);
-        return 1;
-    }
-
-    if (tokenc == 1 && expects_coord)
-    {
-        char *pos = (char *)calloc(3, sizeof(char));
-        sprintf(pos, "%c%d", tab->sel_piece.x + 'a', tab->sel_piece.y);
-        result->args[0] = pos;
-        free_tokens(tokens, tokenc);
+        result->tokens = tokens;
     }
     else
-        result->args[0] = tokens[1];
+    {
+        switch (tokens[0][0])
+        {
+        case 'g':
+            result->type = CMD_SAVE;
+            break;
+        case 'l':
+            result->type = CMD_LOAD;
+            break;
+        case 'b':
+            result->type = CMD_WHITE;
+            expect_coords = true;
+            break;
+        case 'r':
+            result->type = CMD_CROSS;
+            expect_coords = true;
+            break;
+        case 'v':
+            result->type = CMD_VERIFY;
+            break;
+        case 'a':
+            result->type = CMD_HELP;
+            break;
+        case 'A':
+            result->type = CMD_HELP_ALL;
+            break;
+        case 'R':
+            result->type = CMD_SOLVE;
+            break;
+        case 'd':
+            result->type = CMD_UNDO;
+            break;
+        case 's':
+            result->type = CMD_EXIT;
+            break;
+        }
+
+        if (expect_coords && tokenc == 1)
+        {
+            result->tokens[0] = (char *)calloc(32, sizeof(char));
+            write_coordinate(tab->sel_piece, result->tokens[0]);
+        }
+
+        result->tokens = tokens;
+    }
 
     return 0;
 }
@@ -146,30 +181,30 @@ int run_command(ParsedCommand *cmd, Tab *tab)
     switch (cmd->type)
     {
     case CMD_SAVE:
-        return salvar_tabuleiro(tab, cmd->args[0]);
+        return salvar_tabuleiro(tab, cmd->tokens[1]);
 
     case CMD_LOAD:
-        return carregar_tabuleiro(tab, cmd->args[0]);
+        return carregar_tabuleiro(tab, cmd->tokens[1]);
 
     case CMD_SELECT:
     {
-        tab->sel_piece.x = cmd->args[0][0] - 'a';
-        tab->sel_piece.y = cmd->args[0][1] - '1';
+        tab->sel_piece.x = cmd->tokens[0][0] - 'a';
+        tab->sel_piece.y = cmd->tokens[0][1] - '1';
         return 0;
     }
 
     case CMD_WHITE:
     {
-        int x = cmd->args[0][0] - 'a';
-        int y = cmd->args[0][1] - '0';
+        int x = cmd->tokens[1][0] - 'a';
+        int y = cmd->tokens[1][1] - '0';
         toggle_branco(tab, x, y);
         return 0;
     }
 
     case CMD_CROSS:
     {
-        int x = cmd->args[0][0] - 'a';
-        int y = cmd->args[0][1] - '0';
+        int x = cmd->tokens[1][0] - 'a';
+        int y = cmd->tokens[1][1] - '0';
         toggle_marked(tab, x, y);
         return 0;
     }

@@ -14,9 +14,9 @@ void free_all(Tab *tabuleiro, char *cmd_str, ParsedCommand *cmd)
     free(cmd_str);
 
     for (int i = 0; i < 2; i++)
-        free(cmd->args[i]);
+        free(cmd->tokens[i]);
 
-    free(cmd->args);
+    free(cmd->tokens);
 }
 
 int repl(Tab *tabuleiro, char *cmd_str, ParsedCommand *cmd)
@@ -78,8 +78,8 @@ int main(void)
     ParsedCommand cmd = {CMD_INVALID, calloc(2, sizeof(char *))};
     for (int i = 0; i < 2; i++)
     {
-        cmd.args[i] = calloc(32, sizeof(char));
-        if (cmd.args[i] == NULL)
+        cmd.tokens[i] = calloc(32, sizeof(char));
+        if (cmd.tokens[i] == NULL)
         {
             free_all(tabuleiro, cmd_str, &cmd);
             return 1;
