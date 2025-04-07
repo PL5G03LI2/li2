@@ -141,7 +141,7 @@ int parse_command(char *command, ParsedCommand *result)
 
     free(tokens);
 
-    return result->type;
+    return 0;
 }
 
 int run_command(ParsedCommand *cmd, Tab **tab)
@@ -159,7 +159,7 @@ int run_command(ParsedCommand *cmd, Tab **tab)
         int x = cmd->args[0][0] - 'a';
         int y = cmd->args[0][1] - '0';
         toggle_branco(*tab, x, y);
-        return 1;
+        return 0;
     }
 
     case CMD_CROSS:
@@ -167,7 +167,7 @@ int run_command(ParsedCommand *cmd, Tab **tab)
         int x = cmd->args[0][0] - 'a';
         int y = cmd->args[0][1] - '0';
         toggle_marked(*tab, x, y);
-        return 1;
+        return 0;
     }
 
     case CMD_VERIFY:
@@ -185,7 +185,7 @@ int carregar_tabuleiro(Tab **tab, const char *filename)
 {
     FILE *file = fopen(filename, "r");
     if (!file)
-        return 0;
+        return 1;
 
     int height, width;
     fscanf(file, "%d %d", &height, &width);
@@ -204,14 +204,14 @@ int carregar_tabuleiro(Tab **tab, const char *filename)
     }
 
     fclose(file);
-    return 1;
+    return 0;
 }
 
 int salvar_tabuleiro(Tab *tab, const char *filename)
 {
     FILE *file = fopen(filename, "w");
     if (!file)
-        return 0;
+        return 1;
 
     fprintf(file, "%d %d\n", tab->height, tab->width);
     for (int i = 0; i < tab->height; i++)
@@ -224,7 +224,7 @@ int salvar_tabuleiro(Tab *tab, const char *filename)
     }
 
     fclose(file);
-    return 1;
+    return 0;
 }
 
 int validar_tabuleiro(Tab *tab)
