@@ -18,7 +18,7 @@ Tab pop(TabHistory **head);
  Get the tabuleiro at the given index
  @returns NULL if the index is out of bounds.
 */
-Tab *get_elem(TabHistory **head, int index);
+Tab *get_hist_elem(TabHistory **head, int index);
 
 /*
  Free the memory allocated for the history stack.
