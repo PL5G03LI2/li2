@@ -61,7 +61,7 @@ int repl(Tab *tabuleiro, char *cmd_str, ParsedCommand *cmd)
     return 0;
 }
 
-int main()
+int main(void)
 {
     Tab *tabuleiro = initialize_tabuleiro();
     if (tabuleiro == NULL)

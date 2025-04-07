@@ -9,7 +9,7 @@
  @returns A pointer to the initialized tabuleiro.
  @returns NULL in case of allocation failure.
 */
-Tab *initialize_tabuleiro();
+Tab *initialize_tabuleiro(void);
 
 /*
  Calculates the index of the position provided
