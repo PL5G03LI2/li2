@@ -21,12 +21,13 @@ void free_all(Tab *tabuleiro, char *cmd_str, ParsedCommand *cmd)
 
 int repl(Tab *tabuleiro, char *cmd_str, ParsedCommand *cmd)
 {
-    while (cmd->type != CMD_EXIT)
+    while (true)
     {
         if (tabuleiro->data == NULL)
         {
             printf("Awaiting load command...\nHint: l <save_file>\n");
         }
+
         if (await_command(cmd_str))
         {
             printf("Failed to read command\n");
@@ -40,6 +41,9 @@ int repl(Tab *tabuleiro, char *cmd_str, ParsedCommand *cmd)
             free_all(tabuleiro, cmd_str, cmd);
             return 1;
         }
+
+        if (cmd->type == CMD_EXIT)
+            break;
 
         if (cmd->type == CMD_INVALID || (cmd->type != CMD_LOAD && tabuleiro->data == NULL))
         {

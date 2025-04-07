@@ -69,7 +69,7 @@ iVec2 read_coordinate(char *coord_tkn)
     // Read numbers for y-coordinate
     while (isdigit(coord_tkn[i]))
     {
-        result.y = result.y * 10 + (coord_tkn[i] - '0');
+        result.y = result.y * 10 + (coord_tkn[i] - '1');
         i++;
     }
 
@@ -188,8 +188,7 @@ int run_command(ParsedCommand *cmd, Tab *tab)
 
     case CMD_SELECT:
     {
-        tab->sel_piece.x = cmd->tokens[0][0] - 'a';
-        tab->sel_piece.y = cmd->tokens[0][1] - '1';
+        tab->sel_piece = read_coordinate(cmd->tokens[0]);
         return 0;
     }
 
