@@ -54,7 +54,7 @@ int tokenize_cmd(char *command, char **args)
 
 int parse_command(Tab *tab, char *command, ParsedCommand *result)
 {
-    char **tokens = (char **)calloc(32, sizeof(char *));
+    char **tokens = (char **)calloc(3, sizeof(char *));
     int tokenc = tokenize_cmd(command, tokens);
     bool expects_coord = false;
 
