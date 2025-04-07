@@ -59,22 +59,23 @@ void toggle_marked(Tab *tab, int x, int y)
     Piece *piece = &tab->data[calc_index(tab, x, y)];
     piece->marked = !piece->marked;
 
-    iVec2 positions[4] = {
-        {x + 1, y},
-        {x - 1, y},
-        {x, y + 1},
-        {x, y - 1}};
+    // deixa comentado para o comando de ajuda
+    // iVec2 positions[4] = {
+    //     {x + 1, y},
+    //     {x - 1, y},
+    //     {x, y + 1},
+    //     {x, y - 1}};
 
-    for (int i = 0; i < 4; i++)
-    {
-        int nx = positions[i].x;
-        int ny = positions[i].y;
+    // for (int i = 0; i < 4; i++)
+    // {
+    //     int nx = positions[i].x;
+    //     int ny = positions[i].y;
 
-        if (assert_pos(tab, nx, ny))
-        {
-            toggle_branco(tab, nx, ny);
-        }
-    }
+    //     if (assert_pos(tab, nx, ny))
+    //     {
+    //         toggle_branco(tab, nx, ny);
+    //     }
+    // }
 }
 
 void print_tab(Tab *tab, int height, int width)
