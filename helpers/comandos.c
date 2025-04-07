@@ -154,6 +154,13 @@ int run_command(ParsedCommand *cmd, Tab **tab)
     case CMD_LOAD:
         return carregar_tabuleiro(tab, cmd->args[0]);
 
+    case CMD_SELECT:
+    {
+        (*tab)->sel_piece.x = cmd->args[0][0] - 'a';
+        (*tab)->sel_piece.y = cmd->args[0][1] - '0';
+        return 0;
+    }
+
     case CMD_WHITE:
     {
         int x = cmd->args[0][0] - 'a';
