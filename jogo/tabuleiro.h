@@ -55,7 +55,7 @@ void toggle_branco(Tab *tabuleiro, int x, int y);
 /*
  Imprime o tabuleiro para o ecrã
 */
-void print_tabuleiro(Tab *tabuleiro);
+void print_tab(Tab *tabuleiro);
 
 /*
  Toggle marked status of a piece and toggles branco of all ortogonal neighbours

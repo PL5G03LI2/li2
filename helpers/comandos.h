@@ -29,7 +29,7 @@ int tokenize_cmd(char *command, char **args);
  @return 1 if unable to parse.
  @return 0 otherwise.
 */
-int parse_command(char *command, ParsedCommand *parsed_cmd);
+int parse_command(Tab *tab, char *command, ParsedCommand *parsed_cmd);
 
 /*
  Executa um comando analisado.
@@ -39,11 +39,11 @@ int parse_command(char *command, ParsedCommand *parsed_cmd);
 
  @returns 0 se o comando for executado com sucesso, 1 caso contrário.
 */
-int run_command(ParsedCommand *cmd, Tab **tab);
+int run_command(ParsedCommand *cmd, Tab *tab);
 
 // Carrega um tabuleiro a partir de um ficheiro especificado
 // @returns 0 se o carregamento for bem-sucedido, 1 caso contrário
-int carregar_tabuleiro(Tab **tab, const char *filename);
+int carregar_tabuleiro(Tab *tab, const char *filename);
 
 // Guarda o estado atual do tabuleiro num ficheiro
 // Retorna 1 se a gravação for bem-sucedida, 0 caso contrário

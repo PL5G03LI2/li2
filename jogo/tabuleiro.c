@@ -5,7 +5,7 @@
 
 Tab *initialize_tabuleiro()
 {
-    Tab *tabuleiro = (Tab *)malloc(sizeof(Tab));
+    Tab *tabuleiro = (Tab *)calloc(1, sizeof(Tab));
 
     if (tabuleiro == NULL)
         return NULL;
@@ -104,7 +104,18 @@ void print_tab(Tab *tab)
     {
         for (int j = 0; j < width; j++)
         {
-            printf("%c", tab->data[i * 5 + j].c);
+            bool selected = tab->sel_piece.x == j && tab->sel_piece.y == i;
+            Piece piece = tab->data[calc_index(tab, j, i)];
+            if (selected)
+                printf("\033[1m\033[7m");
+
+            if (piece.marked)
+                printf("#");
+            else
+                printf("%c", piece.c);
+
+            if (selected)
+                printf("\033[0m");
         }
         printf("\n");
     }

@@ -27,14 +27,14 @@ int repl(Tab *tabuleiro, char *cmd_str, ParsedCommand *cmd)
         {
             printf("Awaiting load command...\nHint: l <save_file>\n");
         }
-        if (!await_command(cmd_str))
+        if (await_command(cmd_str))
         {
             printf("Failed to read command\n");
             free_all(tabuleiro, cmd_str, cmd);
             return 1;
         }
 
-        if (!parse_command(cmd_str, cmd))
+        if (parse_command(tabuleiro, cmd_str, cmd))
         {
             printf("Failed to parse command\n");
             free_all(tabuleiro, cmd_str, cmd);
@@ -47,14 +47,14 @@ int repl(Tab *tabuleiro, char *cmd_str, ParsedCommand *cmd)
             continue;
         }
 
-        if (!run_command(cmd, &tabuleiro))
+        if (run_command(cmd, tabuleiro))
         {
             printf("Failed to run command.\n");
             free_all(tabuleiro, cmd_str, cmd);
             return 1;
         }
 
-        print_tabuleiro(tabuleiro);
+        print_tab(tabuleiro);
     }
 
     return 0;
