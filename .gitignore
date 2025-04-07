@@ -3,6 +3,7 @@
 *.out
 /bin/
 /obj/
+/out/
 main
 
 .vscode/
