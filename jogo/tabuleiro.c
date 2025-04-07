@@ -83,7 +83,7 @@ void print_tab(Tab *tab, int height, int width)
     {
         for (int j = 0; j < width; j++)
         {
-            printf("%c", tab->data[i * 5 + j]);
+            printf("%c", tab->data[i * 5 + j].c);
         }
         printf("\n");
     }
