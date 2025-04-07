@@ -123,7 +123,10 @@ void test_pop_empty(void)
 void test_pop_single(void)
 {
     TabHistory *history = malloc(sizeof(TabHistory));
-    history->tab.data = strdup("abc"); // Allocate string
+    history->tab.data = malloc(sizeof(Piece) * 3);
+    history->tab.data[0].c = 'a';
+    history->tab.data[1].c = 'b';
+    history->tab.data[2].c = 'c';
     history->tab.height = 5;
     history->tab.width = 5;
     history->next = NULL;
@@ -135,6 +138,7 @@ void test_pop_single(void)
     CU_ASSERT_EQUAL(popped.width, 5);
     CU_ASSERT_PTR_NULL(history); // List should be empty
 
+    free(history->tab.data);
     free(popped.data); // Free allocated memory
 }
 
@@ -142,13 +146,30 @@ void test_pop_multi(void)
 {
     // Create first node
     TabHistory *history = malloc(sizeof(TabHistory));
-    history->tab.data = strdup("first");
-    history->tab.height = 3;
-    history->tab.width = 3;
+    history->tab.data = malloc(sizeof(Piece) * 5);
+    history->tab.data[0].c = 'f';
+    history->tab.data[1].c = 'i';
+    history->tab.data[2].c = 'r';
+    history->tab.data[3].c = 's';
+    history->tab.data[4].c = 't';
+    history->tab.height = 1;
+    history->tab.width = 5;
     history->next = NULL;
 
+    Tab tab;
+    tab.height = 5;
+    tab.width = 5;
+    tab.data = malloc(sizeof(Piece) * tab.height * tab.width);
+
+    tab.data[0].c = 's';
+    tab.data[1].c = 'e';
+    tab.data[2].c = 'c';
+    tab.data[3].c = 'o';
+    tab.data[4].c = 'n';
+    tab.data[5].c = 'd';
+
     // Create second node
-    history = push(history, (Tab){strdup("second"), 4, 4});
+    history = push(history, tab);
 
     // Pop last element
     Tab popped = pop(&history);
@@ -159,6 +180,7 @@ void test_pop_multi(void)
     CU_ASSERT_PTR_NOT_NULL(history); // List should still contain "first"
     CU_ASSERT_STRING_EQUAL(history->tab.data, "first");
 
+    free(tab.data);
     free(popped.data);
     free(history->tab.data);
     free(history);
@@ -175,7 +197,11 @@ void test_get_hist_elem_empty(void)
 void test_get_hist_elem_negativeIndex(void)
 {
     TabHistory *history = malloc(sizeof(TabHistory));
-    history->tab.data = strdup("test");
+    history->tab.data = malloc(sizeof(Piece) * 4);
+    history->tab.data[0].c = 't';
+    history->tab.data[1].c = 'e';
+    history->tab.data[2].c = 's';
+    history->tab.data[3].c = 't';
     history->tab.height = 5;
     history->tab.width = 5;
     history->next = NULL;
@@ -191,7 +217,11 @@ void test_get_hist_elem_negativeIndex(void)
 void test_get_hist_elem_first(void)
 {
     TabHistory *history = malloc(sizeof(TabHistory));
-    history->tab.data = strdup("first");
+    history->tab.data = malloc(sizeof(Piece) * 4);
+    history->tab.data[0].c = 't';
+    history->tab.data[1].c = 'e';
+    history->tab.data[2].c = 's';
+    history->tab.data[3].c = 't';
     history->tab.height = 3;
     history->tab.width = 3;
     history->next = NULL;
@@ -210,12 +240,30 @@ void test_get_hist_elem_first(void)
 void test_get_hist_elem_last(void)
 {
     TabHistory *history = malloc(sizeof(TabHistory));
-    history->tab.data = strdup("first");
+    history->tab.data = malloc(sizeof(Piece) * 5);
+    history->tab.data[0].c = 'f';
+    history->tab.data[1].c = 'i';
+    history->tab.data[2].c = 'r';
+    history->tab.data[3].c = 's';
+    history->tab.data[4].c = 't';
     history->tab.height = 3;
     history->tab.width = 3;
     history->next = NULL;
 
-    history = push(history, (Tab){strdup("second"), 4, 4});
+    Tab tab;
+    tab.height = 5;
+    tab.width = 5;
+    tab.data = malloc(sizeof(Piece) * tab.height * tab.width);
+
+    tab.data[0].c = 's';
+    tab.data[1].c = 'e';
+    tab.data[2].c = 'c';
+    tab.data[3].c = 'o';
+    tab.data[4].c = 'n';
+    tab.data[5].c = 'd';
+    
+
+    history = push(history, tab);
 
     Tab *result = get_hist_elem(&history, 1);
 
@@ -224,6 +272,7 @@ void test_get_hist_elem_last(void)
     CU_ASSERT_EQUAL(result->height, 4);
     CU_ASSERT_EQUAL(result->width, 4);
 
+    free(tab.data);
     free(history->next->tab.data);
     free(history->next);
     free(history->tab.data);
@@ -233,7 +282,11 @@ void test_get_hist_elem_last(void)
 void test_get_hist_elem_OOB(void)
 {
     TabHistory *history = malloc(sizeof(TabHistory));
-    history->tab.data = strdup("only");
+    history->tab.data = malloc(sizeof(Piece) * 4);
+    history->tab.data[0].c = 'o';
+    history->tab.data[1].c = 'n';
+    history->tab.data[2].c = 'l';
+    history->tab.data[3].c = 'y';
     history->tab.height = 2;
     history->tab.width = 2;
     history->next = NULL;
@@ -257,25 +310,41 @@ void test_destroy_empty(void)
 void test_destroy_single(void)
 {
     TabHistory *history = malloc(sizeof(TabHistory));
-    history->tab.data = strdup("single");
+    history->tab.data = malloc(sizeof(Piece) * 6);
+    history->tab.data[0].c = 's';
+    history->tab.data[1].c = 'i';
+    history->tab.data[2].c = 'n';
+    history->tab.data[3].c = 'g';
+    history->tab.data[4].c = 'l';
+    history->tab.data[5].c = 'e';
     history->tab.height = 3;
     history->tab.width = 3;
     history->next = NULL;
 
     destroy(&history);
-
     CU_ASSERT_PTR_NULL(history); // The head should be NULL after destruction
+    free(history->tab.data);
 }
 
 void test_destroy_multi(void)
 {
     TabHistory *history = malloc(sizeof(TabHistory));
-    history->tab.data = strdup("first");
+    history->tab.data = malloc(sizeof(Piece) * 5);
+    history->tab.data[0].c = 'f';
+    history->tab.data[1].c = 'i';
+    history->tab.data[2].c = 'r';
+    history->tab.data[3].c = 's';
+    history->tab.data[4].c = 't';
     history->tab.height = 3;
     history->tab.width = 3;
     history->next = malloc(sizeof(TabHistory));
 
-    history->next->tab.data = strdup("second");
+    history->next->tab.data[0].c = 's';
+    history->next->tab.data[1].c = 'e';
+    history->next->tab.data[2].c = 'c';
+    history->next->tab.data[3].c = 'o';
+    history->next->tab.data[4].c = 'n';
+    history->next->tab.data[5].c = 'd';
     history->next->tab.height = 4;
     history->next->tab.width = 4;
     history->next->next = NULL;
@@ -283,6 +352,9 @@ void test_destroy_multi(void)
     destroy(&history);
 
     CU_ASSERT_PTR_NULL(history); // The head should be NULL after destruction
+
+    free(history->tab.data);
+    free(history->next->tab.data);
 }
 
 void test_push(void)

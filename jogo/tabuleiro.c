@@ -3,7 +3,7 @@
 #include "../helpers/strs.h"
 #include "tabuleiro.h"
 
-Tab *initialize_tabuleiro()
+Tab *initialize_tabuleiro(void)
 {
     Tab *tabuleiro = (Tab *)calloc(1, sizeof(Tab));
 
