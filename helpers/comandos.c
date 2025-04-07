@@ -8,6 +8,22 @@
 #include "../types/types.h"
 #include "../jogo/tabuleiro.h"
 
+void free_tokens(char **tokens, int count)
+{
+    if (!tokens)
+        return;
+
+    for (int i = 0; i < count; i++)
+    {
+        if (tokens[i])
+        {
+            free(tokens[i]);
+            tokens[i] = NULL;
+        }
+    }
+    free(tokens);
+}
+
 int await_command(char *command)
 {
     if (!fgets(command, 256, stdin))
@@ -34,11 +50,11 @@ int tokenize_cmd(char *command, char **args)
     }
 
     if (len == 0)
-        return 1;
+        return 0;
 
     current_token = (char *)calloc(token_capacity, sizeof(char));
     if (!current_token)
-        return 1;
+        return 0;
 
     for (int i = 0; i < len; i++)
     {
@@ -53,12 +69,8 @@ int tokenize_cmd(char *command, char **args)
                 current_token = (char *)calloc(token_capacity, sizeof(char));
                 if (!current_token)
                 {
-                    while (tokenc--)
-                    {
-                        free(args[tokenc]);
-                        args[tokenc] = NULL;
-                    }
-                    return 1;
+                    free_tokens(args, tokenc);
+                    return 0;
                 }
                 token_length = 0;
             }
@@ -75,12 +87,8 @@ int tokenize_cmd(char *command, char **args)
         {
             // too long
             free(current_token);
-            while (tokenc--)
-            {
-                free(args[tokenc]);
-                args[tokenc] = NULL;
-            }
-            return 1;
+            free_tokens(args, tokenc);
+            return 0;
         }
     }
 
@@ -106,6 +114,7 @@ int parse_command(Tab *tab, char *command, ParsedCommand *result)
 
     if (!tokenc)
     {
+        free(tokens);
         result->type = CMD_INVALID;
         return 1;
     }
@@ -115,10 +124,8 @@ int parse_command(Tab *tab, char *command, ParsedCommand *result)
     if (fst_tok_len == 2 && isLower(tokens[0][0]) && isdigit(tokens[0][1])) // SELECT COMMAND
     {
         result->type = CMD_SELECT;
-        result->args[0] = tokens[0];
-
-        free(tokens);
-
+        result->args[0] = strdup(tokens[0]); // Make a copy
+        free_tokens(tokens, tokenc);         // Free all tokens
         return 0;
     }
 
@@ -167,6 +174,10 @@ int parse_command(Tab *tab, char *command, ParsedCommand *result)
         result->type = CMD_CROSS;
         expects_coord = true;
         break;
+    default:
+        result->type = CMD_INVALID;
+        free_tokens(tokens, tokenc);
+        return 1;
     }
 
     if (tokenc == 1 && expects_coord)
@@ -174,6 +185,7 @@ int parse_command(Tab *tab, char *command, ParsedCommand *result)
         char *pos = (char *)calloc(3, sizeof(char));
         sprintf(pos, "%c%d", tab->sel_piece.x + 'a', tab->sel_piece.y);
         result->args[0] = pos;
+        free_tokens(tokens, tokenc);
     }
     else
         result->args[0] = tokens[1];
