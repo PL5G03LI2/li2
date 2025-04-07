@@ -8,10 +8,29 @@
 // O comando deve ser terminado com '\n' (caractere de nova linha)
 int await_command(char *command);
 
-// Analisa um comando lido do utilizador
-// Retorna um ParsedCommand com o tipo de comando e os argumentos
-// O comando deve ser uma string terminada em '\0'
-ParsedCommand parse_command(char *command);
+/*
+ Tokenizes the command.
+
+ @param *command The command to tokenize.
+ @param **args The target tokens array.
+
+ @returns The token count.
+*/
+int tokenize_cmd(char *command, char **args);
+
+/*
+ Analisa um comando lido do utilizador
+ O comando deve ser uma string terminada em '\0'
+
+ @param *command Pointer to the string command to parse.
+ @param *parsed_cmd Pointer to the target parsed command.
+
+ @return CMD_INVALID if unable to parse.
+ @return A valid command code if otherwise.
+
+ @note Returning CMD_INVALID means returning 0 in case of failure. This is not standard error signal behaviour.
+*/
+int parse_command(char *command, ParsedCommand *parsed_cmd);
 
 // Executa um comando analisado
 // O comando é executado com base no tipo e argumentos fornecidos
@@ -19,8 +38,7 @@ ParsedCommand parse_command(char *command);
 // O tabuleiro é passado como referência para permitir modificações
 // O comando pode ser um comando de salvar, carregar, selecionar, marcar, verificar, etc.
 // O comando deve ser um ParsedCommand com o tipo e os argumentos
-int run_command(ParsedCommand cmd, Tab **tab); 
-    
+int run_command(ParsedCommand *cmd, Tab **tab);
 
 // Carrega um tabuleiro a partir de um ficheiro especificado
 // Retorna 1 se o carregamento for bem-sucedido, 0 caso contrário
