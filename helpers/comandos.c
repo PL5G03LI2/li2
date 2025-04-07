@@ -190,8 +190,6 @@ int parse_command(Tab *tab, char *command, ParsedCommand *result)
     else
         result->args[0] = tokens[1];
 
-    free(tokens);
-
     return 0;
 }
 
@@ -208,7 +206,7 @@ int run_command(ParsedCommand *cmd, Tab *tab)
     case CMD_SELECT:
     {
         tab->sel_piece.x = cmd->args[0][0] - 'a';
-        tab->sel_piece.y = cmd->args[0][1] - '0';
+        tab->sel_piece.y = cmd->args[0][1] - '1';
         return 0;
     }
 

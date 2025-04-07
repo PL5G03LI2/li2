@@ -104,7 +104,7 @@ void print_tab(Tab *tab)
 
     for (int i = 0; i < width; i++)
     {
-        printf(" %c", i + '0');
+        printf(" %c", i + 'a');
     }
     printf("\n--");
 
@@ -116,7 +116,7 @@ void print_tab(Tab *tab)
 
     for (int i = 0; i < height; i++)
     {
-        printf("%c|", i + 'a');
+        printf("%c|", i + '1');
         for (int j = 0; j < width; j++)
         {
             bool selected = tab->sel_piece.x == j && tab->sel_piece.y == i;
