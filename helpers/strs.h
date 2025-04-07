@@ -18,3 +18,8 @@ int isLower(char c);
  Converte um character para maiúsculo.
 */
 char toUpper(char c);
+
+/*
+ Converte um character para minúsculo.
+*/
+char toLower(char c);

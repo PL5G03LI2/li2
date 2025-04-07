@@ -1,11 +1,7 @@
-#include "../jogo/tabuleiro.h"
+#include "../types/types.h"
 
-typedef struct node
-{
-    Tab tab;
-    struct node *next;
-} TabHistory;
-
+#ifndef ARRAYS_H
+#define ARRAYS_H
 /*
  Push a new tabuleiro to the history stack.
 
@@ -22,9 +18,10 @@ Tab pop(TabHistory **head);
  Get the tabuleiro at the given index
  @returns NULL if the index is out of bounds.
 */
-Tab *get_elem(TabHistory **head, int index);
+Tab *get_hist_elem(TabHistory **head, int index);
 
 /*
  Free the memory allocated for the history stack.
 */
 void destroy(TabHistory **head);
+#endif

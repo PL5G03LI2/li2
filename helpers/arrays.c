@@ -52,7 +52,7 @@ Tab pop(TabHistory **head)
     return poppedTab;
 }
 
-Tab *get_elem(TabHistory **head, int index)
+Tab *get_hist_elem(TabHistory **head, int index)
 {
     if (index < 0)
         return NULL;
