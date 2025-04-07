@@ -2,8 +2,8 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include "tabuleiro.h"
-#include "comandos.h"
+#include "./jogo/tabuleiro.h"
+#include "./helpers/comandos.h"
 
 int main()
 {

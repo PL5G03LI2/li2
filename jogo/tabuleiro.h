@@ -1,21 +1,7 @@
-typedef struct
-{
-    int x;
-    int y;
-} iVec2;
+#include "../types/types.h"
 
-typedef struct
-{
-    char c;
-    int marked;
-} Piece;
-
-typedef struct
-{
-    Piece *data;
-    int height;
-    int width;
-} Tab;
+#ifndef TAB_H
+#define TAB_H
 
 /*
  Calculates the index of the position provided
@@ -67,3 +53,4 @@ void print_tabuleiro(Tab *tabuleiro, int width, int height);
  Toggle marked status of a piece and toggles branco of all ortogonal neighbours
 */
 void toggle_marked(Tab *tabuleiro, int x, int y);
+#endif

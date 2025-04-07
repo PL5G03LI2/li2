@@ -2,9 +2,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#include "../jogo/tabuleiro.h"
+
+#include "strs.h"
 #include "comandos.h"
-#include "strings.h"
+#include "../types/types.h"
+#include "../jogo/tabuleiro.h"
 
 
 int await_command(char *command) {

@@ -1,31 +1,4 @@
-#include "../jogo/tabuleiro.h"
-
-typedef struct
-{
-    int code;
-    char **args;
-} Command;
-
-typedef enum {
-    CMD_INVALID = 0,
-    CMD_SAVE,     // g <filename>
-    CMD_LOAD,     // l <filename>
-    CMD_SELECT,   // <coord>
-    CMD_WHITE,    // b <coord>
-    CMD_CROSS,    // r <coord>
-    CMD_VERIFY,   // v
-    CMD_HELP,     // a
-    CMD_HELP_ALL, // A
-    CMD_SOLVE,    // R
-    CMD_UNDO,     // d
-    CMD_EXIT      // s
-} CommandType;
-
-typedef struct {
-    CommandType type;
-    char args[2][32];
-    int valid;
-} ParsedCommand;
+#include "../types/types.h"
 
 // Aguarda um comando do utilizador
 // Lê uma linha de entrada e remove o caractere de nova linha
