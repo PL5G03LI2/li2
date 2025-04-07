@@ -37,70 +37,16 @@ int await_command(char *command)
 
 int tokenize_cmd(char *command, char **args)
 {
-    const int token_capacity = 32;
     int tokenc = 0;
-    int len = strlen(command);
-    char *current_token = NULL;
-    int token_length = 0;
+    char *token;
 
-    while (*command == ' ')
+    token = strtok(command, " ");
+
+    while (token && tokenc < 3)
     {
-        command++;
-        len--;
-    }
-
-    if (len == 0)
-        return 0;
-
-    current_token = (char *)calloc(token_capacity, sizeof(char));
-    if (!current_token)
-        return 0;
-
-    for (int i = 0; i < len; i++)
-    {
-        if (command[i] == ' ')
-        {
-            if (token_length > 0)
-            {
-                // store finished token
-                current_token[token_length] = '\0';
-                args[tokenc++] = current_token;
-
-                current_token = (char *)calloc(token_capacity, sizeof(char));
-                if (!current_token)
-                {
-                    free_tokens(args, tokenc);
-                    return 0;
-                }
-                token_length = 0;
-            }
-
-            // skip consecutive spaces
-            while (i + 1 < len && command[i + 1] == ' ')
-                i++;
-        }
-        else if (token_length < token_capacity - 1)
-        {
-            current_token[token_length++] = command[i];
-        }
-        else
-        {
-            // too long
-            free(current_token);
-            free_tokens(args, tokenc);
-            return 0;
-        }
-    }
-
-    // last token
-    if (token_length > 0)
-    {
-        current_token[token_length] = '\0';
-        args[tokenc++] = current_token;
-    }
-    else
-    {
-        free(current_token);
+        args[tokenc] = strdup(token);
+        token = strtok(NULL, " ");
+        tokenc++;
     }
 
     return tokenc;
@@ -108,7 +54,7 @@ int tokenize_cmd(char *command, char **args)
 
 int parse_command(Tab *tab, char *command, ParsedCommand *result)
 {
-    char **tokens = (char **)calloc(32, sizeof(char *));
+    char **tokens = (char **)calloc(3, sizeof(char *));
     int tokenc = tokenize_cmd(command, tokens);
     bool expects_coord = false;
 
