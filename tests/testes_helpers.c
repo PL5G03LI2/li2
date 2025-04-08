@@ -23,10 +23,10 @@ void test_tabuleiroState(void)
     tab.width = 3;
     tab.data = malloc(sizeof(Piece) * tab.height * tab.width);
 
-    CU_ASSERT(carregar_tabuleiro(&tab, "j1.txt"));
-    CU_ASSERT(carregar_tabuleiro(&tab, "j2.txt"));
-    CU_ASSERT(salvar_tabuleiro(&tab, "j3.txt"));
-    CU_ASSERT(validar_tabuleiro(&tab));
+    CU_ASSERT_EQUAL(carregar_tabuleiro(&tab, "j1.txt"), 0);
+    CU_ASSERT_EQUAL(carregar_tabuleiro(&tab, "j2.txt"), 1);
+    CU_ASSERT_EQUAL(salvar_tabuleiro(&tab, "j3.txt"), 0);
+    CU_ASSERT_EQUAL(validar_tabuleiro(&tab), 0);
 }
 
 void test_comandos(void)
