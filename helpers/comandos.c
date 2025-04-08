@@ -8,22 +8,6 @@
 #include "../types/types.h"
 #include "../jogo/tabuleiro.h"
 
-void free_all_tokens(char **tokens, int count)
-{
-    if (!tokens)
-        return;
-
-    for (int i = 0; i < count; i++)
-    {
-        if (tokens[i])
-        {
-            free(tokens[i]);
-            tokens[i] = NULL;
-        }
-    }
-    free(tokens);
-}
-
 int await_command(char *command)
 {
     if (!fgets(command, 256, stdin))
@@ -95,9 +79,8 @@ char *write_coordinate(iVec2 coord, char *buffer)
     return buffer;
 }
 
-void reset_cmd(ParsedCommand *cmd)
+void reset_cmd_tokens(ParsedCommand *cmd)
 {
-    cmd->type = CMD_INVALID;
     for (int i = 0; i < 2; i++)
     {
         free(cmd->tokens[i]);
@@ -105,6 +88,12 @@ void reset_cmd(ParsedCommand *cmd)
     }
     free(cmd->tokens);
     cmd->tokens = NULL;
+}
+
+void reset_cmd(ParsedCommand *cmd)
+{
+    cmd->type = CMD_INVALID;
+    reset_cmd_tokens(cmd);
 }
 
 int parse_command(Tab *tab, char *command, ParsedCommand *result)
@@ -116,7 +105,7 @@ int parse_command(Tab *tab, char *command, ParsedCommand *result)
 
     if (!tokenc)
     {
-        free_all_tokens(tokens, 3);
+        reset_cmd(result);
 
         return 1;
     }
@@ -164,13 +153,14 @@ int parse_command(Tab *tab, char *command, ParsedCommand *result)
             break;
         }
 
+        result->tokens = tokens;
         if (expect_coords && tokenc == 1)
         {
-            result->tokens[0] = (char *)calloc(32, sizeof(char));
-            write_coordinate(tab->sel_piece, result->tokens[0]);
+            reset_cmd_tokens(result);
+            result->tokens = (char **)calloc(2, sizeof(char *));
+            result->tokens[1] = (char *)calloc(32, sizeof(char));
+            write_coordinate(tab->sel_piece, result->tokens[1]);
         }
-
-        result->tokens = tokens;
     }
 
     return 0;
