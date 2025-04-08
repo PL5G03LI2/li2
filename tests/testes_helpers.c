@@ -18,12 +18,15 @@ void test_strings(void)
 
 void test_tabuleiroState(void)
 {
-    // CU_ASSERT(carregar_tabuleiro(), 1);
-    // CU_ASSERT(carregar_tabuleiro(), 0);
-    // CU_ASSERT(salvar_tabuleiro(), 1);
-    // CU_ASSERT(salvar_tabuleiro(), 0);
-    // CU_ASSERT(validar_tabuleiro(), 1);
-    // CU_ASSERT(validar_tabuleiro(), 0);
+    Tab tab;
+    tab.height = 1;
+    tab.width = 3;
+    tab.data = malloc(sizeof(Piece) * tab.height * tab.width);
+
+    CU_ASSERT(carregar_tabuleiro(&tab, "j1.txt"));
+    CU_ASSERT(carregar_tabuleiro(&tab, "j2.txt"));
+    CU_ASSERT(salvar_tabuleiro(&tab, "j3.txt"));
+    CU_ASSERT(validar_tabuleiro(&tab));
 }
 
 void test_comandos(void)
