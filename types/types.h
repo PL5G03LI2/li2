@@ -16,7 +16,7 @@ typedef struct
 typedef struct
 {
     char c;
-    int marked;
+    bool marked;
 } Piece;
 
 typedef struct
@@ -46,7 +46,8 @@ typedef enum
     CMD_HELP_ALL, // A
     CMD_SOLVE,    // R
     CMD_UNDO,     // d
-    CMD_EXIT      // s
+    CMD_EXIT,     // s
+    CMD_CONTINUE
 } CommandType;
 
 typedef struct

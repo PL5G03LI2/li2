@@ -96,16 +96,19 @@ void test_push_single(void)
     tab.data = malloc(sizeof(Piece) * tab.height * tab.width);
 
     int i, j;
-    for(i = 0; i < tab.height; i++) {
-        for(j = 0; j < tab.width; j++) {
-            char letra = (i*tab.width) + j + 97;
-            if (letra > 122) {
+    for (i = 0; i < tab.height; i++)
+    {
+        for (j = 0; j < tab.width; j++)
+        {
+            char letra = (i * tab.width) + j + 97;
+            if (letra > 122)
+            {
                 letra = '0';
             }
-            tab.data[(i*tab.width) + j].c = letra;
+            tab.data[(i * tab.width) + j].c = letra;
         }
     }
-    
+
     history = push(history, tab);
 
     CU_ASSERT_PTR_NOT_NULL(history);
@@ -133,22 +136,28 @@ void test_push_multiple(void)
     tab2.data = malloc(sizeof(Piece) * tab2.height * tab2.width);
 
     int i, j;
-    for(i = 0; i < tab1.height; i++) {
-        for(j = 0; j < tab1.width; j++) {
-            char letra = (i*tab1.width) + j + 97;
-            if (letra > 122) {
+    for (i = 0; i < tab1.height; i++)
+    {
+        for (j = 0; j < tab1.width; j++)
+        {
+            char letra = (i * tab1.width) + j + 97;
+            if (letra > 122)
+            {
                 letra = '0';
             }
-            tab1.data[(i*tab1.width) + j].c = letra;
+            tab1.data[(i * tab1.width) + j].c = letra;
         }
     }
-    for(i = 0; i < tab2.height; i++) {
-        for(j = 0; j < tab2.width; j++) {
-            char letra = (i*tab2.width) + j + 97;
-            if (letra > 122) {
+    for (i = 0; i < tab2.height; i++)
+    {
+        for (j = 0; j < tab2.width; j++)
+        {
+            char letra = (i * tab2.width) + j + 97;
+            if (letra > 122)
+            {
                 letra = '0';
             }
-            tab2.data[(i*tab2.width) + j].c = letra;
+            tab2.data[(i * tab2.width) + j].c = letra;
         }
     }
 
@@ -159,14 +168,13 @@ void test_push_multiple(void)
     CU_ASSERT_EQUAL(history->tab.data[0].c, 'a');
     CU_ASSERT_EQUAL(history->tab.data[1].c, 'b');
     CU_ASSERT_EQUAL(history->tab.data[2].c, 'c');
-    
+
     CU_ASSERT_PTR_NOT_NULL(history->next);
     CU_ASSERT_EQUAL(history->next->tab.data[3].c, 'd');
     CU_ASSERT_EQUAL(history->next->tab.data[4].c, 'e');
     CU_ASSERT_EQUAL(history->next->tab.data[5].c, 'f');
 
     CU_ASSERT_PTR_NULL(history->next->next);
-
 
     CU_ASSERT_PTR_NULL(history->next->next);
 
@@ -206,7 +214,7 @@ void test_pop_single(void)
     CU_ASSERT_PTR_NULL(history); // List should be empty after pop
 
     free(popped.data); // Free the memory that was allocated for popped data
-    free(history); // Free the history pointer, which was previously set to NULL in pop
+    free(history);     // Free the history pointer, which was previously set to NULL in pop
 }
 
 void test_pop_multi(void)
@@ -257,10 +265,10 @@ void test_pop_multi(void)
     CU_ASSERT_EQUAL(history->tab.data[4].c, 't');
 
     // Only free the 'tab.data' pointers as required
-    free(tab.data);      // Free the allocated memory for "second"
-    free(popped.data);   // Free the memory that was popped
-    free(history->tab.data);  // Free the remaining "first" node's data
-    free(history);       // Free the remaining node ("first")
+    free(tab.data);          // Free the allocated memory for "second"
+    free(popped.data);       // Free the memory that was popped
+    free(history->tab.data); // Free the remaining "first" node's data
+    free(history);           // Free the remaining node ("first")
 }
 
 void test_get_hist_elem_empty(void)
@@ -341,7 +349,6 @@ void test_get_hist_elem_last(void)
     tab.data[3].c = 'o';
     tab.data[4].c = 'n';
     tab.data[5].c = 'd';
-    
 
     history = push(history, tab);
 
@@ -423,7 +430,7 @@ void test_destroy_multi(void)
     history->tab.width = 5;
     history->next = malloc(sizeof(TabHistory));
 
-    history->next->tab.data = malloc(sizeof(Piece) * 6);  // Allocate for the next node's tab data
+    history->next->tab.data = malloc(sizeof(Piece) * 6); // Allocate for the next node's tab data
     history->next->tab.data[0].c = 's';
     history->next->tab.data[1].c = 'e';
     history->next->tab.data[2].c = 'c';

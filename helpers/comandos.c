@@ -81,6 +81,9 @@ char *write_coordinate(iVec2 coord, char *buffer)
 
 void reset_cmd_tokens(ParsedCommand *cmd)
 {
+    if (!cmd->tokens)
+        return;
+
     for (int i = 0; i < 2; i++)
     {
         free(cmd->tokens[i]);
@@ -106,8 +109,10 @@ int parse_command(Tab *tab, char *command, ParsedCommand *result)
     if (!tokenc)
     {
         reset_cmd(result);
+        result->type = CMD_CONTINUE;
+        free(tokens);
 
-        return 1;
+        return 0;
     }
 
     if (strlen(tokens[0]) > 1) // select command
@@ -204,6 +209,9 @@ int run_command(ParsedCommand *cmd, Tab *tab)
     case CMD_EXIT:
         return 0;
 
+    case CMD_CONTINUE:
+        return 0;
+
     default:
         return 1;
     }
@@ -220,6 +228,8 @@ int carregar_tabuleiro(Tab *tab, const char *filename)
 
     tab->height = height;
     tab->width = width;
+    if (tab->data != NULL)
+        free(tab->data);
     tab->data = (Piece *)calloc(height * width, sizeof(Piece));
 
     for (int i = 0; i < height; i++)

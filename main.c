@@ -5,19 +5,7 @@
 #include "./jogo/tabuleiro.h"
 #include "./helpers/comandos.h"
 #include "./helpers/arrays.h"
-
-void free_all(Tab *tabuleiro, char *cmd_str, ParsedCommand *cmd)
-{
-    free(tabuleiro->data);
-    free(tabuleiro);
-
-    free(cmd_str);
-
-    for (int i = 0; i < 2; i++)
-        free(cmd->tokens[i]);
-
-    free(cmd->tokens);
-}
+#include "./memory.h"
 
 int repl(Tab *tabuleiro, char *cmd_str, ParsedCommand *cmd)
 {
