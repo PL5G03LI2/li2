@@ -30,8 +30,18 @@ void test_tabuleiroState(void)
 }
 
 void test_await(void) {
-    CU_ASSERT_EQUAL(await_command("laksnfoksdnflodksnmglosdkmg"), 1);
-    CU_ASSERT_EQUAL(await_command("l j1.txt"), 0);
+    char buffer[256];
+    
+    FILE *fake_input1 = fmemopen("sajnbfiosdjngosdnmfosmdfskndgksjdnfksdjn\n", 50, "r");
+    CU_ASSERT_PTR_NOT_NULL(fake_input1);
+    CU_ASSERT_EQUAL(await_command(buffer, fake_input1), 0);
+    fclose(fake_input1);
+
+    FILE *fake_input2 = fmemopen("l j1.txt\n", 10, "r");
+    CU_ASSERT_PTR_NOT_NULL(fake_input2);
+    CU_ASSERT_EQUAL(await_command(buffer, fake_input2), 0);
+    CU_ASSERT_STRING_EQUAL(buffer, "l j1.txt");
+    fclose(fake_input2);
 }
 
 void test_tokenize(void) {
@@ -53,12 +63,20 @@ void test_parseCommand(void) {
     tab.height = 1;
     tab.width = 3;
     tab.data = malloc(sizeof(Piece) * tab.height * tab.width);
-    ParsedCommand *result = NULL;
+    ParsedCommand *result = calloc(1, sizeof(ParsedCommand));
+    char cmd_copy[] = "l j1.txt";
 
-    result->type = CMD_SAVE;
-
-    CU_ASSERT_EQUAL(parse_command(&tab, "l j1.txt", result), 0);
+    CU_ASSERT_EQUAL(parse_command(&tab, cmd_copy, result), 0);
     CU_ASSERT_EQUAL(result->type, CMD_LOAD);
+    
+    // Cleanup
+    if (result->tokens) {
+        for (int i = 0; result->tokens[i]; ++i)
+            free(result->tokens[i]);
+        free(result->tokens);
+    }
+
+    free(result);
     free(tab.data);
 }
 
@@ -67,15 +85,23 @@ void test_runCommand(void) {
     tab.height = 1;
     tab.width = 3;
     tab.data = NULL;
-    ParsedCommand *result = NULL;
-
+    ParsedCommand *result = calloc(1, sizeof(ParsedCommand));  // ✅ allocation
     result->type = CMD_LOAD;
 
+    // Simulate loading a file
+    result->tokens = calloc(2, sizeof(char *));
+    result->tokens[1] = strdup("j1.txt");
+
     CU_ASSERT_EQUAL(run_command(result, &tab), carregar_tabuleiro(&tab, "j1.txt"));
+
+    // Cleanup
+    free(result->tokens[1]);
+    free(result->tokens);
+    free(result);
 }
 
 void test_CMD(void) {
-    // test_await();
+    test_await();
     test_tokenize();
     test_parseCommand();
     test_runCommand();

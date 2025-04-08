@@ -8,11 +8,19 @@
 #include "../types/types.h"
 #include "../jogo/tabuleiro.h"
 
-int await_command(char *command)
-{
-    if (!fgets(command, 256, stdin))
-    {
-        printf("Error: failed fgets.");
+// int await_command(char *command)
+// {
+//     if (!fgets(command, 256, stdin))
+//     {
+//         printf("Error: failed fgets.");
+//         return 1;
+//     }
+//     command[strcspn(command, "\n")] = 0;
+//     return 0;
+// }
+
+int await_command(char *command, FILE *in) {
+    if (!fgets(command, 256, in)) {
         return 1;
     }
     command[strcspn(command, "\n")] = 0;
@@ -102,7 +110,8 @@ void reset_cmd(ParsedCommand *cmd)
 int parse_command(Tab *tab, char *command, ParsedCommand *result)
 {
     reset_cmd(result);
-    char **tokens = (char **)calloc(2, sizeof(char *));
+    // char **tokens = (char **)calloc(2, sizeof(char *));
+    char **tokens = (char **)calloc(8, sizeof(char *));  // or higher if needed
     int tokenc = tokenize_cmd(command, tokens);
     bool expect_coords = false;
 
