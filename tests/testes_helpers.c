@@ -29,20 +29,20 @@ void test_tabuleiroState(void)
     CU_ASSERT_EQUAL(validar_tabuleiro(&tab), 0);
 }
 
-void test_await(void) {
-    char buffer[256];
+// void test_await(void) {
+//     char buffer[256];
     
-    FILE *fake_input1 = fmemopen("sajnbfiosdjngosdnmfosmdfskndgksjdnfksdjn\n", 50, "r");
-    CU_ASSERT_PTR_NOT_NULL(fake_input1);
-    CU_ASSERT_EQUAL(await_command(buffer, fake_input1), 0);
-    fclose(fake_input1);
+//     FILE *fake_input1 = fmemopen("sajnbfiosdjngosdnmfosmdfskndgksjdnfksdjn\n", 50, "r");
+//     CU_ASSERT_PTR_NOT_NULL(fake_input1);
+//     CU_ASSERT_EQUAL(await_command(buffer, fake_input1), 0);
+//     fclose(fake_input1);
 
-    FILE *fake_input2 = fmemopen("l j1.txt\n", 10, "r");
-    CU_ASSERT_PTR_NOT_NULL(fake_input2);
-    CU_ASSERT_EQUAL(await_command(buffer, fake_input2), 0);
-    CU_ASSERT_STRING_EQUAL(buffer, "l j1.txt");
-    fclose(fake_input2);
-}
+//     FILE *fake_input2 = fmemopen("l j1.txt\n", 10, "r");
+//     CU_ASSERT_PTR_NOT_NULL(fake_input2);
+//     CU_ASSERT_EQUAL(await_command(buffer, fake_input2), 0);
+//     CU_ASSERT_STRING_EQUAL(buffer, "l j1.txt");
+//     fclose(fake_input2);
+// }
 
 void test_tokenize(void) {
     char input[] = "move piece 1";
@@ -101,7 +101,7 @@ void test_runCommand(void) {
 }
 
 void test_CMD(void) {
-    test_await();
+    // test_await();
     test_tokenize();
     test_parseCommand();
     test_runCommand();

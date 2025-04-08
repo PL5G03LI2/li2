@@ -8,24 +8,24 @@
 #include "../types/types.h"
 #include "../jogo/tabuleiro.h"
 
-// int await_command(char *command)
-// {
-//     if (!fgets(command, 256, stdin))
-//     {
-//         printf("Error: failed fgets.");
-//         return 1;
-//     }
-//     command[strcspn(command, "\n")] = 0;
-//     return 0;
-// }
-
-int await_command(char *command, FILE *in) {
-    if (!fgets(command, 256, in)) {
+int await_command(char *command)
+{
+    if (!fgets(command, 256, stdin))
+    {
+        printf("Error: failed fgets.");
         return 1;
     }
     command[strcspn(command, "\n")] = 0;
     return 0;
 }
+
+// int await_command(char *command, FILE *in) {
+//     if (!fgets(command, 256, in)) {
+//         return 1;
+//     }
+//     command[strcspn(command, "\n")] = 0;
+//     return 0;
+// }
 
 int tokenize_cmd(char *command, char **tokens)
 {

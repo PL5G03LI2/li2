@@ -7,8 +7,8 @@
 // O comando lido é armazenado na variável 'command'
 // O tamanho máximo do comando é 256 caracteres
 // O comando deve ser terminado com '\n' (caractere de nova linha)
-// int await_command(char *command);
-int await_command(char *command, FILE *in);
+int await_command(char *command);
+// int await_command(char *command, FILE *in);
 
 /*
  Tokenizes the command.
