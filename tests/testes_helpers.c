@@ -53,7 +53,9 @@ void test_push_single(void)
     history = push(history, tab);
 
     CU_ASSERT_PTR_NOT_NULL(history);
-    CU_ASSERT_STRING_EQUAL(history->tab.data, "abc");
+    CU_ASSERT_EQUAL(history->tab.data[0].c, 'a');
+    CU_ASSERT_EQUAL(history->tab.data[1].c, 'b');
+    CU_ASSERT_EQUAL(history->tab.data[2].c, 'c');
     CU_ASSERT_EQUAL(history->tab.height, 1);
     CU_ASSERT_EQUAL(history->tab.width, 3);
     CU_ASSERT_PTR_NULL(history->next);
@@ -98,16 +100,16 @@ void test_push_multiple(void)
     history = push(history, tab2);
 
     CU_ASSERT_PTR_NOT_NULL(history);
-    CU_ASSERT_EQUAL(history->tab.data[0].c, 'd');
-    CU_ASSERT_EQUAL(history->tab.data[1].c, 'e');
-    CU_ASSERT_EQUAL(history->tab.data[2].c, 'f');
+    CU_ASSERT_EQUAL(history->tab.data[0].c, 'a');
+    CU_ASSERT_EQUAL(history->tab.data[1].c, 'b');
+    CU_ASSERT_EQUAL(history->tab.data[2].c, 'c');
     
     CU_ASSERT_PTR_NOT_NULL(history->next);
-    CU_ASSERT_EQUAL(history->next->tab.data[0].c, 'a');
-    CU_ASSERT_EQUAL(history->next->tab.data[1].c, 'b');
-    CU_ASSERT_EQUAL(history->next->tab.data[2].c, 'c');
+    CU_ASSERT_EQUAL(history->next->tab.data[3].c, 'd');
+    CU_ASSERT_EQUAL(history->next->tab.data[4].c, 'e');
+    CU_ASSERT_EQUAL(history->next->tab.data[5].c, 'f');
 
-CU_ASSERT_PTR_NULL(history->next->next);
+    CU_ASSERT_PTR_NULL(history->next->next);
 
 
     CU_ASSERT_PTR_NULL(history->next->next);
@@ -134,15 +136,17 @@ void test_pop_single(void)
     history->tab.data[0].c = 'a';
     history->tab.data[1].c = 'b';
     history->tab.data[2].c = 'c';
-    history->tab.height = 5;
-    history->tab.width = 5;
+    history->tab.height = 1;
+    history->tab.width = 3;
     history->next = NULL;
 
     Tab popped = pop(&history);
 
-    CU_ASSERT_STRING_EQUAL(popped.data, "abc"); // Ensure popped.data is correctly populated
-    CU_ASSERT_EQUAL(popped.height, 5);
-    CU_ASSERT_EQUAL(popped.width, 5);
+    CU_ASSERT_EQUAL(popped.data[0].c, 'a'); // Ensure popped.data is correctly populated
+    CU_ASSERT_EQUAL(popped.data[1].c, 'b');
+    CU_ASSERT_EQUAL(popped.data[2].c, 'c');
+    CU_ASSERT_EQUAL(popped.height, 1);
+    CU_ASSERT_EQUAL(popped.width, 3);
     CU_ASSERT_PTR_NULL(history); // List should be empty after pop
 
     free(popped.data); // Free the memory that was allocated for popped data
@@ -164,8 +168,8 @@ void test_pop_multi(void)
     history->next = NULL;
 
     Tab tab;
-    tab.height = 5;
-    tab.width = 5;
+    tab.height = 1;
+    tab.width = 6;
     tab.data = malloc(sizeof(Piece) * tab.height * tab.width);
 
     tab.data[0].c = 's';
@@ -181,11 +185,20 @@ void test_pop_multi(void)
     // Pop last element
     Tab popped = pop(&history);
 
-    CU_ASSERT_STRING_EQUAL(popped.data, "second");
-    CU_ASSERT_EQUAL(popped.height, 4);
-    CU_ASSERT_EQUAL(popped.width, 4);
+    CU_ASSERT_EQUAL(popped.data[0].c, 's');
+    CU_ASSERT_EQUAL(popped.data[1].c, 'e');
+    CU_ASSERT_EQUAL(popped.data[2].c, 'c');
+    CU_ASSERT_EQUAL(popped.data[3].c, 'o');
+    CU_ASSERT_EQUAL(popped.data[4].c, 'n');
+    CU_ASSERT_EQUAL(popped.data[5].c, 'd');
+    CU_ASSERT_EQUAL(popped.height, 1);
+    CU_ASSERT_EQUAL(popped.width, 6);
     CU_ASSERT_PTR_NOT_NULL(history); // List should still contain "first"
-    CU_ASSERT_STRING_EQUAL(history->tab.data, "first");
+    CU_ASSERT_EQUAL(history->tab.data[0].c, 'f');
+    CU_ASSERT_EQUAL(history->tab.data[1].c, 'i');
+    CU_ASSERT_EQUAL(history->tab.data[2].c, 'r');
+    CU_ASSERT_EQUAL(history->tab.data[3].c, 's');
+    CU_ASSERT_EQUAL(history->tab.data[4].c, 't');
 
     // Only free the 'tab.data' pointers as required
     free(tab.data);      // Free the allocated memory for "second"
@@ -230,16 +243,19 @@ void test_get_hist_elem_first(void)
     history->tab.data[1].c = 'e';
     history->tab.data[2].c = 's';
     history->tab.data[3].c = 't';
-    history->tab.height = 3;
-    history->tab.width = 3;
+    history->tab.height = 1;
+    history->tab.width = 4;
     history->next = NULL;
 
     Tab *result = get_hist_elem(&history, 0);
 
     CU_ASSERT_PTR_NOT_NULL(result);
-    CU_ASSERT_STRING_EQUAL(result->data, "first");
-    CU_ASSERT_EQUAL(result->height, 3);
-    CU_ASSERT_EQUAL(result->width, 3);
+    CU_ASSERT_EQUAL(result->data[0].c, 't');
+    CU_ASSERT_EQUAL(result->data[1].c, 'e');
+    CU_ASSERT_EQUAL(result->data[2].c, 's');
+    CU_ASSERT_EQUAL(result->data[3].c, 't');
+    CU_ASSERT_EQUAL(result->height, 1);
+    CU_ASSERT_EQUAL(result->width, 4);
 
     free(history->tab.data);
     free(history);
@@ -254,13 +270,13 @@ void test_get_hist_elem_last(void)
     history->tab.data[2].c = 'r';
     history->tab.data[3].c = 's';
     history->tab.data[4].c = 't';
-    history->tab.height = 3;
-    history->tab.width = 3;
+    history->tab.height = 1;
+    history->tab.width = 5;
     history->next = NULL;
 
     Tab tab;
-    tab.height = 5;
-    tab.width = 5;
+    tab.height = 1;
+    tab.width = 6;
     tab.data = malloc(sizeof(Piece) * tab.height * tab.width);
 
     tab.data[0].c = 's';
@@ -276,9 +292,14 @@ void test_get_hist_elem_last(void)
     Tab *result = get_hist_elem(&history, 1);
 
     CU_ASSERT_PTR_NOT_NULL(result);
-    CU_ASSERT_STRING_EQUAL(result->data, "second");
-    CU_ASSERT_EQUAL(result->height, 4);
-    CU_ASSERT_EQUAL(result->width, 4);
+    CU_ASSERT_EQUAL(result->data[0].c, 's');
+    CU_ASSERT_EQUAL(result->data[1].c, 'e');
+    CU_ASSERT_EQUAL(result->data[2].c, 'c');
+    CU_ASSERT_EQUAL(result->data[3].c, 'o');
+    CU_ASSERT_EQUAL(result->data[4].c, 'n');
+    CU_ASSERT_EQUAL(result->data[5].c, 'd');
+    CU_ASSERT_EQUAL(result->height, 1);
+    CU_ASSERT_EQUAL(result->width, 6);
 
     free(tab.data);
     free(history->next->tab.data);
@@ -325,8 +346,8 @@ void test_destroy_single(void)
     history->tab.data[3].c = 'g';
     history->tab.data[4].c = 'l';
     history->tab.data[5].c = 'e';
-    history->tab.height = 3;
-    history->tab.width = 3;
+    history->tab.height = 1;
+    history->tab.width = 6;
     history->next = NULL;
 
     destroy(&history);
@@ -342,8 +363,8 @@ void test_destroy_multi(void)
     history->tab.data[2].c = 'r';
     history->tab.data[3].c = 's';
     history->tab.data[4].c = 't';
-    history->tab.height = 3;
-    history->tab.width = 3;
+    history->tab.height = 1;
+    history->tab.width = 5;
     history->next = malloc(sizeof(TabHistory));
 
     history->next->tab.data = malloc(sizeof(Piece) * 6);  // Allocate for the next node's tab data
@@ -353,8 +374,8 @@ void test_destroy_multi(void)
     history->next->tab.data[3].c = 'o';
     history->next->tab.data[4].c = 'n';
     history->next->tab.data[5].c = 'd';
-    history->next->tab.height = 4;
-    history->next->tab.width = 4;
+    history->next->tab.height = 1;
+    history->next->tab.width = 6;
     history->next->next = NULL;
 
     // Call destroy to free the entire list and its data

@@ -59,7 +59,7 @@ Tab pop(TabHistory **head)
 
     // Make sure to free the last element correctly
     previous->next = NULL;
-    free(current);  // Free current node, not the data in `poppedTab` itself
+    free(current);  // Free current node
 
     return poppedTab;
 }
