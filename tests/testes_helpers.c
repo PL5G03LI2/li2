@@ -21,7 +21,7 @@ void test_tabuleiroState(void)
     Tab tab;
     tab.height = 1;
     tab.width = 3;
-    tab.data = malloc(sizeof(Piece) * tab.height * tab.width);
+    tab.data = NULL;
 
     CU_ASSERT_EQUAL(carregar_tabuleiro(&tab, "j1.txt"), 0);
     CU_ASSERT_EQUAL(carregar_tabuleiro(&tab, "j2.txt"), 1);
@@ -29,9 +29,62 @@ void test_tabuleiroState(void)
     CU_ASSERT_EQUAL(validar_tabuleiro(&tab), 0);
 }
 
+void test_await(void) {
+    CU_ASSERT_EQUAL(await_command("laksnfoksdnflodksnmglosdkmg"), 1);
+    CU_ASSERT_EQUAL(await_command("l j1.txt"), 0);
+}
+
+void test_tokenize(void) {
+    char input[] = "move piece 1";
+    char *tokens[3];
+
+    int count = tokenize_cmd(input, tokens);
+
+    CU_ASSERT_EQUAL(count, 3);
+    CU_ASSERT_STRING_EQUAL(tokens[0], "move");
+    CU_ASSERT_STRING_EQUAL(tokens[1], "piece");
+    CU_ASSERT_STRING_EQUAL(tokens[2], "1");
+
+    for (int i = 0; i < count; i++) free(tokens[i]);
+}
+
+void test_parseCommand(void) {
+    Tab tab;
+    tab.height = 1;
+    tab.width = 3;
+    tab.data = malloc(sizeof(Piece) * tab.height * tab.width);
+    ParsedCommand *result = NULL;
+
+    result->type = CMD_SAVE;
+
+    CU_ASSERT_EQUAL(parse_command(&tab, "l j1.txt", result), 0);
+    CU_ASSERT_EQUAL(result->type, CMD_LOAD);
+    free(tab.data);
+}
+
+void test_runCommand(void) {
+    Tab tab;
+    tab.height = 1;
+    tab.width = 3;
+    tab.data = NULL;
+    ParsedCommand *result = NULL;
+
+    result->type = CMD_LOAD;
+
+    CU_ASSERT_EQUAL(run_command(result, &tab), carregar_tabuleiro(&tab, "j1.txt"));
+}
+
+void test_CMD(void) {
+    // test_await();
+    test_tokenize();
+    test_parseCommand();
+    test_runCommand();
+}
+
 void test_comandos(void)
 {
     test_tabuleiroState();
+    test_CMD();
 }
 
 void test_push_single(void)
