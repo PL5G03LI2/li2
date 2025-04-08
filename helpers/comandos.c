@@ -228,6 +228,8 @@ int carregar_tabuleiro(Tab *tab, const char *filename)
 
     tab->height = height;
     tab->width = width;
+    if (tab->data != NULL)
+        free(tab->data);
     tab->data = (Piece *)calloc(height * width, sizeof(Piece));
 
     for (int i = 0; i < height; i++)
