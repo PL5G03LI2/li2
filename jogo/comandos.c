@@ -198,9 +198,8 @@ int run_command(ParsedCommand *cmd, Tab *tab)
 
     case CMD_CROSS:
     {
-        int x = cmd->tokens[1][0] - 'a';
-        int y = cmd->tokens[1][1] - '0';
-        toggle_marked(tab, x, y);
+        iVec2 coord = read_coordinate(cmd->tokens[1]);
+        toggle_marked(tab, coord.x, coord.y);
         return 0;
     }
 
