@@ -61,4 +61,24 @@ void print_tab(Tab *tabuleiro);
  Toggle marked status of a piece and toggles branco of all ortogonal neighbours
 */
 void toggle_marked(Tab *tabuleiro, int x, int y);
+
+/*
+ Carrega um tabuleiro a partir de um ficheiro especificado
+ @returns 0 se o carregamento for bem-sucedido, 1 caso contrário
+*/
+int carregar_tabuleiro(Tab *tab, const char *filename);
+
+/*
+ Guarda o estado atual do tabuleiro num ficheiro
+ Retorna 1 se a gravação for bem-sucedida, 0 caso contrário
+*/
+int salvar_tabuleiro(Tab *tab, const char *filename);
+
+/*
+ Verifica se o tabuleiro é válido segundo as regras do jogo
+ Confirma que não há repetições de caracteres nas linhas e colunas
+
+ @returns `true` se o tabuleiro for válido, `false` caso contrário
+*/
+bool validar_tabuleiro(Tab *tab);
 #endif

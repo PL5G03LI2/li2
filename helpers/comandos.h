@@ -1,14 +1,15 @@
 #include "../types/types.h"
 #include <stdio.h>
 
-// Aguarda um comando do utilizador
-// Lê uma linha de entrada e remove o caractere de nova linha
-// Retorna 1 se a leitura for bem-sucedida, 0 caso contrário
-// O comando lido é armazenado na variável 'command'
-// O tamanho máximo do comando é 256 caracteres
-// O comando deve ser terminado com '\n' (caractere de nova linha)
+/*
+ Aguarda um comando do utilizador
+ Lê uma linha de entrada e remove o caractere de nova linha
+
+ @returns 1 se a leitura for bem-sucedida, 0 caso contrário
+
+ @param *cmd Buffer para guardar o comando, TEM DE SER 256 BYTES.
+*/
 int await_command(char *command);
-// int await_command(char *command, FILE *in);
 
 /*
  Tokenizes the command.
@@ -42,19 +43,3 @@ int parse_command(Tab *tab, char *command, ParsedCommand *parsed_cmd);
  @returns 0 se o comando for executado com sucesso, 1 caso contrário.
 */
 int run_command(ParsedCommand *cmd, Tab *tab);
-
-// Carrega um tabuleiro a partir de um ficheiro especificado
-// @returns 0 se o carregamento for bem-sucedido, 1 caso contrário
-int carregar_tabuleiro(Tab *tab, const char *filename);
-
-// Guarda o estado atual do tabuleiro num ficheiro
-// Retorna 1 se a gravação for bem-sucedida, 0 caso contrário
-int salvar_tabuleiro(Tab *tab, const char *filename);
-
-/*
- Verifica se o tabuleiro é válido segundo as regras do jogo
- Confirma que não há repetições de caracteres nas linhas e colunas
-
- @returns `true` se o tabuleiro for válido, `false` caso contrário
-*/
-bool validar_tabuleiro(Tab *tab);

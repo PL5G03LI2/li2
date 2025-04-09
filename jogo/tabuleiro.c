@@ -136,3 +136,79 @@ void print_tab(Tab *tab)
         printf("\n");
     }
 }
+
+int carregar_tabuleiro(Tab *tab, const char *filename)
+{
+    FILE *file = fopen(filename, "r");
+    if (!file)
+        return 1;
+
+    int height, width;
+    fscanf(file, "%d %d", &height, &width);
+
+    tab->height = height;
+    tab->width = width;
+    if (tab->data != NULL)
+        free(tab->data);
+    tab->data = (Piece *)calloc(height * width, sizeof(Piece));
+
+    for (int i = 0; i < height; i++)
+    {
+        for (int j = 0; j < width; j++)
+        {
+            fscanf(file, " %c", &tab->data[calc_index(tab, j, i)].c);
+            tab->data[calc_index(tab, j, i)].marked = 0;
+        }
+    }
+
+    fclose(file);
+    return 0;
+}
+
+int salvar_tabuleiro(Tab *tab, const char *filename)
+{
+    FILE *file = fopen(filename, "w");
+    if (!file)
+        return 1;
+
+    fprintf(file, "%d %d\n", tab->height, tab->width);
+    for (int i = 0; i < tab->height; i++)
+    {
+        for (int j = 0; j < tab->width; j++)
+        {
+            fprintf(file, "%c", get_elem(tab, i, j));
+        }
+        fprintf(file, "\n");
+    }
+
+    fclose(file);
+    return 0;
+}
+
+bool validar_tabuleiro(Tab *tab)
+{
+    for (int i = 0; i < tab->height; i++)
+    {
+        for (int j = 0; j < tab->width; j++)
+        {
+            char c = get_elem(tab, i, j);
+
+            if (c == '#')
+                continue;
+
+            for (int k = 0; k < tab->width; k++)
+            {
+                if (k != j && get_elem(tab, i, k) == c)
+                    return false;
+            }
+
+            for (int k = 0; k < tab->height; k++)
+            {
+                if (k != i && get_elem(tab, k, j) == c)
+                    return false;
+            }
+        }
+    }
+
+    return true;
+}

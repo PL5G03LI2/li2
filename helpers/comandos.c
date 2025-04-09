@@ -8,25 +8,6 @@
 #include "../types/types.h"
 #include "../jogo/tabuleiro.h"
 
-int await_command(char *command)
-{
-    if (!fgets(command, 256, stdin))
-    {
-        printf("Error: failed fgets.");
-        return 1;
-    }
-    command[strcspn(command, "\n")] = 0;
-    return 0;
-}
-
-// int await_command(char *command, FILE *in) {
-//     if (!fgets(command, 256, in)) {
-//         return 1;
-//     }
-//     command[strcspn(command, "\n")] = 0;
-//     return 0;
-// }
-
 int tokenize_cmd(char *command, char **tokens)
 {
     int tokenc = 0;
@@ -107,11 +88,22 @@ void reset_cmd(ParsedCommand *cmd)
     reset_cmd_tokens(cmd);
 }
 
+int await_command(char *command)
+{
+    if (!fgets(command, 256, stdin))
+    {
+        printf("Error: failed fgets.");
+        return 1;
+    }
+    command[strcspn(command, "\n")] = 0;
+    return 0;
+}
+
 int parse_command(Tab *tab, char *command, ParsedCommand *result)
 {
     reset_cmd(result);
     // char **tokens = (char **)calloc(2, sizeof(char *));
-    char **tokens = (char **)calloc(8, sizeof(char *));  // or higher if needed
+    char **tokens = (char **)calloc(8, sizeof(char *)); // or higher if needed
     int tokenc = tokenize_cmd(command, tokens);
     bool expect_coords = false;
 
@@ -224,80 +216,4 @@ int run_command(ParsedCommand *cmd, Tab *tab)
     default:
         return 1;
     }
-}
-
-int carregar_tabuleiro(Tab *tab, const char *filename)
-{
-    FILE *file = fopen(filename, "r");
-    if (!file)
-        return 1;
-
-    int height, width;
-    fscanf(file, "%d %d", &height, &width);
-
-    tab->height = height;
-    tab->width = width;
-    if (tab->data != NULL)
-        free(tab->data);
-    tab->data = (Piece *)calloc(height * width, sizeof(Piece));
-
-    for (int i = 0; i < height; i++)
-    {
-        for (int j = 0; j < width; j++)
-        {
-            fscanf(file, " %c", &tab->data[calc_index(tab, j, i)].c);
-            tab->data[calc_index(tab, j, i)].marked = 0;
-        }
-    }
-
-    fclose(file);
-    return 0;
-}
-
-int salvar_tabuleiro(Tab *tab, const char *filename)
-{
-    FILE *file = fopen(filename, "w");
-    if (!file)
-        return 1;
-
-    fprintf(file, "%d %d\n", tab->height, tab->width);
-    for (int i = 0; i < tab->height; i++)
-    {
-        for (int j = 0; j < tab->width; j++)
-        {
-            fprintf(file, "%c", get_elem(tab, i, j));
-        }
-        fprintf(file, "\n");
-    }
-
-    fclose(file);
-    return 0;
-}
-
-bool validar_tabuleiro(Tab *tab)
-{
-    for (int i = 0; i < tab->height; i++)
-    {
-        for (int j = 0; j < tab->width; j++)
-        {
-            char c = get_elem(tab, i, j);
-
-            if (c == '#')
-                continue;
-
-            for (int k = 0; k < tab->width; k++)
-            {
-                if (k != j && get_elem(tab, i, k) == c)
-                    return false;
-            }
-
-            for (int k = 0; k < tab->height; k++)
-            {
-                if (k != i && get_elem(tab, k, j) == c)
-                    return false;
-            }
-        }
-    }
-
-    return true;
 }
