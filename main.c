@@ -3,7 +3,7 @@
 #include <math.h>
 
 #include "./jogo/tabuleiro.h"
-#include "./helpers/comandos.h"
+#include "./jogo/comandos.h"
 #include "./helpers/arrays.h"
 #include "./memory.h"
 
