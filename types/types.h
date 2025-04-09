@@ -29,7 +29,7 @@ typedef struct
 
 typedef struct node
 {
-    Tab tab;
+    ParsedCommand cmd;
     struct node *next;
 } TabHistory;
 
