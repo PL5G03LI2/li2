@@ -2,17 +2,14 @@
 #include <string.h>
 #include "arrays.h"
 #include "../jogo/tabuleiro.h"
+#include "../types/types.h"
 
-TabHistory *push(TabHistory *previous, Tab tab)
+
+
+TabHistory *push(TabHistory *previous, ParsedCommand cmd)
 {
     TabHistory *new = (TabHistory *)malloc(sizeof(TabHistory));
-    new->tab.height = tab.height;
-    new->tab.width = tab.width;
-
-    // Deep copy the data array
-    new->tab.data = malloc(sizeof(Piece) * tab.height * tab.width);
-    memcpy(new->tab.data, tab.data, sizeof(Piece) * tab.height * tab.width);
-    
+    new->cmd = cmd;
     new->next = NULL;
 
     if (previous == NULL) {
@@ -24,27 +21,28 @@ TabHistory *push(TabHistory *previous, Tab tab)
 }
 
 
-Tab pop(TabHistory **head)
+ParsedCommand pop(TabHistory **head)
 {
-    Tab poppedTab;
+    ParsedCommand poppedCmd;
 
-    // a lista tá vazia
+    // if list is empty
     if (*head == NULL)
     {
-        poppedTab.data = NULL;
-        return poppedTab;
+        // Return empty/default ParsedCommand
+        memset(&poppedCmd, 0, sizeof(ParsedCommand));
+        return poppedCmd;
     }
 
-    // a lista só tem um elemento
+    // if list has only one element
     if ((*head)->next == NULL)
     {
-        poppedTab = (*head)->tab;
+        poppedCmd = (*head)->cmd;
         free(*head);
         *head = NULL;
-        return poppedTab;
+        return poppedCmd;
     }
 
-    // percorre a lista até ao penúltimo elemento
+    // traverse to second-to-last element
     TabHistory *current = *head;
     TabHistory *previous = NULL;
     while (current->next != NULL)
@@ -53,18 +51,17 @@ Tab pop(TabHistory **head)
         current = current->next;
     }
 
-    // 'current' a este ponto deve ser o último elemento,
-    // livra a memória e retorna.
-    poppedTab = current->tab;
+    // current is now the last element
+    poppedCmd = current->cmd;
 
-    // Make sure to free the last element correctly
+    // remove last element
     previous->next = NULL;
-    free(current);  // Free current node
+    free(current);
 
-    return poppedTab;
+    return poppedCmd;
 }
 
-Tab *get_hist_elem(TabHistory **head, int index)
+ParsedCommand *get_hist_elem(TabHistory **head, int index)
 {
     if (index < 0)
         return NULL;
@@ -80,7 +77,7 @@ Tab *get_hist_elem(TabHistory **head, int index)
     if (current == NULL)
         return NULL;
 
-    return &(current->tab);
+    return &(current->cmd);
 }
 
 void destroy(TabHistory **head)
@@ -91,11 +88,7 @@ void destroy(TabHistory **head)
     while (current != NULL)
     {
         next = current->next;
-
-        // Free the tab.data for each node before freeing the node itself
-        free(current->tab.data);
-        
-        free(current);  // Now free the node
+        free(current);  // Free the current node
         current = next;
     }
 
