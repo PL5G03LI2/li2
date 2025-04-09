@@ -8,23 +8,6 @@
 #include "../types/types.h"
 #include "../jogo/tabuleiro.h"
 
-int tokenize_cmd(char *command, char **tokens)
-{
-    int tokenc = 0;
-    char *token;
-
-    token = strtok(command, " ");
-
-    while (token && tokenc < 3)
-    {
-        tokens[tokenc] = strdup(token);
-        token = strtok(NULL, " ");
-        tokenc++;
-    }
-
-    return tokenc;
-}
-
 iVec2 read_coordinate(char *coord_tkn)
 {
     iVec2 result;
@@ -66,6 +49,23 @@ char *write_coordinate(iVec2 coord, char *buffer)
 
     buffer[pos] = '\0';
     return buffer;
+}
+
+int tokenize_cmd(char *command, char **tokens)
+{
+    int tokenc = 0;
+    char *token;
+
+    token = strtok(command, " ");
+
+    while (token && tokenc < 3)
+    {
+        tokens[tokenc] = strdup(token);
+        token = strtok(NULL, " ");
+        tokenc++;
+    }
+
+    return tokenc;
 }
 
 void reset_cmd_tokens(ParsedCommand *cmd)
