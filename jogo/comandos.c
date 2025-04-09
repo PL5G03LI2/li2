@@ -104,7 +104,7 @@ int parse_command(Tab *tab, char *command, ParsedCommand *result)
     reset_cmd(result);
     // char **tokens = (char **)calloc(2, sizeof(char *));
     char **tokens = (char **)calloc(8, sizeof(char *)); // or higher if needed
-    int tokenc = tokenize_cmd(command, tokens);
+    int tokenc = tokenize_cmd(trim_str(command), tokens);
     bool expect_coords = false;
 
     if (!tokenc)
