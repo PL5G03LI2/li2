@@ -212,6 +212,10 @@ int run_command(ParsedCommand *cmd, Tab *tab)
     case CMD_CONTINUE:
         return 0;
 
+    case CMD_UNDO:
+        // TODO!!
+        return 0;
+
     default:
         return 1;
     }
