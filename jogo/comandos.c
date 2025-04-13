@@ -7,7 +7,7 @@
 #include "comandos.h"
 #include "../types/types.h"
 #include "../jogo/tabuleiro.h"
-#include "../helpers/history.h" 
+#include "../helpers/history.h"
 
 iVec2 read_coordinate(char *coord_tkn)
 {
@@ -167,84 +167,79 @@ int parse_command(Tab *tab, char *command, ParsedCommand *result)
             result->tokens = (char **)calloc(2, sizeof(char *));
             result->tokens[1] = (char *)calloc(32, sizeof(char));
             write_coordinate(tab->sel_piece, result->tokens[1]);
-        }   
+        }
     }
 
     return 0;
 }
 
-/* Run the parsed command and update the board (Tab). 
+/* Run the parsed command and update the board (Tab).
    For commands that modify the board (WHITE and CROSS), log them and push them into the history. */
-   int run_command(ParsedCommand *cmd, Tab *tab, TabHistory **history) {
-    switch (cmd->type) {
-        case CMD_SAVE:
-            return salvar_tabuleiro(tab, cmd->tokens[1]);
+int run_command(ParsedCommand *cmd, Tab *tab, TabHistory **history)
+{
+    switch (cmd->type)
+    {
+    case CMD_SAVE:
+        return salvar_tabuleiro(tab, cmd->tokens[1]);
 
-        case CMD_LOAD:
-            return carregar_tabuleiro(tab, cmd->tokens[1]);
+    case CMD_LOAD:
+        return carregar_tabuleiro(tab, cmd->tokens[1]);
 
-        case CMD_SELECT:
-        {
-            tab->sel_piece = read_coordinate(cmd->tokens[0]);
-            return 0;
-        }
+    case CMD_SELECT:
+    {
+        tab->sel_piece = read_coordinate(cmd->tokens[0]);
+        return 0;
+    }
 
-        case CMD_WHITE:
-        {
-            int x = cmd->tokens[1][0] - 'a';
-            int y = cmd->tokens[1][1] - '0';  // Adjust if needed (remember to convert properly)
-            toggle_branco(tab, x, y);
-            // Log the command: write to file (log.txt) and push to history
-            log_command_to_file("b", cmd->tokens[1]);  // You need to implement log_command_to_file()
-            *history = push_history(*history, *cmd);
-            return 0;
-        }
+    case CMD_WHITE:
+    {
+        int x = cmd->tokens[1][0] - 'a';
+        int y = cmd->tokens[1][1] - '0';
+        toggle_branco(tab, x, y);
+        // Log the command: write to file (log.txt) and push to history
+        log_command_to_file("b", cmd->tokens[1]); // You need to implement log_command_to_file()
+        *history = push_history(*history, *cmd);
+        return 0;
+    }
 
-        case CMD_CROSS:
-        {
-            iVec2 coord = read_coordinate(cmd->tokens[1]);
-            toggle_marked(tab, coord.x, coord.y);
-            log_command_to_file("r", cmd->tokens[1]);
-            *history = push_history(*history, *cmd);
-            return 0;
-        }
+    case CMD_CROSS:
+    {
+        iVec2 coord = read_coordinate(cmd->tokens[1]);
+        toggle_marked(tab, coord.x, coord.y);
+        log_command_to_file("r", cmd->tokens[1]);
+        *history = push_history(*history, *cmd);
+        return 0;
+    }
 
-        case CMD_VERIFY:
-            return validar_tabuleiro(tab);
+    case CMD_VERIFY:
+        return validar_tabuleiro(tab);
 
-        case CMD_UNDO:
-        {
-            // Pop the last command from history and undo it
-            if (*history == NULL) {
-                printf("No more moves to undo.\n");
-                return 0;
-            }
-            ParsedCommand lastCmd = pop_history(history);
-            undo_command(lastCmd, tab);  // You need to implement undo_command() based on your game logic
-            return 0;
-        }
-
-        case CMD_EXIT:
-            return -1;
-
-<<<<<<< HEAD
     case CMD_UNDO:
-        // TODO!!
+    {
+        // Pop the last command from history and undo it
+        if (*history == NULL)
+        {
+            printf("No more moves to undo.\n");
+            return 0;
+        }
+        ParsedCommand lastCmd = pop_history(history);
+        undo_command(lastCmd, tab); // You need to implement undo_command() based on your game logic
+        return 0;
+    }
+
+    case CMD_EXIT:
+        return -1;
+
+    case CMD_HELP:
+    case CMD_HELP_ALL:
+    case CMD_SOLVE:
+        // Implement these commands as needed
         return 0;
 
+    case CMD_CONTINUE:
+        return 0;
+    case CMD_INVALID:
     default:
         return 1;
-=======
-        case CMD_HELP:
-        case CMD_HELP_ALL:
-        case CMD_SOLVE:
-            // Implement these commands as needed
-            return 0;
-
-        case CMD_CONTINUE:
-        case CMD_INVALID:
-        default:
-            return 1;
->>>>>>> 368cb2d (history initial implementation)
     }
 }
