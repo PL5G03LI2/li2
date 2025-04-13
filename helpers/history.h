@@ -2,13 +2,6 @@
 #define HISTORY_H
 #include "../types/types.h"
 
-/* Linked list to record commands for undo */
-typedef struct TabHistory
-{
-    ParsedCommand *cmd;
-    struct TabHistory *next;
-} TabHistory;
-
 /**
  * @brief Insert at the end of the list (stack).
  *

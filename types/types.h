@@ -27,12 +27,6 @@ typedef struct
     int width;
 } Tab;
 
-typedef struct node
-{
-    ParsedCommand cmd;
-    struct node *next;
-} TabHistory;
-
 typedef enum
 {
     CMD_INVALID = 0,
@@ -55,4 +49,10 @@ typedef struct
     CommandType type;
     char **tokens;
 } ParsedCommand;
+
+typedef struct node
+{
+    ParsedCommand *cmd;
+    struct node *next;
+} TabHistory;
 #endif
