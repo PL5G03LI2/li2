@@ -24,6 +24,15 @@ iVec2 read_coordinate(char *coordinate_token);
 char *write_coordinate(iVec2 coord, char *buffer);
 
 /**
+ * Copies a command to new memory.
+ *
+ * @param cmd The command to copy.
+ *
+ * @returns A pointer to the copied command.
+ */
+ParsedCommand *deep_copy_cmd(ParsedCommand *cmd);
+
+/**
  * Tokenizes a command.
  *
  * @param *cmd Command to tokenize.

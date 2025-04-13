@@ -2,10 +2,12 @@
 #include <string.h>
 #include "history.h"
 
-TabHistory *push_history(TabHistory *head, ParsedCommand cmd)
+TabHistory *push_history(TabHistory *head, ParsedCommand *cmd)
 {
     TabHistory *new_node = (TabHistory *)malloc(sizeof(TabHistory));
-    new_node->cmd = cmd;
+
+    new_node->cmd = deep_copy_cmd(cmd);
+
     new_node->next = NULL;
 
     if (head == NULL)
@@ -21,22 +23,22 @@ TabHistory *push_history(TabHistory *head, ParsedCommand cmd)
     return head;
 }
 
-ParsedCommand pop_history(TabHistory *head)
+ParsedCommand *pop_history(TabHistory *head)
 {
-    ParsedCommand poppedCmd;
-    memset(&poppedCmd, 0, sizeof(ParsedCommand));
-
+    // no elements, return NULL
     if (head == NULL)
     {
-        return poppedCmd;
+        return NULL;
     }
 
+    ParsedCommand *popped_cmd;
+
+    // one element, return
     if (head->next == NULL)
     {
-        poppedCmd = head->cmd;
+        popped_cmd = head->cmd;
         free(head);
-        head = NULL;
-        return poppedCmd;
+        return popped_cmd;
     }
 
     TabHistory *current = head;
@@ -47,10 +49,10 @@ ParsedCommand pop_history(TabHistory *head)
         current = current->next;
     }
 
-    poppedCmd = current->cmd;
+    popped_cmd = current->cmd;
     prev->next = NULL;
     free(current);
-    return poppedCmd;
+    return popped_cmd;
 }
 
 ParsedCommand *get_history_element(TabHistory *head, int index)

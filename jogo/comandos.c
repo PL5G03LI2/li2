@@ -52,6 +52,26 @@ char *write_coordinate(iVec2 coord, char *buffer)
     return buffer;
 }
 
+ParsedCommand *deep_copy_cmd(ParsedCommand *cmd)
+{
+    ParsedCommand *new_cmd = (ParsedCommand *)malloc(sizeof(ParsedCommand));
+    if (!new_cmd)
+        return NULL;
+
+    new_cmd->type = cmd->type;
+
+    new_cmd->tokens = (char **)calloc(2, sizeof(char *));
+    if (!new_cmd->tokens)
+        return NULL;
+
+    for (int i = 0; i < 2; i++)
+    {
+        new_cmd->tokens[i] = strdup(cmd->tokens[i]);
+    }
+
+    return new_cmd;
+}
+
 int tokenize_cmd(char *command, char **tokens)
 {
     int tokenc = 0;

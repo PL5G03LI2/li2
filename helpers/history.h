@@ -5,7 +5,7 @@
 /* Linked list to record commands for undo */
 typedef struct TabHistory
 {
-    ParsedCommand cmd;
+    ParsedCommand *cmd;
     struct TabHistory *next;
 } TabHistory;
 
@@ -23,12 +23,13 @@ typedef struct TabHistory
  *
  * Otherwise, the return value is quite useless.
  */
-TabHistory *push_history(TabHistory *head, ParsedCommand cmd);
+TabHistory *push_history(TabHistory *head, ParsedCommand *cmd);
 
 /**
  * @brief Remove the last element and return its command.
  *
- * This function will remove the last element of the hsitory and return its value.
+ * This function will remove the last element of the history and return a pointer to it.
+ * @warning IT IS UP TO YOU TO FREE THE MEMORY OF THIS COMMAND.
  *
  * @param head The pointer to the head of the history.
  *
@@ -36,7 +37,7 @@ TabHistory *push_history(TabHistory *head, ParsedCommand cmd);
  *
  * @note The function will return CMD_INVALID if the head is NULL (history is empty).
  */
-ParsedCommand pop_history(TabHistory *head);
+ParsedCommand *pop_history(TabHistory *head);
 
 /**
  * @brief Get's the element from history based on the index.
