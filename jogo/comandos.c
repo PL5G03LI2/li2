@@ -239,7 +239,7 @@ int run_command(ParsedCommand *cmd, Tab *tab, TabHistory *history)
             printf("No more moves to undo.\n");
             return 0;
         }
-        ParsedCommand lastCmd = pop_history(history);
+        ParsedCommand *lastCmd = pop_history(history);
         undo_command(lastCmd, tab);
         return 0;
     }

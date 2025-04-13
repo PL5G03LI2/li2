@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "history.h"
+#include "../jogo/comandos.h"
 
 TabHistory *push_history(TabHistory *head, ParsedCommand *cmd)
 {
@@ -76,6 +77,10 @@ void destroy_history(TabHistory *head)
     while (current != NULL)
     {
         next = current->next;
+
+        reset_cmd_tokens(current->cmd);
+        free(current->cmd);
+
         free(current);
         current = next;
     }
