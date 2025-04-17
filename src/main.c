@@ -2,10 +2,10 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "./jogo/tabuleiro.h"
-#include "./jogo/comandos.h"
-#include "./helpers/history.h"
-#include "./memory.h"
+#include "jogo/tabuleiro.h"
+#include "jogo/comandos.h"
+#include "helpers/history.h"
+#include "helpers/memory.h"
 
 int repl(Tab *tabuleiro, char *cmd_str, ParsedCommand *cmd, TabHistory *hist)
 {

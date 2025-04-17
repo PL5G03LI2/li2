@@ -1,67 +1,53 @@
-# Compiler
-CC = gcc
+# Compiler and flags
+CC       = gcc
+CFLAGS   = -Wall -Wextra -pedantic -O1 -fsanitize=address -fno-omit-frame-pointer -g
+COVFLAGS = -fprofile-arcs -ftest-coverage
+INC_DIRS = -Iinclude -I/opt/homebrew/Cellar/cunit/2.1-3/include
+LDFLAGS  = -L/opt/homebrew/Cellar/cunit/2.1-3/lib
+LIBS     = -lcunit
 
-# Compiler flags (normal compilation)
-CFLAGS = -Wall -Wextra -pedantic -O1 -fsanitize=address -fno-omit-frame-pointer -g
-
-# Compiler flags (for coverage)
-COV_FLAGS = -fprofile-arcs -ftest-coverage
-
-# Include directories for helpers, jogo, and CUnit headers
-INC_DIRS = -Ihelpers -Ijogo -I/opt/homebrew/Cellar/cunit/2.1-3/include  # CUnit's header location
-
-# Linker flags for CUnit library
-LDFLAGS = -L/opt/homebrew/Cellar/cunit/2.1-3/lib  # CUnit's library location
-LIBS = -lcunit
-
-# Output directories
-OBJ_DIR = obj
-BIN_DIR = out
-
-# Source directories
-HELPERS_DIR = helpers
-JOGO_DIR = jogo
+# Directories
+SRC_DIR   = src
 TESTS_DIR = tests
+OBJ_DIR   = obj
+BIN_DIR   = out
 
-# Find all source files
-MAIN_SRC = main.c
-JOGO_SRCS = $(wildcard $(HELPERS_DIR)/*.c $(JOGO_DIR)/*.c)
-TEST_SRCS = $(wildcard $(TESTS_DIR)/*.c)
+VPATH = $(SRC_DIR) $(TESTS_DIR)
 
-# Object files
-MAIN_OBJ = $(patsubst %.c, $(OBJ_DIR)/%.o, $(MAIN_SRC))
-JOGO_OBJS = $(patsubst %.c, $(OBJ_DIR)/%.o, $(JOGO_SRCS))
-TEST_OBJS = $(patsubst %.c, $(OBJ_DIR)/%.o, $(TEST_SRCS))
+# Source and object files
+SRCS      := $(shell find $(SRC_DIR) -name '*.c')
+TEST_SRCS := $(shell find $(TESTS_DIR) -name '*.c')
+OBJS      := $(patsubst $(SRC_DIR)/%.c,   $(OBJ_DIR)/%.o, $(SRCS))
+TEST_OBJS := $(patsubst $(TESTS_DIR)/%.c, $(OBJ_DIR)/%.o, $(TEST_SRCS))
+JOGO_OBJS := $(filter-out $(OBJ_DIR)/main.o, $(OBJS))
+MAIN_OBJ  := $(OBJ_DIR)/main.o
 
-# Executable names
+# Executables
 JOGO_EXEC = $(BIN_DIR)/jogo
 TEST_EXEC = $(BIN_DIR)/testar
 
-# Default target (compiles both executables)
+.PHONY: all jogo testar clean
+
 all: $(JOGO_EXEC) $(TEST_EXEC)
 
-# Optional: build just the game
 jogo: $(JOGO_EXEC)
-
-# Optional: build just the tests
 testar: $(TEST_EXEC)
 
-# Create output directories
+# Output directories
 $(OBJ_DIR) $(BIN_DIR):
 	mkdir -p $@
 
-# Build jogo executable (normal compilation with coverage)
-$(JOGO_EXEC): $(JOGO_OBJS) $(MAIN_OBJ) | $(BIN_DIR)
-	$(CC) $(CFLAGS) $(COV_FLAGS) -o $@ $(JOGO_OBJS) $(MAIN_OBJ)
-
-# Build testar executable (with coverage enabled)
-$(TEST_EXEC): $(TEST_OBJS) $(JOGO_OBJS) | $(BIN_DIR)  # Include JOGO_OBJS here
-	$(CC) $(CFLAGS) $(COV_FLAGS) -o $@ $(TEST_OBJS) $(JOGO_OBJS) $(LDFLAGS) $(LIBS)  # Add LDFLAGS and LIBS here
-
-# Compile source files into object files
+# Pattern rules for object files
 $(OBJ_DIR)/%.o: %.c | $(OBJ_DIR)
 	mkdir -p $(dir $@)
-	$(CC) $(CFLAGS) $(COV_FLAGS) $(INC_DIRS) -c $< -o $@
+	$(CC) $(CFLAGS) $(COVFLAGS) $(INC_DIRS) -c $< -o $@
+
+# Link targets
+$(JOGO_EXEC): $(JOGO_OBJS) $(MAIN_OBJ) | $(BIN_DIR)
+	$(CC) $(CFLAGS) $(COVFLAGS) -o $@ $(JOGO_OBJS) $(MAIN_OBJ)
+
+$(TEST_EXEC): $(TEST_OBJS) $(JOGO_OBJS) | $(BIN_DIR)
+	$(CC) $(CFLAGS) $(COVFLAGS) -o $@ $(TEST_OBJS) $(JOGO_OBJS) $(LDFLAGS) $(LIBS)
 
 clean:
 	rm -rf $(OBJ_DIR) $(BIN_DIR)
