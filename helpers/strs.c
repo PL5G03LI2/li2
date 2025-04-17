@@ -33,34 +33,19 @@ char *trim_str(char *str)
     if (!str)
         return NULL;
 
-    int len = strlen(str);
-    int start = 0;
-    int end = len - 1;
+    while (*str == ' ')
+        str++;
 
-    while (start < len && str[start] == ' ')
-        start++;
-
-    while (end > start && str[end] == ' ')
+    const char *end = str + strlen(str);
+    while (end > str && *(end - 1) == ' ')
         end--;
 
-    int new_len = end - start + 1;
-
-    if (new_len <= 0)
-    {
-        free(str);
-        return strdup("");
-    }
-
-    char *new_str = (char *)malloc(new_len + 1);
-    if (!new_str)
-    {
-        free(str);
+    size_t len = end - str;
+    char *out = malloc(len + 1);
+    if (!out)
         return NULL;
-    }
 
-    memcpy(new_str, str + start, new_len);
-    new_str[new_len] = '\0';
-
-    free(str);
-    return new_str;
+    memcpy(out, str, len);
+    out[len] = '\0';
+    return out;
 }

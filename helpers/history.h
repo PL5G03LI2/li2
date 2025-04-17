@@ -30,7 +30,7 @@ TabHistory *push_history(TabHistory *head, ParsedCommand *cmd);
  *
  * @note The function will return CMD_INVALID if the head is NULL (history is empty).
  */
-ParsedCommand *pop_history(TabHistory *head);
+ParsedCommand *pop_history(TabHistory **head);
 
 /**
  * @brief Gets the element from history based on the index.
