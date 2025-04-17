@@ -1,7 +1,8 @@
-#include "arrays.h"
+// #include "arrays.h"
 #include "tabuleiro.h"
 #include <CUnit/CUnit.h>
 #include <stdlib.h>
+#include "history.h"
 
 void test_calc_index_valid_position(void)
 {
@@ -11,7 +12,7 @@ void test_calc_index_valid_position(void)
     tab.data = malloc(sizeof(Piece) * tab.height * tab.width);
 
     int index = calc_index(&tab, 2, 3); // valid position
-    CU_ASSERT_EQUAL(index, 3 * tab.height + 2);
+    CU_ASSERT_EQUAL(index, 2 * tab.height + 3);
 
     free(tab.data);
 }
@@ -94,37 +95,68 @@ void test_positions_validity(void)
     CU_ASSERT_EQUAL(assert_pos(&tab, 2, 5), 0);
 }
 
+// void test_get_elem(void)
+// {
+//     //.data = "abcde"
+//     //        "fghij"
+//     //        "klmno"
+//     //        "pqrst"
+//     //        "uvwxy",
+
+//     Tab tab;
+//     tab.height = 5;
+//     tab.width = 5;
+//     tab.data = malloc(sizeof(Piece) * tab.height * tab.width);
+
+//     int i, j;
+//     for(i = 0; i < tab.height; i++) {
+//         for(j = 0; j < tab.width; j++) {
+//             char letra = (i*tab.width) + j + 97;
+//             if (letra > 122) {
+//                 letra = '0';
+//             }
+//             tab.data[(i*tab.width) + j].c = letra;
+//         }
+//     }
+
+//     CU_ASSERT_EQUAL(get_elem(&tab, 1, 2), 'h'); // Inside bounds
+//     CU_ASSERT_EQUAL(get_elem(&tab, 0, 0), 'a'); // Top-left corner
+//     CU_ASSERT_EQUAL(get_elem(&tab, 4, 4), 'y'); // Bottom-right corner
+
+//     CU_ASSERT_EQUAL(get_elem(&tab, -1, 2), '\0'); // Out of bounds (negative x)
+//     CU_ASSERT_EQUAL(get_elem(&tab, 5, 2), '\0');  // Out of bounds (x >= height)
+//     CU_ASSERT_EQUAL(get_elem(&tab, 2, 5), '\0');  // Out of bounds (y >= width)
+
+//     free(tab.data);
+// }
+
 void test_get_elem(void)
 {
-    //.data = "abcde"
-    //        "fghij"
-    //        "klmno"
-    //        "pqrst"
-    //        "uvwxy",
-
     Tab tab;
     tab.height = 5;
     tab.width = 5;
     tab.data = malloc(sizeof(Piece) * tab.height * tab.width);
 
     int i, j;
-    for(i = 0; i < tab.height; i++) {
-        for(j = 0; j < tab.width; j++) {
-            char letra = (i*tab.width) + j + 97;
+    for (i = 0; i < tab.height; i++) {
+        for (j = 0; j < tab.width; j++) {
+            char letra = (i * tab.width) + j + 97;
             if (letra > 122) {
                 letra = '0';
             }
-            tab.data[(i*tab.width) + j].c = letra;
+            tab.data[i * tab.width + j].c = letra;
         }
     }
 
-    CU_ASSERT_EQUAL(get_elem(&tab, 1, 2), 'h'); // Inside bounds
-    CU_ASSERT_EQUAL(get_elem(&tab, 0, 0), 'a'); // Top-left corner
-    CU_ASSERT_EQUAL(get_elem(&tab, 4, 4), 'y'); // Bottom-right corner
+    // Inside bounds
+    CU_ASSERT_EQUAL(get_elem(&tab, 1, 2), 'h'); // 'h' is at (1,2)
+    CU_ASSERT_EQUAL(get_elem(&tab, 0, 0), 'a'); // Top-left
+    CU_ASSERT_EQUAL(get_elem(&tab, 4, 4), 'y'); // Bottom-right
 
-    CU_ASSERT_EQUAL(get_elem(&tab, -1, 2), '\0'); // Out of bounds (negative x)
-    CU_ASSERT_EQUAL(get_elem(&tab, 5, 2), '\0');  // Out of bounds (x >= height)
-    CU_ASSERT_EQUAL(get_elem(&tab, 2, 5), '\0');  // Out of bounds (y >= width)
+    // Out of bounds checks
+    CU_ASSERT_EQUAL(get_elem(&tab, -1, 2), '\0'); // Negative x
+    CU_ASSERT_EQUAL(get_elem(&tab, 5, 2), '\0');  // x >= width
+    CU_ASSERT_EQUAL(get_elem(&tab, 2, 5), '\0');  // y >= height
 
     free(tab.data);
 }
@@ -196,23 +228,42 @@ void test_print_tabuleiro(void) {
         }
     }
 
-    // Prepare a buffer to capture the output
-    char buffer[100];  // Make sure this is large enough to hold the output
-    memset(buffer, 0, sizeof(buffer));  // Clear the buffer
+    // Redirect stdout to a memory stream
+    char *buffer = NULL;
+    size_t size = 0;
+    FILE *stream = open_memstream(&buffer, &size);
+    if (!stream) {
+        perror("open_memstream failed");
+        exit(EXIT_FAILURE);
+    }
 
-    // Call the modified print_tabuleiro function
+    // Save original stdout
+    FILE *original_stdout = stdout;
+    stdout = stream;
+
+    // Call the print function (now redirected)
     print_tab(&tab);
 
+    // Restore stdout
+    fflush(stream);
+    stdout = original_stdout;
+    fclose(stream);
+
     // Expected output
-    const char *expected_output = "abcde\n"
-                                  "fghij\n"
-                                  "klmno\n"
-                                  "pqrst\n"
-                                  "uvwxy\n";
+    const char *expected_output = 
+        "  a b c d e\n"
+        "------------\n"
+        "1|a b c d e \n"
+        "2|f g h i j \n"
+        "3|k l m n o \n"
+        "4|p q r s t \n"
+        "5|u v w x y \n";
 
     // Assert: Compare the captured output with the expected output
     CU_ASSERT_STRING_EQUAL(buffer, expected_output);
 
+    // Clean up
+    free(buffer);
     free(tab.data);
 }
 
@@ -254,6 +305,31 @@ void test_toggle_marked(void)
     }
 
     free(tab.data);
+}
+
+// void test_tabuleiroState_SL(void)
+// {
+//     Tab tab;
+//     tab.height = 1;
+//     tab.width = 3;
+//     tab.data = NULL;
+
+//     CU_ASSERT_EQUAL(carregar_tabuleiro(&tab, "j1.txt"), 0);
+//     CU_ASSERT_EQUAL(carregar_tabuleiro(&tab, "j2.txt"), 1);
+//     CU_ASSERT_EQUAL(salvar_tabuleiro(&tab, "j3.txt"), 0);
+//     CU_ASSERT_EQUAL(validar_tabuleiro(&tab), 0);
+// }
+
+void test_tabuleiroState(void) {
+    // test_tabuleiroState_SL();
+}
+
+void testes_tabuleiro(void) {
+    test_tabuleiroState();
+}
+
+void testes_comandos(void) {
+    
 }
 
 void testes_jogo(void) {

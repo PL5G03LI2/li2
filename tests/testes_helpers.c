@@ -3,6 +3,7 @@
 #include "tabuleiro.h"
 #include <CUnit/CUnit.h>
 #include <stdlib.h>
+#include "memory.h"
 // #include "arrays.h"
 
 void test_isUpper(void)
@@ -79,19 +80,6 @@ void test_strings(void)
     test_trim_str();
 }
 
-// void test_tabuleiroState(void)
-// {
-//     Tab tab;
-//     tab.height = 1;
-//     tab.width = 3;
-//     tab.data = NULL;
-
-//     CU_ASSERT_EQUAL(carregar_tabuleiro(&tab, "j1.txt"), 0);
-//     CU_ASSERT_EQUAL(carregar_tabuleiro(&tab, "j2.txt"), 1);
-//     CU_ASSERT_EQUAL(salvar_tabuleiro(&tab, "j3.txt"), 0);
-//     CU_ASSERT_EQUAL(validar_tabuleiro(&tab), 0);
-// }
-
 // // void test_await(void) {
 // //     char buffer[256];
     
@@ -163,18 +151,13 @@ void test_strings(void)
 //     free(result);
 // }
 
-// void test_CMD(void) {
+void test_comandos(void)
+{
 //     // test_await();
 //     test_tokenize();
 //     test_parseCommand();
 //     test_runCommand();
-// }
-
-// void test_comandos(void)
-// {
-//     test_tabuleiroState();
-//     test_CMD();
-// }
+}
 
 // void test_push_single(void)
 // {
@@ -574,7 +557,7 @@ void test_history(void)
     test_destroy();
 }
 
-void test_free_all(void) {
+void test_free_all_basic(void) {
     // allocate tabuleiro
     Tab *tab = (Tab *)malloc(sizeof(Tab));
     tab->data = (Piece *)malloc(sizeof(Piece) * 4);
@@ -621,7 +604,14 @@ void test_free_all_partial_tokens(void) {
 }
 
 void test_free_all(void) {
-    test_free_all();
+    test_free_all_basic();
     test_free_all_no_data();
     test_free_all_partial_tokens();
+}
+
+void testes_helpers(void) {
+    test_strings();
+    test_comandos();
+    test_history();
+    test_free_all();
 }

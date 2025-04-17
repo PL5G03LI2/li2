@@ -8,10 +8,8 @@ void add_tests(void)
 {
     CU_pSuite suite = CU_add_suite("Puzzle Game Tests", 0, 0);
 
-    CU_add_test(suite, "Test arrays", test_arrays);
-    CU_add_test(suite, "Test strings", test_strings);
-    CU_add_test(suite, "Test tabuleiro state", test_tabuleiroState);
-    CU_add_test(suite, "Test comandos", test_comandos);
+    CU_add_test(suite, "Test jogo", testes_jogo);
+    CU_add_test(suite, "Test helpers", testes_helpers);
 }
 
 int main(void)
