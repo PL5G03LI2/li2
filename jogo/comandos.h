@@ -99,4 +99,6 @@ int parse_command(Tab *tab, char *command, ParsedCommand *parsed_cmd);
  *
  * @returns 0 se o comando for executado com sucesso, 1 caso contrário.
  */
-int run_command(ParsedCommand *cmd, Tab *tab, TabHistory *history);
+int run_command(ParsedCommand *cmd, Tab *tab, TabHistory **history);
+
+int undo_command(ParsedCommand *cmd, Tab *tab);
