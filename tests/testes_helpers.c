@@ -5,15 +5,35 @@
 #include <CUnit/CUnit.h>
 #include <stdlib.h>
 
+void test_isUpper(void)
+{
+    CU_ASSERT_EQUAL(isUpper('c'), 0);
+    CU_ASSERT_NOT_EQUAL(isUpper('A'), 0);
+}
+
 void test_toUpper(void)
 {
     CU_ASSERT_EQUAL(toUpper('c'), 'C');
-    CU_ASSERT_EQUAL(toUpper('A'), 'A'); // Uppercase remains unchanged
+    CU_ASSERT_EQUAL(toUpper('A'), 'A');
+}
+
+void test_isLower(void)
+{
+    CU_ASSERT_EQUAL(isLower('A'), 0);
+    CU_ASSERT_NOT_EQUAL(isLower('c'), 0);
+}
+
+void test_toLower(void)
+{
+    CU_ASSERT_EQUAL(toLower('c'), 'c');
+    CU_ASSERT_EQUAL(toLower('A'), 'a');
 }
 
 void test_strings(void)
 {
+    test_isUpper();
     test_toUpper();
+    test_isLower();
 }
 
 void test_tabuleiroState(void)
