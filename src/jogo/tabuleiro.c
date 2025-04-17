@@ -22,7 +22,8 @@ Tab *initialize_tabuleiro(void)
 int calc_index(Tab *tab, int x, int y)
 {
     if (assert_pos(tab, x, y))
-        return y * tab->height + x;
+        // return y * tab->height + x;
+        return x * tab->width + y;
 
     return -1;
 }
@@ -35,7 +36,7 @@ int assert_index(Tab *tab, int i)
 
 int assert_pos(Tab *tab, int x, int y)
 {
-    if (x < 0 || x > tab->height || y < 0 || y > tab->width)
+    if (x < 0 || x >= tab->height || y < 0 || y >= tab->width)
         return 0;
     return 1;
 }
@@ -68,6 +69,33 @@ void toggle_branco(Tab *tab, int x, int y)
     }
 }
 
+// void toggle_marked(Tab *tab, int x, int y)
+// {
+//     if (!assert_pos(tab, x, y))
+//         return;
+
+//     Piece *piece = &tab->data[calc_index(tab, x, y)];
+//     piece->marked = !piece->marked;
+
+//     // deixa comentado para o comando de ajuda
+//     // iVec2 positions[4] = {
+//     //     {x + 1, y},
+//     //     {x - 1, y},
+//     //     {x, y + 1},
+//     //     {x, y - 1}};
+
+//     // for (int i = 0; i < 4; i++)
+//     // {
+//     //     int nx = positions[i].x;
+//     //     int ny = positions[i].y;
+
+//     //     if (assert_pos(tab, nx, ny))
+//     //     {
+//     //         toggle_branco(tab, nx, ny);
+//     //     }
+//     // }
+// }
+
 void toggle_marked(Tab *tab, int x, int y)
 {
     if (!assert_pos(tab, x, y))
@@ -76,64 +104,108 @@ void toggle_marked(Tab *tab, int x, int y)
     Piece *piece = &tab->data[calc_index(tab, x, y)];
     piece->marked = !piece->marked;
 
-    // deixa comentado para o comando de ajuda
-    // iVec2 positions[4] = {
-    //     {x + 1, y},
-    //     {x - 1, y},
-    //     {x, y + 1},
-    //     {x, y - 1}};
+    if (piece->marked) {
+        piece->c = '#';
 
-    // for (int i = 0; i < 4; i++)
-    // {
-    //     int nx = positions[i].x;
-    //     int ny = positions[i].y;
+        // Now toggle neighbors to uppercase
+        iVec2 positions[4] = {
+            {x + 1, y},
+            {x - 1, y},
+            {x, y + 1},
+            {x, y - 1}
+        };
 
-    //     if (assert_pos(tab, nx, ny))
-    //     {
-    //         toggle_branco(tab, nx, ny);
-    //     }
-    // }
+        for (int i = 0; i < 4; i++)
+        {
+            int nx = positions[i].x;
+            int ny = positions[i].y;
+
+            if (assert_pos(tab, nx, ny))
+            {
+                Piece *neighbor = &tab->data[calc_index(tab, nx, ny)];
+                if (neighbor->c >= 'a' && neighbor->c <= 'z')
+                    neighbor->c -= 32; // make it uppercase
+            }
+        }
+    }
 }
+
+// void print_tab(Tab *tab)
+// {
+//     int height = tab->height;
+//     int width = tab->width;
+
+//     printf(" ");
+
+//     for (int i = 0; i < width; i++)
+//     {
+//         printf(" %c", i + 'a');
+//     }
+//     printf("\n--");
+
+//     for (int i = 0; i < width; i++)
+//     {
+//         printf("--");
+//     }
+//     printf("\n");
+
+//     for (int i = 0; i < height; i++)
+//     {
+//         printf("%c|", i + '1');
+//         for (int j = 0; j < width; j++)
+//         {
+//             bool selected = tab->sel_piece.x == j && tab->sel_piece.y == i;
+//             Piece piece = tab->data[calc_index(tab, j, i)];
+//             if (selected)
+//                 printf("\033[1m\033[7m");
+
+//             if (piece.marked)
+//                 printf("#");
+//             else
+//                 printf("%c", piece.c);
+
+//             if (selected)
+//                 printf("\033[0m");
+//             printf(" ");
+//         }
+//         printf("\n");
+//     }
+// }
 
 void print_tab(Tab *tab)
 {
     int height = tab->height;
     int width = tab->width;
 
+    // Print column headers
     printf(" ");
-
-    for (int i = 0; i < width; i++)
-    {
+    for (int i = 0; i < width; i++) {
         printf(" %c", i + 'a');
     }
     printf("\n--");
-
-    for (int i = 0; i < width; i++)
-    {
+    for (int i = 0; i < width; i++) {
         printf("--");
     }
     printf("\n");
 
-    for (int i = 0; i < height; i++)
-    {
-        printf("%c|", i + '1');
-        for (int j = 0; j < width; j++)
-        {
-            bool selected = tab->sel_piece.x == j && tab->sel_piece.y == i;
-            Piece piece = tab->data[calc_index(tab, j, i)];
-            if (selected)
-                printf("\033[1m\033[7m");
-
+    // Print each row of the grid
+    for (int i = 0; i < height; i++) {
+        // Print the row number (starting with 1)
+        printf("%d|", i + 1);
+        
+        // Print each character in the row
+        for (int j = 0; j < width; j++) {
+            Piece piece = tab->data[calc_index(tab, i, j)];  // Use (i, j) instead of (j, i)
+            
+            // Print the character (marked or not)
             if (piece.marked)
                 printf("#");
             else
                 printf("%c", piece.c);
-
-            if (selected)
-                printf("\033[0m");
-            printf(" ");
+            
+            printf(" ");  // Add a space after each character
         }
-        printf("\n");
+        printf("\n");  // Move to the next line after each row
     }
 }
 
