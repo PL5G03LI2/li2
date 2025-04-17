@@ -7,6 +7,7 @@
 #include "comandos.h"
 #include "../types/types.h"
 #include "../jogo/tabuleiro.h"
+#include "../helpers/history.h"
 
 iVec2 read_coordinate(char *coord_tkn)
 {
@@ -49,6 +50,26 @@ char *write_coordinate(iVec2 coord, char *buffer)
 
     buffer[pos] = '\0';
     return buffer;
+}
+
+ParsedCommand *deep_copy_cmd(ParsedCommand *cmd)
+{
+    ParsedCommand *new_cmd = (ParsedCommand *)malloc(sizeof(ParsedCommand));
+    if (!new_cmd)
+        return NULL;
+
+    new_cmd->type = cmd->type;
+
+    new_cmd->tokens = (char **)calloc(2, sizeof(char *));
+    if (!new_cmd->tokens)
+        return NULL;
+
+    for (int i = 0; i < 2; i++)
+    {
+        new_cmd->tokens[i] = strdup(cmd->tokens[i]);
+    }
+
+    return new_cmd;
 }
 
 int tokenize_cmd(char *command, char **tokens)
@@ -102,9 +123,8 @@ int await_command(char *command)
 int parse_command(Tab *tab, char *command, ParsedCommand *result)
 {
     reset_cmd(result);
-    // char **tokens = (char **)calloc(2, sizeof(char *));
-    char **tokens = (char **)calloc(8, sizeof(char *)); // or higher if needed
-    int tokenc = tokenize_cmd(command, tokens);
+    char **tokens = (char **)calloc(2, sizeof(char *));
+    int tokenc = tokenize_cmd(trim_str(command), tokens);
     bool expect_coords = false;
 
     if (!tokenc)
@@ -172,7 +192,7 @@ int parse_command(Tab *tab, char *command, ParsedCommand *result)
     return 0;
 }
 
-int run_command(ParsedCommand *cmd, Tab *tab)
+int run_command(ParsedCommand *cmd, Tab *tab, TabHistory *history)
 {
     switch (cmd->type)
     {
@@ -185,30 +205,56 @@ int run_command(ParsedCommand *cmd, Tab *tab)
     case CMD_SELECT:
     {
         tab->sel_piece = read_coordinate(cmd->tokens[0]);
+        history = push_history(history, cmd);
         return 0;
     }
 
     case CMD_WHITE:
     {
-        int x = cmd->tokens[1][0] - 'a';
-        int y = cmd->tokens[1][1] - '0';
-        toggle_branco(tab, x, y);
+        iVec2 coord = read_coordinate(cmd->tokens[1]);
+        toggle_branco(tab, coord.x, coord.y);
+        history = push_history(history, cmd);
         return 0;
     }
 
     case CMD_CROSS:
     {
-        int x = cmd->tokens[1][0] - 'a';
-        int y = cmd->tokens[1][1] - '0';
-        toggle_marked(tab, x, y);
+        iVec2 coord = read_coordinate(cmd->tokens[1]);
+        toggle_marked(tab, coord.x, coord.y);
+        history = push_history(history, cmd);
         return 0;
     }
 
     case CMD_VERIFY:
-        return validar_tabuleiro(tab);
+        if (validar_tabuleiro(tab))
+            printf("Valid tabuleiro.");
+        else
+            printf("Invalid.");
+        return 0;
+
+    case CMD_UNDO:
+    {
+        if (history == NULL)
+        {
+            printf("No more moves to undo.\n");
+            return 0;
+        }
+        ParsedCommand *lastCmd = pop_history(history);
+        undo_command(lastCmd, tab);
+        return 0;
+    }
 
     case CMD_EXIT:
         return 0;
+
+    case CMD_HELP:
+        return 1;
+
+    case CMD_HELP_ALL:
+        return 1;
+
+    case CMD_SOLVE:
+        return 1;
 
     case CMD_CONTINUE:
         return 0;
