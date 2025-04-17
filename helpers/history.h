@@ -33,7 +33,7 @@ TabHistory *push_history(TabHistory *head, ParsedCommand *cmd);
 ParsedCommand *pop_history(TabHistory *head);
 
 /**
- * @brief Get's the element from history based on the index.
+ * @brief Gets the element from history based on the index.
  *
  * @param head The pointer to the head of the history.
  * @param index The (int) index of the element we're looking for.
