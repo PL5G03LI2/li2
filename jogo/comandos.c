@@ -26,7 +26,7 @@ iVec2 read_coordinate(char *coord_tkn)
     // Read numbers for y-coordinate
     while (isdigit(coord_tkn[i]))
     {
-        result.y = result.y * 10 + (coord_tkn[i] - '1');
+        result.y = result.y * 10 + (coord_tkn[i] - '0');
         i++;
     }
 
@@ -59,6 +59,7 @@ ParsedCommand *deep_copy_cmd(ParsedCommand *cmd)
         return NULL;
 
     new_cmd->type = cmd->type;
+    new_cmd->track = cmd->track;
 
     new_cmd->tokens = (char **)calloc(2, sizeof(char *));
     if (!new_cmd->tokens)
@@ -106,6 +107,7 @@ void reset_cmd_tokens(ParsedCommand *cmd)
 void reset_cmd(ParsedCommand *cmd)
 {
     cmd->type = CMD_INVALID;
+    cmd->track = false;
     reset_cmd_tokens(cmd);
 }
 
@@ -123,8 +125,10 @@ int await_command(char *command)
 int parse_command(Tab *tab, char *command, ParsedCommand *result)
 {
     reset_cmd(result);
+    char *trimmed_command = trim_str(command);
     char **tokens = (char **)calloc(2, sizeof(char *));
-    int tokenc = tokenize_cmd(trim_str(command), tokens);
+    int tokenc = tokenize_cmd(trimmed_command, tokens);
+    free(trimmed_command);
     bool expect_coords = false;
 
     if (!tokenc)
@@ -154,16 +158,19 @@ int parse_command(Tab *tab, char *command, ParsedCommand *result)
         case 'b':
             result->type = CMD_WHITE;
             expect_coords = true;
+            result->track = true;
             break;
         case 'r':
             result->type = CMD_CROSS;
             expect_coords = true;
+            result->track = true;
             break;
         case 'v':
             result->type = CMD_VERIFY;
             break;
         case 'a':
             result->type = CMD_HELP;
+            result->track = true;
             break;
         case 'A':
             result->type = CMD_HELP_ALL;
@@ -182,8 +189,6 @@ int parse_command(Tab *tab, char *command, ParsedCommand *result)
         result->tokens = tokens;
         if (expect_coords && tokenc == 1)
         {
-            reset_cmd_tokens(result);
-            result->tokens = (char **)calloc(2, sizeof(char *));
             result->tokens[1] = (char *)calloc(32, sizeof(char));
             write_coordinate(tab->sel_piece, result->tokens[1]);
         }
@@ -192,7 +197,7 @@ int parse_command(Tab *tab, char *command, ParsedCommand *result)
     return 0;
 }
 
-int run_command(ParsedCommand *cmd, Tab *tab, TabHistory *history)
+int run_command(ParsedCommand *cmd, Tab *tab, TabHistory **history)
 {
     switch (cmd->type)
     {
@@ -205,7 +210,6 @@ int run_command(ParsedCommand *cmd, Tab *tab, TabHistory *history)
     case CMD_SELECT:
     {
         tab->sel_piece = read_coordinate(cmd->tokens[0]);
-        history = push_history(history, cmd);
         return 0;
     }
 
@@ -213,7 +217,6 @@ int run_command(ParsedCommand *cmd, Tab *tab, TabHistory *history)
     {
         iVec2 coord = read_coordinate(cmd->tokens[1]);
         toggle_branco(tab, coord.x, coord.y);
-        history = push_history(history, cmd);
         return 0;
     }
 
@@ -221,7 +224,6 @@ int run_command(ParsedCommand *cmd, Tab *tab, TabHistory *history)
     {
         iVec2 coord = read_coordinate(cmd->tokens[1]);
         toggle_marked(tab, coord.x, coord.y);
-        history = push_history(history, cmd);
         return 0;
     }
 
@@ -234,13 +236,19 @@ int run_command(ParsedCommand *cmd, Tab *tab, TabHistory *history)
 
     case CMD_UNDO:
     {
-        if (history == NULL)
+        if (*history == NULL)
         {
             printf("No more moves to undo.\n");
             return 0;
         }
         ParsedCommand *lastCmd = pop_history(history);
-        undo_command(lastCmd, tab);
+        if (lastCmd != NULL)
+        {
+            int res = undo_command(lastCmd, tab);
+            reset_cmd(lastCmd);
+            free(lastCmd);
+            return res;
+        }
         return 0;
     }
 
@@ -262,4 +270,29 @@ int run_command(ParsedCommand *cmd, Tab *tab, TabHistory *history)
     default:
         return 1;
     }
+}
+
+int undo_command(ParsedCommand *cmd, Tab *tab)
+{
+    switch (cmd->type)
+    {
+    case CMD_WHITE:
+    {
+        iVec2 coord = read_coordinate(cmd->tokens[1]);
+        toggle_branco(tab, coord.x, coord.y);
+        return 0;
+    }
+    case CMD_CROSS:
+    {
+        iVec2 coord = read_coordinate(cmd->tokens[1]);
+        toggle_marked(tab, coord.x, coord.y);
+        return 0;
+    }
+    default:
+    {
+        printf("Command not permitted to undo!");
+        return 1;
+    }
+    }
+    return 0;
 }

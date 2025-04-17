@@ -24,25 +24,23 @@ TabHistory *push_history(TabHistory *head, ParsedCommand *cmd)
     return head;
 }
 
-ParsedCommand *pop_history(TabHistory *head)
+ParsedCommand *pop_history(TabHistory **head)
 {
-    // no elements, return NULL
-    if (head == NULL)
-    {
+    if (*head == NULL)
         return NULL;
-    }
 
-    ParsedCommand *popped_cmd;
+    ParsedCommand *removed_cmd;
 
     // one element, return
-    if (head->next == NULL)
+    if ((*head)->next == NULL)
     {
-        popped_cmd = head->cmd;
-        free(head);
-        return popped_cmd;
+        removed_cmd = (*head)->cmd;
+        free(*head);
+        *head = NULL;
+        return removed_cmd;
     }
 
-    TabHistory *current = head;
+    TabHistory *current = *head;
     TabHistory *prev = NULL;
     while (current->next != NULL)
     {
@@ -50,10 +48,13 @@ ParsedCommand *pop_history(TabHistory *head)
         current = current->next;
     }
 
-    popped_cmd = current->cmd;
-    prev->next = NULL;
+    removed_cmd = current->cmd;
+    if (prev != NULL)
+    {
+        prev->next = NULL;
+    }
     free(current);
-    return popped_cmd;
+    return removed_cmd;
 }
 
 ParsedCommand *get_history_element(TabHistory *head, int index)

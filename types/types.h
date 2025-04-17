@@ -1,11 +1,6 @@
 #ifndef TYPES_H
 #define TYPES_H
-
-typedef enum
-{
-    false = 0,
-    true = 1
-} bool;
+#include <stdbool.h>
 
 typedef struct
 {
@@ -48,6 +43,7 @@ typedef struct
 {
     CommandType type;
     char **tokens;
+    bool track;
 } ParsedCommand;
 
 typedef struct node

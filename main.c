@@ -1,13 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
+#include <stdbool.h>
 
 #include "./jogo/tabuleiro.h"
 #include "./jogo/comandos.h"
-#include "./helpers/arrays.h"
+#include "./helpers/history.h"
 #include "./memory.h"
 
-int repl(Tab *tabuleiro, char *cmd_str, ParsedCommand *cmd)
+int repl(Tab *tabuleiro, char *cmd_str, ParsedCommand *cmd, TabHistory *hist)
 {
     while (true)
     {
@@ -30,6 +30,11 @@ int repl(Tab *tabuleiro, char *cmd_str, ParsedCommand *cmd)
             return 1;
         }
 
+        if (cmd->track)
+        {
+            hist = push_history(hist, cmd);
+        }
+
         if (cmd->type == CMD_EXIT)
             break;
 
@@ -39,7 +44,7 @@ int repl(Tab *tabuleiro, char *cmd_str, ParsedCommand *cmd)
             continue;
         }
 
-        if (run_command(cmd, tabuleiro))
+        if (run_command(cmd, tabuleiro, &hist))
         {
             printf("Failed to run command.\n");
             free_all(tabuleiro, cmd_str, cmd);
@@ -59,6 +64,9 @@ int main(void)
     if (tabuleiro == NULL)
         return 1;
 
+    // init to NULL to force initialization of history on first push call.
+    TabHistory *hist = NULL;
+
     // stores last command as string
     char *cmd_str = calloc(256, sizeof(char));
     if (cmd_str == NULL)
@@ -67,7 +75,7 @@ int main(void)
         return 1;
     }
 
-    ParsedCommand cmd = {CMD_INVALID, calloc(2, sizeof(char *))};
+    ParsedCommand cmd = {CMD_INVALID, calloc(2, sizeof(char *)), false};
     for (int i = 0; i < 2; i++)
     {
         cmd.tokens[i] = calloc(32, sizeof(char));
@@ -78,7 +86,7 @@ int main(void)
         }
     }
 
-    if (repl(tabuleiro, cmd_str, &cmd))
+    if (repl(tabuleiro, cmd_str, &cmd, hist))
         return 1;
 
     free_all(tabuleiro, cmd_str, &cmd);
