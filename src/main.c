@@ -57,7 +57,7 @@ int init_game(Game *game)
 
 int repl(Game *game)
 {
-    while (true)
+    while (game->cmd->type != CMD_EXIT)
     {
         getmaxyx(stdscr, game->win_d.y, game->win_d.x);
 
@@ -98,9 +98,6 @@ int repl(Game *game)
         {
             game->history = push_history(game->history, game->cmd);
         }
-
-        if (game->cmd->type == CMD_EXIT)
-            break;
 
         if (game->cmd->type == CMD_INVALID || (game->cmd->type != CMD_LOAD && game->tabuleiro->data == NULL))
         {
