@@ -3,7 +3,7 @@ CC       = gcc
 CFLAGS   = -Wall -Wextra -pedantic -O1 -fsanitize=address -fno-omit-frame-pointer -g
 COVFLAGS = -fprofile-arcs -ftest-coverage
 INC_DIRS = -Iinclude -I/opt/homebrew/Cellar/cunit/2.1-3/include
-LDFLAGS  = -L/opt/homebrew/Cellar/cunit/2.1-3/lib
+LDFLAGS  = -L/opt/homebrew/Cellar/cunit/2.1-3/lib -lncurses
 LIBS     = -lcunit
 
 # Directories
