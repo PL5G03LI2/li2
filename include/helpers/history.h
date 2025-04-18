@@ -1,6 +1,6 @@
 #ifndef HISTORY_H
 #define HISTORY_H
-#include "../types/types.h"
+#include "types.h"
 
 /**
  * @brief Insert at the end of the list (stack).

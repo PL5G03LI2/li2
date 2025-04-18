@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "../helpers/strs.h"
-#include "tabuleiro.h"
+#include "helpers/strs.h"
+#include "jogo/tabuleiro.h"
 
 Tab *initialize_tabuleiro(void)
 {

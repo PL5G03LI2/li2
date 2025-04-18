@@ -3,11 +3,11 @@
 #include <string.h>
 #include <ctype.h>
 
-#include "strs.h"
-#include "comandos.h"
-#include "../types/types.h"
-#include "../jogo/tabuleiro.h"
-#include "../helpers/history.h"
+#include "helpers/strs.h"
+#include "helpers/history.h"
+#include "jogo/comandos.h"
+#include "jogo/tabuleiro.h"
+#include "types.h"
 
 iVec2 read_coordinate(char *coord_tkn)
 {

@@ -1,5 +1,5 @@
 #include <stdlib.h>
-#include "../types/types.h"
+#include "types.h"
 
 void free_all(Tab *tabuleiro, char *cmd_str, ParsedCommand *cmd)
 {

@@ -1,4 +1,4 @@
-#include "../types/types.h"
+#include "types.h"
 
 #ifndef TAB_H
 #define TAB_H

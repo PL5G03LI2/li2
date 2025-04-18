@@ -1,5 +1,5 @@
-#include "../types/types.h"
 #include <stdio.h>
+#include "types.h"
 
 /**
  * Reads a token and converts it to a Vector.

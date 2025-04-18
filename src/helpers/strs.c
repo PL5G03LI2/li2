@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
-#include "strs.h"
+#include "helpers/strs.h"
 
 int isLower(char c)
 {

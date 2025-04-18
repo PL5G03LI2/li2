@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
-#include "history.h"
-#include "../jogo/comandos.h"
+#include "helpers/history.h"
+#include "jogo/comandos.h"
 
 TabHistory *push_history(TabHistory *head, ParsedCommand *cmd)
 {
