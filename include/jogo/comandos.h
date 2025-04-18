@@ -80,25 +80,24 @@ int await_command(char *command);
 int tokenize_cmd(char *command, char **args);
 
 /**
- * Analisa um comando lido do utilizador
- * O comando deve ser uma string terminada em '\0'
+ * Analisa o comando lido do jogador na string `game.cmd_str`.
  *
- * @param *command Pointer to the string command to parse.
- * @param *parsed_cmd Pointer to the target parsed command.
+ * @param game Pointer to the game.
  *
  * @return 1 if unable to parse.
  * @return 0 otherwise.
+ *
+ * @note O comando nessa string tem de ser NULL terminated.
  */
-int parse_command(Tab *tab, char *command, ParsedCommand *parsed_cmd);
+int parse_command(Game *game);
 
 /**
  * Executa um comando analisado.
  *
- * @param *cmd Um comando válido.
- * @param **tab Referência do tabuleiro. Permite ajustes pelo comando.
+ * @param game O pointer para o jogo.
  *
  * @returns 0 se o comando for executado com sucesso, 1 caso contrário.
  */
-int run_command(ParsedCommand *cmd, Tab *tab, TabHistory **history);
+int run_command(Game *game);
 
 int undo_command(ParsedCommand *cmd, Tab *tab);

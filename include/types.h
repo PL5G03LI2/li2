@@ -51,4 +51,14 @@ typedef struct node
     ParsedCommand *cmd;
     struct node *next;
 } TabHistory;
+
+typedef struct game
+{
+    Tab *tabuleiro;
+    TabHistory *history;
+    char *cmd_str;
+    ParsedCommand *cmd;
+    iVec2 win_d;
+} Game;
+
 #endif
