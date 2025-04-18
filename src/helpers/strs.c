@@ -58,5 +58,6 @@ void print_info(const char *string, iVec2 win_d)
     getyx(stdscr, prev.y, prev.x);
     move(win_d.y - 2, 0);
     printw(string);
+    refresh();
     move(prev.y, prev.x);
 }

@@ -82,28 +82,38 @@ void print_piece(Piece piece)
         printw("%c", piece.c);
 }
 
-void print_tab(Tab *tab)
+void print_tab(Tab *tab, iVec2 win_d)
 {
     int height = tab->height;
     int width = tab->width;
 
+    // Calculate the total width and height of the board display (including headers and borders)
+    int board_width = 3 + 2 * width; // "a |" + " x x x"
+    int board_height = 3 + height;   // headers + rows
+
+    // Calculate top-left corner to center the board
+    int start_y = (win_d.y - board_height) / 2;
+    int start_x = (win_d.x - board_width) / 2;
+
     // Print column headers
-    printw(" ");
+    mvprintw(start_y, start_x + 1, " ");
     for (int i = 0; i < width; i++)
     {
-        printw(" %d", i + 1);
+        printw("%d ", i + 1);
     }
-    printw("\n--");
+
+    // Print separator
+    mvprintw(start_y + 1, start_x, "--");
     for (int i = 0; i < width; i++)
     {
         printw("--");
     }
-    printw("\n");
 
     // Print each row of the grid
     for (int x = 0; x < height; x++)
     {
-        printw("%c|", x + 'a');
+        // Print row label
+        mvprintw(start_y + 2 + x, start_x, "%c|", x + 'a');
 
         // Print each character in the row
         for (int y = 0; y < width; y++)
@@ -115,17 +125,14 @@ void print_tab(Tab *tab)
             if (selected)
             {
                 attron(COLOR_PAIR(1));
-                print_piece(piece);
+                mvprintw(start_y + 2 + x, start_x + 2 + 2 * y, "%c", piece.marked ? '#' : piece.c);
                 attroff(COLOR_PAIR(1));
             }
             else
             {
-                print_piece(piece);
+                mvprintw(start_y + 2 + x, start_x + 2 + 2 * y, "%c", piece.marked ? '#' : piece.c);
             }
-            printw(" "); // Add a space after each character
         }
-
-        printw("\n"); // Move to the next line after each row
     }
 }
 

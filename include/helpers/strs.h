@@ -45,6 +45,8 @@ char *trim_str(char *str);
  *
  * @param str The string to print.
  * @param win_d The window dimensions.
+ *
+ * @note this will refresh the screen too;
  */
 void print_info(const char *str, iVec2 win_d);
 
