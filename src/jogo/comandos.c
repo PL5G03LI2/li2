@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <ncurses.h>
 
 #include "helpers/strs.h"
 #include "helpers/history.h"
@@ -128,12 +129,11 @@ void reset_cmd(ParsedCommand *cmd)
 
 int await_command(char *command)
 {
-    if (!fgets(command, 256, stdin))
-    {
-        printf("Error: failed fgets.");
+    if (getnstr(command, 256))
         return 1;
-    }
-    command[strcspn(command, "\n")] = 0;
+
+    move(0, 0);
+    printw(command);
     return 0;
 }
 
@@ -228,7 +228,7 @@ int run_command(ParsedCommand *cmd, Tab *tab, TabHistory **history)
         if (assert_pos(tab, preferred_selection.x, preferred_selection.y))
             tab->sel_piece = preferred_selection;
         else
-            printf("Position out of bounds!\n");
+            printw("Position out of bounds!\n");
         return 0;
     }
 
@@ -248,16 +248,16 @@ int run_command(ParsedCommand *cmd, Tab *tab, TabHistory **history)
 
     case CMD_VERIFY:
         if (validar_tabuleiro(tab))
-            printf("Valid tabuleiro.");
+            printw("Valid tabuleiro.");
         else
-            printf("Invalid.");
+            printw("Invalid.");
         return 0;
 
     case CMD_UNDO:
     {
         if (*history == NULL)
         {
-            printf("No more moves to undo.\n");
+            printw("No more moves to undo.\n");
             return 0;
         }
         ParsedCommand *lastCmd = pop_history(history);
@@ -309,7 +309,7 @@ int undo_command(ParsedCommand *cmd, Tab *tab)
     }
     default:
     {
-        printf("Command not permitted to undo!");
+        printw("Command not permitted to undo!");
         return 1;
     }
     }

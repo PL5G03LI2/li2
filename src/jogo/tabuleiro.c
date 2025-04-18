@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <ncurses.h>
+
 #include "helpers/strs.h"
 #include "jogo/tabuleiro.h"
 
@@ -75,9 +77,9 @@ void toggle_marked(Tab *tab, int x, int y)
 void print_piece(Piece piece)
 {
     if (piece.marked)
-        printf("#");
+        printw("#");
     else
-        printf("%c", piece.c);
+        printw("%c", piece.c);
 }
 
 void print_tab(Tab *tab)
@@ -86,22 +88,22 @@ void print_tab(Tab *tab)
     int width = tab->width;
 
     // Print column headers
-    printf(" ");
+    printw(" ");
     for (int i = 0; i < width; i++)
     {
-        printf(" %d", i + 1);
+        printw(" %d", i + 1);
     }
-    printf("\n--");
+    printw("\n--");
     for (int i = 0; i < width; i++)
     {
-        printf("--");
+        printw("--");
     }
-    printf("\n");
+    printw("\n");
 
     // Print each row of the grid
     for (int x = 0; x < height; x++)
     {
-        printf("%c|", x + 'a');
+        printw("%c|", x + 'a');
 
         // Print each character in the row
         for (int y = 0; y < width; y++)
@@ -112,18 +114,18 @@ void print_tab(Tab *tab)
 
             if (selected)
             {
-                printf("\033[1m\033[47m");
+                attron(COLOR_PAIR(1));
                 print_piece(piece);
-                printf("\033[0m");
+                attroff(COLOR_PAIR(1));
             }
             else
             {
                 print_piece(piece);
             }
-            printf(" "); // Add a space after each character
+            printw(" "); // Add a space after each character
         }
 
-        printf("\n"); // Move to the next line after each row
+        printw("\n"); // Move to the next line after each row
     }
 }
 
