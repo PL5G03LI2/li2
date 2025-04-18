@@ -4,7 +4,7 @@ CFLAGS   = -Wall -Wextra -pedantic -O1 -fsanitize=address -fno-omit-frame-pointe
 COVFLAGS = -fprofile-arcs -ftest-coverage
 INC_DIRS = -Iinclude -I/opt/homebrew/Cellar/cunit/2.1-3/include
 LDFLAGS  = -L/opt/homebrew/Cellar/cunit/2.1-3/lib
-LIBS     = -lcunit
+LIBS     = -lcunit -lncurses
 
 # Directories
 SRC_DIR   = src
@@ -44,7 +44,7 @@ $(OBJ_DIR)/%.o: %.c | $(OBJ_DIR)
 
 # Link targets
 $(JOGO_EXEC): $(JOGO_OBJS) $(MAIN_OBJ) | $(BIN_DIR)
-	$(CC) $(CFLAGS) $(COVFLAGS) -o $@ $(JOGO_OBJS) $(MAIN_OBJ)
+	$(CC) $(CFLAGS) $(COVFLAGS) -o $@ $(JOGO_OBJS) $(MAIN_OBJ) $(LDFLAGS) $(LIBS)
 
 $(TEST_EXEC): $(TEST_OBJS) $(JOGO_OBJS) | $(BIN_DIR)
 	$(CC) $(CFLAGS) $(COVFLAGS) -o $@ $(TEST_OBJS) $(JOGO_OBJS) $(LDFLAGS) $(LIBS)
