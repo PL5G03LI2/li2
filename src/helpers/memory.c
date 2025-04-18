@@ -1,7 +1,8 @@
 #include <stdlib.h>
+#include "helpers/history.h"
 #include "types.h"
 
-void free_all(Tab *tabuleiro, char *cmd_str, ParsedCommand *cmd)
+void free_all(Tab *tabuleiro, char *cmd_str, ParsedCommand *cmd, TabHistory **head)
 {
     if (tabuleiro->data)
         free(tabuleiro->data);
@@ -15,4 +16,5 @@ void free_all(Tab *tabuleiro, char *cmd_str, ParsedCommand *cmd)
         free(cmd->tokens[i]);
 
     free(cmd->tokens);
+    destroy_history(head);
 }

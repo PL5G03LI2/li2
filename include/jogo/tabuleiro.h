@@ -22,17 +22,17 @@ int calc_index(Tab *tabuleiro, int x, int y);
 /**
  * Ensures valid string index.
 
- * @returns 1 if index is in bounds.
- * @returns 0 otherwise.
+ * @returns true if index is in bounds.
+ * @returns false otherwise.
  */
-int assert_index(Tab *tabuleiro, int i);
+bool assert_index(Tab *tabuleiro, int i);
 
 /**
  * Ensures a valid position.
- * @returns 1 if position is valid.
- * @returns 0 otherwise.
+ * @returns true if position is valid.
+ * @returns false otherwise.
  */
-int assert_pos(Tab *tabuleiro, int x, int y);
+bool assert_pos(Tab *tabuleiro, int x, int y);
 
 /**
  * Retorna o char na coordenada (x, y)

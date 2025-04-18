@@ -45,8 +45,9 @@ ParsedCommand *get_history_element(TabHistory *head, int index);
  *
  * @param head The pointer to the head of the list (stack).
  *
- * @note This will clear the whole history, including free() all of the allocated memory.
+ * @note
+ * This will clear the whole history, including free() all of the allocated memory.
  */
-void destroy_history(TabHistory *head);
+void destroy_history(TabHistory **head);
 
 #endif // HISTORY_H

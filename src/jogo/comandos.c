@@ -26,7 +26,7 @@ iVec2 read_coordinate(char *coord_tkn)
     // Read numbers for y-coordinate
     while (isdigit(coord_tkn[i]))
     {
-        result.y = result.y * 10 + (coord_tkn[i] - '0');
+        result.y = result.y * 10 + (coord_tkn[i] - '1');
         i++;
     }
 
@@ -46,7 +46,7 @@ char *write_coordinate(iVec2 coord, char *buffer)
     buffer[pos++] = 'a' + x;
 
     // Handle y-coordinate (convert to numbers)
-    pos += sprintf(buffer + pos, "%d", coord.y);
+    pos += sprintf(buffer + pos, "%d", coord.y + 1);
 
     buffer[pos] = '\0';
     return buffer;
@@ -63,11 +63,26 @@ ParsedCommand *deep_copy_cmd(ParsedCommand *cmd)
 
     new_cmd->tokens = (char **)calloc(2, sizeof(char *));
     if (!new_cmd->tokens)
+    {
+        free(new_cmd);
         return NULL;
+    }
 
     for (int i = 0; i < 2; i++)
     {
-        new_cmd->tokens[i] = strdup(cmd->tokens[i]);
+        if (cmd->tokens[i])
+            new_cmd->tokens[i] = strdup(cmd->tokens[i]);
+        else
+            new_cmd->tokens[i] = strdup("");
+
+        if (!new_cmd->tokens[i])
+        {
+            for (int j = 0; j < i; j++)
+                free(new_cmd->tokens[j]);
+            free(new_cmd->tokens);
+            free(new_cmd);
+            return NULL;
+        }
     }
 
     return new_cmd;
@@ -80,7 +95,7 @@ int tokenize_cmd(char *command, char **tokens)
 
     token = strtok(command, " ");
 
-    while (token && tokenc < 3)
+    while (token && tokenc < 2)
     {
         tokens[tokenc] = strdup(token);
         token = strtok(NULL, " ");
@@ -209,7 +224,11 @@ int run_command(ParsedCommand *cmd, Tab *tab, TabHistory **history)
 
     case CMD_SELECT:
     {
-        tab->sel_piece = read_coordinate(cmd->tokens[0]);
+        iVec2 preferred_selection = read_coordinate(cmd->tokens[0]);
+        if (assert_pos(tab, preferred_selection.x, preferred_selection.y))
+            tab->sel_piece = preferred_selection;
+        else
+            printf("Position out of bounds!\n");
         return 0;
     }
 

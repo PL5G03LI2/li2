@@ -7,7 +7,7 @@
 #include "helpers/history.h"
 #include "helpers/memory.h"
 
-int repl(Tab *tabuleiro, char *cmd_str, ParsedCommand *cmd, TabHistory *hist)
+int repl(Tab *tabuleiro, char *cmd_str, ParsedCommand *cmd, TabHistory **hist)
 {
     while (true)
     {
@@ -19,20 +19,20 @@ int repl(Tab *tabuleiro, char *cmd_str, ParsedCommand *cmd, TabHistory *hist)
         if (await_command(cmd_str))
         {
             printf("Failed to read command\n");
-            free_all(tabuleiro, cmd_str, cmd);
+            free_all(tabuleiro, cmd_str, cmd, hist);
             return 1;
         }
 
         if (parse_command(tabuleiro, cmd_str, cmd))
         {
             printf("Failed to parse command\n");
-            free_all(tabuleiro, cmd_str, cmd);
+            free_all(tabuleiro, cmd_str, cmd, hist);
             return 1;
         }
 
         if (cmd->track)
         {
-            hist = push_history(hist, cmd);
+            *hist = push_history(*hist, cmd);
         }
 
         if (cmd->type == CMD_EXIT)
@@ -44,10 +44,10 @@ int repl(Tab *tabuleiro, char *cmd_str, ParsedCommand *cmd, TabHistory *hist)
             continue;
         }
 
-        if (run_command(cmd, tabuleiro, &hist))
+        if (run_command(cmd, tabuleiro, hist))
         {
             printf("Failed to run command.\n");
-            free_all(tabuleiro, cmd_str, cmd);
+            free_all(tabuleiro, cmd_str, cmd, hist);
             return 1;
         }
 
@@ -71,7 +71,7 @@ int main(void)
     char *cmd_str = calloc(256, sizeof(char));
     if (cmd_str == NULL)
     {
-        free_all(tabuleiro, NULL, NULL);
+        free_all(tabuleiro, NULL, NULL, &hist);
         return 1;
     }
 
@@ -81,15 +81,15 @@ int main(void)
         cmd.tokens[i] = calloc(32, sizeof(char));
         if (cmd.tokens[i] == NULL)
         {
-            free_all(tabuleiro, cmd_str, &cmd);
+            free_all(tabuleiro, cmd_str, &cmd, &hist);
             return 1;
         }
     }
 
-    if (repl(tabuleiro, cmd_str, &cmd, hist))
+    if (repl(tabuleiro, cmd_str, &cmd, &hist))
         return 1;
 
-    free_all(tabuleiro, cmd_str, &cmd);
+    free_all(tabuleiro, cmd_str, &cmd, &hist);
 
     return 0;
 }
