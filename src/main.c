@@ -8,102 +8,102 @@
 #include "helpers/history.h"
 #include "helpers/memory.h"
 
-int init_all(Tab **tabuleiro, char **cmd_str, ParsedCommand **cmd, TabHistory **hist)
+int init_game(Game *game)
 {
-    *tabuleiro = initialize_tabuleiro();
-    if (*tabuleiro == NULL)
+    game->tabuleiro = initialize_tabuleiro();
+    if (game->tabuleiro == NULL)
         return 1;
 
-    *cmd_str = (char *)calloc(256, sizeof(char));
-    if (*cmd_str == NULL)
+    game->cmd_str = (char *)calloc(256, sizeof(char));
+    if (game->cmd_str == NULL)
     {
-        free_all(*tabuleiro, NULL, NULL, NULL);
-        return 1;
-    }
-
-    *cmd = (ParsedCommand *)malloc(sizeof(ParsedCommand));
-    if (*cmd == NULL)
-    {
-        free_all(*tabuleiro, *cmd_str, NULL, NULL);
+        free_game(game);
         return 1;
     }
 
-    (*cmd)->type = CMD_INVALID;
-    (*cmd)->track = false;
-
-    (*cmd)->tokens = (char **)calloc(2, sizeof(char *));
-    if ((*cmd)->tokens == NULL)
+    game->cmd = (ParsedCommand *)malloc(sizeof(ParsedCommand));
+    if (game->cmd == NULL)
     {
-        free_all(*tabuleiro, *cmd_str, *cmd, NULL);
+        free_game(game);
+        return 1;
+    }
+
+    game->cmd->type = CMD_INVALID;
+    game->cmd->track = false;
+
+    game->cmd->tokens = (char **)calloc(2, sizeof(char *));
+    if (game->cmd->tokens == NULL)
+    {
+        free_game(game);
         return 1;
     }
 
     for (int i = 0; i < 2; i++)
     {
-        (*cmd)->tokens[i] = (char *)calloc(32, sizeof(char));
-        if ((*cmd)->tokens[i] == NULL)
+        game->cmd->tokens[i] = (char *)calloc(32, sizeof(char));
+        if (game->cmd->tokens[i] == NULL)
         {
-            free_all(*tabuleiro, *cmd_str, *cmd, hist);
+            free_game(game);
             return 1;
         }
     }
 
-    *hist = NULL;
+    game->history = NULL;
 
     return 0;
 }
 
-int repl(Tab *tabuleiro, char *cmd_str, ParsedCommand *cmd, TabHistory **hist, iVec2 win_d)
+int repl(Game *game)
 {
     while (true)
     {
-        if (tabuleiro->data == NULL)
+        if (game->tabuleiro->data == NULL)
         {
-            move(win_d.y - 2, 0);
+            move(game->win_d.y - 2, 0);
             printw("Awaiting load command... Hint: l <save_file>");
             refresh();
         }
 
-        move(win_d.y - 1, 0);
+        move(game->win_d.y - 1, 0);
 
-        if (await_command(cmd_str))
+        if (await_command(game->cmd_str))
         {
-            printw("Failed to read command\n");
-            free_all(tabuleiro, cmd_str, cmd, hist);
+            printw("Failed to read command");
+            free_game(game);
             return 1;
         }
 
-        if (parse_command(tabuleiro, cmd_str, cmd))
+        if (parse_command(game))
         {
-            printw("Failed to parse command\n");
-            free_all(tabuleiro, cmd_str, cmd, hist);
+            printw("Failed to parse command");
+            free_game(game);
             return 1;
         }
 
-        if (cmd->track)
+        if (game->cmd->track)
         {
-            *hist = push_history(*hist, cmd);
+            game->history = push_history(game->history, game->cmd);
         }
 
-        if (cmd->type == CMD_EXIT)
+        if (game->cmd->type == CMD_EXIT)
             break;
 
-        if (cmd->type == CMD_INVALID || (cmd->type != CMD_LOAD && tabuleiro->data == NULL))
+        if (game->cmd->type == CMD_INVALID || (game->cmd->type != CMD_LOAD && game->tabuleiro->data == NULL))
         {
-            printw("Invalid command.\n");
+            printw("Invalid command.");
             continue;
         }
 
-        if (run_command(cmd, tabuleiro, hist))
+        if (run_command(game))
         {
-            printw("Failed to run command.\n");
-            free_all(tabuleiro, cmd_str, cmd, hist);
+            printw("Failed to run command.");
+            free_game(game);
             return 1;
         }
 
         clear();
-        if (cmd->type != CMD_EXIT)
-            print_tab(tabuleiro);
+        if (game->cmd->type != CMD_EXIT)
+            print_tab(game->tabuleiro);
     }
 
     return 0;
@@ -112,28 +112,29 @@ int repl(Tab *tabuleiro, char *cmd_str, ParsedCommand *cmd, TabHistory **hist, i
 int main(void)
 {
     initscr();
+    if (!has_colors())
+    {
+        endwin();
+        printf("Your terminal does not support colors...\n");
+        return 1;
+    }
     start_color();
     init_pair(1, COLOR_BLACK, COLOR_WHITE);
 
-    iVec2 win_d = {0, 0};
-    getmaxyx(stdscr, win_d.y, win_d.x);
+    Game game = {NULL, NULL, NULL, NULL, {0, 0}};
+    getmaxyx(stdscr, game.win_d.y, game.win_d.x);
 
-    Tab *tabuleiro;
-    TabHistory *hist;
-    char *cmd_str;
-    ParsedCommand *cmd;
+    init_game(&game);
 
-    init_all(&tabuleiro, &cmd_str, &cmd, &hist);
-
-    if (repl(tabuleiro, cmd_str, cmd, &hist, win_d))
+    if (repl(&game))
     {
-        free_all(tabuleiro, cmd_str, cmd, &hist);
+        free_game(&game);
         endwin();
         return 1;
     }
 
     // Nothing more to do, clean up.
-    free_all(tabuleiro, cmd_str, cmd, &hist);
+    free_game(&game);
     endwin();
     return 0;
 }

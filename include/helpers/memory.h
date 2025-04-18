@@ -13,6 +13,6 @@
  *
  * @note If by the time you need to free memory you haven't initialized or allocated something. Pass NULL to that parameter.
  */
-void free_all(Tab *tabuleiro, char *cmd_str, ParsedCommand *cmd, TabHistory **head);
+void free_game(Game *game);
 
 #endif

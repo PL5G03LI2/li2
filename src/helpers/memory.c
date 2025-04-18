@@ -2,19 +2,23 @@
 #include "helpers/history.h"
 #include "types.h"
 
-void free_all(Tab *tabuleiro, char *cmd_str, ParsedCommand *cmd, TabHistory **head)
+void free_game(Game *game)
 {
-    if (tabuleiro->data)
-        free(tabuleiro->data);
-    free(tabuleiro);
+    if (game->tabuleiro && game->tabuleiro->data)
+        free(game->tabuleiro->data);
+    free(game->tabuleiro);
 
-    free(cmd_str);
+    if (game->cmd_str)
+        free(game->cmd_str);
 
-    if (!cmd->tokens)
-        return;
-    for (int i = 0; i < 2; i++)
-        free(cmd->tokens[i]);
+    if (game->cmd && game->cmd->tokens)
+    {
+        for (int i = 0; i < 2; i++)
+            free(game->cmd->tokens[i]);
 
-    free(cmd->tokens);
-    destroy_history(head);
+        free(game->cmd->tokens);
+        free(game->cmd);
+    }
+
+    destroy_history(&(game->history));
 }

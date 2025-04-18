@@ -1,5 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
+#include <ncurses.h>
+
 #include "helpers/strs.h"
 
 int isLower(char c)
@@ -48,4 +50,13 @@ char *trim_str(char *str)
     memcpy(out, str, len);
     out[len] = '\0';
     return out;
+}
+
+void print_info(const char *string, iVec2 win_d)
+{
+    iVec2 prev;
+    getyx(stdscr, prev.y, prev.x);
+    move(win_d.y - 2, 0);
+    printw(string);
+    move(prev.y, prev.x);
 }

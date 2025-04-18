@@ -1,3 +1,7 @@
+#include "types.h"
+#ifndef STRS_H
+#define STRS_H
+
 /**
  * Verifica se um character é uma letra maiúscula.
  *
@@ -35,3 +39,13 @@ char toLower(char c);
  * @note If the input string is NULL or an empty string, the function returns without error.
  */
 char *trim_str(char *str);
+
+/**
+ * @brief Prints a one line information to the screen, ensuring to return to previous cursor pos
+ *
+ * @param str The string to print.
+ * @param win_d The window dimensions.
+ */
+void print_info(const char *str, iVec2 win_d);
+
+#endif
