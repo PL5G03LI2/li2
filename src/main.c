@@ -61,11 +61,16 @@ int repl(Game *game)
     {
         getmaxyx(stdscr, game->win_d.y, game->win_d.x);
 
-        clear();
+        // clear the whole board area
+        for (int i = 0; i < game->win_d.y - 2; i++)
+        {
+            move(i, 0);
+            clrtoeol();
+        }
 
         if (game->tabuleiro->data)
         {
-            iVec2 min_d = {game->tabuleiro->width * 2 + 2, game->tabuleiro->height + 4};
+            iVec2 min_d = {game->tabuleiro->width * 2 + 2, game->tabuleiro->height + 6};
             if (game->win_d.x < min_d.x || game->win_d.y < min_d.y)
             {
                 print_info("Window too small.", game->win_d);
@@ -80,6 +85,7 @@ int repl(Game *game)
         }
 
         move(game->win_d.y - 1, 0);
+        clrtoeol(); // clear the line before input.
         addch(':');
 
         if (await_command(game->cmd_str))
