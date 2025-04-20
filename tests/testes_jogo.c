@@ -340,7 +340,7 @@ void test_read_coordinate(void)
     CU_ASSERT_EQUAL(result.x, 26);
     CU_ASSERT_EQUAL(result.y, 0);
 
-    // Test "ab10" -> (26+1,9)
+    // Test "ab10" -> (25+1,9)
     result = read_coordinate("ab10");
     CU_ASSERT_EQUAL(result.x, 27);
     CU_ASSERT_EQUAL(result.y, 9);
@@ -360,15 +360,15 @@ void test_read_coordinate(void)
     CU_ASSERT_EQUAL(result.x, 0);
     CU_ASSERT_EQUAL(result.y, 0);
 
-    // Test no number "b" should be (1,0)
+    // Test no number "b"
     result = read_coordinate("b");
-    CU_ASSERT_EQUAL(result.x, 1);
+    CU_ASSERT_EQUAL(result.x, 0);
     CU_ASSERT_EQUAL(result.y, 0);
 
-    // Test no letter "3" should be (0,2)
+    // Test no letter "3"
     result = read_coordinate("3");
     CU_ASSERT_EQUAL(result.x, 0);
-    CU_ASSERT_EQUAL(result.y, 2);
+    CU_ASSERT_EQUAL(result.y, 0);
 
     // Edge Case: Malformed input "a1b2" -> should return default (0,0) or similar
     result = read_coordinate("a1b2");
@@ -422,18 +422,19 @@ void test_write_coordinate(void)
     CU_ASSERT_STRING_EQUAL(write_coordinate(result, buffer), "ab2");
 
     // Test (51,10) -> expected "bz11"
-    result.x = 51;
+    result.x = 2 * 26 + 25;
     result.y = 10;
     CU_ASSERT_STRING_EQUAL(write_coordinate(result, buffer), "bz11");
 
     // Test (52,9) -> expected "ca10"
-    result.x = 52;
+    result.x = 3 * 26 + 0;
     result.y = 9;
     CU_ASSERT_STRING_EQUAL(write_coordinate(result, buffer), "ca10");
 
-    // Test (701, 5) -> expected "zz6"
-    result.x = 701;
+    // Test (26 * 26 + 25, 5) -> expected "zz6"
+    result.x = 26 * 26 + 25;
     result.y = 5;
+    printf("%s\n", write_coordinate(result, buffer));
     CU_ASSERT_STRING_EQUAL(write_coordinate(result, buffer), "zz6");
 
     // Test large y-value (e.g., (0, 100)) -> expected "a101"
@@ -442,17 +443,17 @@ void test_write_coordinate(void)
     CU_ASSERT_STRING_EQUAL(write_coordinate(result, buffer), "a101");
 
     // Test large x and y value (e.g., (52, 99)) -> expected "ca100"
-    result.x = 52;
+    result.x = 3 * 26 + 0;
     result.y = 99;
     CU_ASSERT_STRING_EQUAL(write_coordinate(result, buffer), "ca100");
 
     // Edge Case: Buffer overflow test - ensure buffer is large enough
-    result.x = 702;
+    result.x = 1 * 26 * 26 + 1 * 26 + 0;
     result.y = 200;
     CU_ASSERT_STRING_EQUAL(write_coordinate(result, buffer), "aaa201");
 
     // Edge Case: Test very high x and y (e.g., (1000, 1000)) -> expected "aaa1001"
-    result.x = 1000;
+    result.x = 26 * 26 + 26 + 0;
     result.y = 1000;
     CU_ASSERT_STRING_EQUAL(write_coordinate(result, buffer), "aaa1001");
 }

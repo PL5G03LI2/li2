@@ -17,39 +17,63 @@ iVec2 read_coordinate(char *coord_tkn)
     result.y = 0;
     int i = 0;
 
+    // couldn't find alpha char, return default.
+    if (!isalpha(coord_tkn[i]))
+        return result;
+
     // Read letters for x-coordinate
     while (isalpha(coord_tkn[i]))
     {
-        result.x = result.x * 26 + (toLower(coord_tkn[i]) - 'a');
+        result.x = result.x * 26 + (toLower(coord_tkn[i]) - 'a' + 1);
         i++;
+    }
+
+    // couldn't find a digit next, returns default.
+    if (!isdigit(coord_tkn[i]))
+    {
+        result.x = 0;
+        return result;
     }
 
     // Read numbers for y-coordinate
     while (isdigit(coord_tkn[i]))
     {
-        result.y = result.y * 10 + (coord_tkn[i] - '1');
+        result.y = result.y * 10 + (coord_tkn[i] - '0');
         i++;
     }
+
+    // fix indexing
+    result.x -= 1;
+    result.y -= 1;
 
     return result;
 }
 
 char *write_coordinate(iVec2 coord, char *buffer)
 {
-    int x = coord.x;
     int pos = 0;
+    int x = coord.x + 1;
+    char letters[8] = {0};
+    int letter_count = 0;
 
-    if (x >= 26)
+    while (x > 0)
     {
-        buffer[pos++] = 'a' + (x / 26 - 1);
-        x = x % 26;
+        int remainder = x % 26;
+        if (remainder == 0)
+        {
+            remainder = 26;
+            x -= 1;
+        }
+        letters[letter_count++] = 'a' + remainder - 1;
+        x = x / 26;
     }
-    buffer[pos++] = 'a' + x;
 
-    // Handle y-coordinate (convert to numbers)
-    pos += sprintf(buffer + pos, "%d", coord.y + 1);
+    for (int i = letter_count - 1; i >= 0; i--)
+        buffer[pos++] = letters[i];
 
-    buffer[pos] = '\0';
+    // Write y coordinate
+    sprintf(buffer + pos, "%d", coord.y + 1);
+
     return buffer;
 }
 
