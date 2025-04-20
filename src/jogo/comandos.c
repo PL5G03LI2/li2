@@ -53,42 +53,6 @@ char *write_coordinate(iVec2 coord, char *buffer)
     return buffer;
 }
 
-// ParsedCommand *deep_copy_cmd(ParsedCommand *cmd)
-// {
-//     ParsedCommand *new_cmd = (ParsedCommand *)malloc(sizeof(ParsedCommand));
-//     if (!new_cmd)
-//         return NULL;
-
-//     new_cmd->type = cmd->type;
-//     new_cmd->track = cmd->track;
-
-//     new_cmd->tokens = (char **)calloc(2, sizeof(char *));
-//     if (!new_cmd->tokens)
-//     {
-//         free(new_cmd);
-//         return NULL;
-//     }
-
-//     for (int i = 0; i < 2; i++)
-//     {
-//         if (cmd->tokens[i])
-//             new_cmd->tokens[i] = strdup(cmd->tokens[i]);
-//         else
-//             new_cmd->tokens[i] = strdup("");
-
-//         if (!new_cmd->tokens[i])
-//         {
-//             for (int j = 0; j < i; j++)
-//                 free(new_cmd->tokens[j]);
-//             free(new_cmd->tokens);
-//             free(new_cmd);
-//             return NULL;
-//         }
-//     }
-
-//     return new_cmd;
-// }
-
 ParsedCommand *deep_copy_cmd(ParsedCommand *cmd)
 {
     if (cmd == NULL)
@@ -98,45 +62,30 @@ ParsedCommand *deep_copy_cmd(ParsedCommand *cmd)
     if (!new_cmd)
         return NULL;
 
-    // Copy the simple fields
     new_cmd->type = cmd->type;
     new_cmd->track = cmd->track;
 
-    // Check if cmd->tokens is NULL
-    if (cmd->tokens == NULL)
+    new_cmd->tokens = (char **)calloc(2, sizeof(char *));
+    if (!new_cmd->tokens)
     {
-        new_cmd->tokens = NULL; // No tokens to copy
+        free(new_cmd);
+        return NULL;
     }
-    else
-    {
-        // Count the number of tokens in cmd->tokens (assuming it's a NULL-terminated array)
-        int token_count = 0;
-        while (cmd->tokens[token_count] != NULL)
-        {
-            token_count++;
-        }
 
-        // Allocate memory for the tokens based on the actual count
-        new_cmd->tokens = (char **)calloc(token_count + 1, sizeof(char *)); // +1 for NULL terminator
-        if (!new_cmd->tokens)
+    for (int i = 0; i < 2; i++)
+    {
+        if (cmd->tokens[i])
+            new_cmd->tokens[i] = strdup(cmd->tokens[i]);
+        else
+            new_cmd->tokens[i] = strdup("");
+
+        if (!new_cmd->tokens[i])
         {
+            for (int j = 0; j < i; j++)
+                free(new_cmd->tokens[j]);
+            free(new_cmd->tokens);
             free(new_cmd);
             return NULL;
-        }
-
-        // Copy each token
-        for (int i = 0; i < token_count; i++)
-        {
-            new_cmd->tokens[i] = strdup(cmd->tokens[i]);
-            if (!new_cmd->tokens[i])
-            {
-                // Free allocated memory if strdup fails
-                for (int j = 0; j < i; j++)
-                    free(new_cmd->tokens[j]);
-                free(new_cmd->tokens);
-                free(new_cmd);
-                return NULL;
-            }
         }
     }
 

@@ -29,6 +29,8 @@ char *write_coordinate(iVec2 coord, char *buffer);
  * @param cmd The command to copy.
  *
  * @returns A pointer to the copied command.
+ *
+ * @note YOU MUST FREE THE GIVEN POINTER BY YOURSELF AFTER YOU'RE DONE WITH IT.
  */
 ParsedCommand *deep_copy_cmd(ParsedCommand *cmd);
 
