@@ -31,40 +31,50 @@ void test_toLower(void)
     CU_ASSERT_EQUAL(toLower('A'), 'a');
 }
 
-void test_trim_str_basic(void) {
+void test_trim_str_basic(void)
+{
     char *input = strdup("   hello world   ");
     char *result = trim_str(input);
     CU_ASSERT_STRING_EQUAL(result, "hello world");
+    free(input);
     free(result);
 }
 
-void test_trim_str_no_spaces(void) {
+void test_trim_str_no_spaces(void)
+{
     char *input = strdup("Hello");
     char *result = trim_str(input);
     CU_ASSERT_STRING_EQUAL(result, "Hello");
+    free(input);
     free(result);
 }
 
-void test_trim_str_all_spaces(void) {
+void test_trim_str_all_spaces(void)
+{
     char *input = strdup("     ");
     char *result = trim_str(input);
     CU_ASSERT_STRING_EQUAL(result, "");
+    free(input);
     free(result);
 }
 
-void test_trim_str_empty(void) {
+void test_trim_str_empty(void)
+{
     char *input = strdup("");
     char *result = trim_str(input);
     CU_ASSERT_STRING_EQUAL(result, "");
+    free(input);
     free(result);
 }
 
-void test_trim_str_null(void) {
+void test_trim_str_null(void)
+{
     char *result = trim_str(NULL);
     CU_ASSERT_PTR_NULL(result);
 }
 
-void test_trim_str(void) {
+void test_trim_str(void)
+{
     test_trim_str_basic();
     test_trim_str_no_spaces();
     test_trim_str_all_spaces();
@@ -74,12 +84,12 @@ void test_trim_str(void) {
 
 void test_print_info(void)
 {
-    initscr();          // Start curses mode
-    noecho();           // Don't echo input
-    cbreak();           // Disable line buffering
+    initscr(); // Start curses mode
+    noecho();  // Don't echo input
+    cbreak();  // Disable line buffering
 
     const char *test_str = "Hello, world!";
-    iVec2 win_size = { .x = 80, .y = 24 };
+    iVec2 win_size = {.x = 80, .y = 24};
 
     print_info(test_str, win_size);
 
@@ -240,7 +250,8 @@ void test_get_history_element(void)
     while (current)
     {
         TabHistory *next = current->next;
-        if (current->cmd) free(current->cmd);
+        if (current->cmd)
+            free(current->cmd);
         free(current);
         current = next;
     }
@@ -293,7 +304,7 @@ void test_push(void)
 
 void test_pop_tabuleiro(void)
 {
-   test_pop_history();
+    test_pop_history();
 }
 
 void test_get_hist_elem(void)
@@ -314,7 +325,8 @@ void test_history(void)
     test_destroy();
 }
 
-void test_free_game_basic(void) {
+void test_free_game_basic(void)
+{
     // allocate tabuleiro
     Tab *tab = (Tab *)malloc(sizeof(Tab));
     tab->data = (Piece *)malloc(sizeof(Piece) * 4);
@@ -342,7 +354,8 @@ void test_free_game_basic(void) {
     free_game(&jogo);
 }
 
-void test_free_game_no_data(void) {
+void test_free_game_no_data(void)
+{
     Tab *tab = (Tab *)malloc(sizeof(Tab));
     tab->data = NULL;
 
@@ -363,7 +376,8 @@ void test_free_game_no_data(void) {
     free_game(&jogo);
 }
 
-void test_free_game_partial_tokens(void) {
+void test_free_game_partial_tokens(void)
+{
     Tab *tab = (Tab *)malloc(sizeof(Tab));
     tab->data = NULL;
 
@@ -372,7 +386,7 @@ void test_free_game_partial_tokens(void) {
     ParsedCommand *cmd = (ParsedCommand *)malloc(sizeof(ParsedCommand));
     cmd->tokens = (char **)malloc(sizeof(char *) * 2);
     cmd->tokens[0] = strdup("token1");
-    cmd->tokens[1] = NULL;  // only one token allocated
+    cmd->tokens[1] = NULL; // only one token allocated
 
     iVec2 win_d = {80, 45};
 
@@ -386,13 +400,15 @@ void test_free_game_partial_tokens(void) {
     free_game(&jogo);
 }
 
-void test_free_game(void) {
+void test_free_game(void)
+{
     test_free_game_basic();
     test_free_game_no_data();
     test_free_game_partial_tokens();
 }
 
-void testes_helpers(void) {
+void testes_helpers(void)
+{
     test_strings();
     // test_history();
     // test_free_game();

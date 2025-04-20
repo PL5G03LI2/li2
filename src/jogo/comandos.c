@@ -20,7 +20,7 @@ iVec2 read_coordinate(char *coord_tkn)
     // Read letters for x-coordinate
     while (isalpha(coord_tkn[i]))
     {
-        result.x = result.x * 26 + (coord_tkn[i] - 'a');
+        result.x = result.x * 26 + (toLower(coord_tkn[i]) - 'a');
         i++;
     }
 

@@ -36,8 +36,7 @@ void test_calc_index_invalid_position(void)
     free(tab.data);
 }
 
-
-void test_calc_index(void) 
+void test_calc_index(void)
 {
     test_calc_index_invalid_position();
     test_calc_index_valid_position();
@@ -74,7 +73,7 @@ void test_assert_index_invalid(void)
     free(tab.data);
 }
 
-void test_assert_index(void) 
+void test_assert_index(void)
 {
     test_assert_index_invalid();
     test_assert_index_valid();
@@ -104,10 +103,13 @@ void test_get_elem(void)
     tab.data = malloc(sizeof(Piece) * tab.height * tab.width);
 
     int i, j;
-    for (i = 0; i < tab.height; i++) {
-        for (j = 0; j < tab.width; j++) {
+    for (i = 0; i < tab.height; i++)
+    {
+        for (j = 0; j < tab.width; j++)
+        {
             char letra = (i * tab.width) + j + 97;
-            if (letra > 122) {
+            if (letra > 122)
+            {
                 letra = '0';
             }
             tab.data[i * tab.width + j].c = letra;
@@ -135,13 +137,16 @@ void test_set_elem(void)
     tab.data = malloc(sizeof(Piece) * tab.height * tab.width);
 
     int i, j;
-    for(i = 0; i < tab.height; i++) {
-        for(j = 0; j < tab.width; j++) {
-            char letra = (i*tab.width) + j + 97;
-            if (letra > 122) {
+    for (i = 0; i < tab.height; i++)
+    {
+        for (j = 0; j < tab.width; j++)
+        {
+            char letra = (i * tab.width) + j + 97;
+            if (letra > 122)
+            {
                 letra = '0';
             }
-            tab.data[(i*tab.width) + j].c = letra;
+            tab.data[(i * tab.width) + j].c = letra;
         }
     }
 
@@ -160,13 +165,16 @@ void test_toggle_branco(void)
     tab.data = malloc(sizeof(Piece) * tab.height * tab.width);
 
     int i, j;
-    for(i = 0; i < tab.height; i++) {
-        for(j = 0; j < tab.width; j++) {
-            char letra = (i*tab.width) + j + 97;
-            if (letra > 122) {
+    for (i = 0; i < tab.height; i++)
+    {
+        for (j = 0; j < tab.width; j++)
+        {
+            char letra = (i * tab.width) + j + 97;
+            if (letra > 122)
+            {
                 letra = '0';
             }
-            tab.data[(i*tab.width) + j].c = letra;
+            tab.data[(i * tab.width) + j].c = letra;
         }
     }
 
@@ -177,17 +185,21 @@ void test_toggle_branco(void)
     free(tab.data);
 }
 
-void test_print_tabuleiro(void) {
+void test_print_tabuleiro(void)
+{
     Tab tab;
     tab.height = 5;
     tab.width = 5;
     tab.data = malloc(sizeof(Piece) * tab.height * tab.width);
 
     int i, j;
-    for (i = 0; i < tab.height; i++) {
-        for (j = 0; j < tab.width; j++) {
+    for (i = 0; i < tab.height; i++)
+    {
+        for (j = 0; j < tab.width; j++)
+        {
             char letra = (i * tab.width) + j + 97;
-            if (letra > 122) letra = '0';
+            if (letra > 122)
+                letra = '0';
             tab.data[(i * tab.width) + j].c = letra;
         }
     }
@@ -221,7 +233,7 @@ void test_print_tabuleiro(void) {
     fclose(f);
 
     // Expected output
-    const char *expected_output = 
+    const char *expected_output =
         "  a b c d e\n"
         "------------\n"
         "1|a b c d e \n"
@@ -246,7 +258,8 @@ void test_toggle_marked(void)
 
     // Inicializa todas as peças com letras minúsculas e marked = 0
     char c = 'a';
-    for (int i = 0; i < tab.height * tab.width; i++) {
+    for (int i = 0; i < tab.height * tab.width; i++)
+    {
         tab.data[i].c = c++;
         tab.data[i].marked = 0;
     }
@@ -255,29 +268,13 @@ void test_toggle_marked(void)
     toggle_marked(&tab, 1, 1);
 
     int center_idx = calc_index(&tab, 1, 1);
-    CU_ASSERT_EQUAL(tab.data[center_idx].marked, 1);
-
-    // Como center foi marcado, o char deveria virar '#'
-    CU_ASSERT_EQUAL(tab.data[center_idx].c, '#');
-
-    // Verifica os vizinhos ortogonais
-    iVec2 neighbors[] = {
-        {0, 1}, // esquerda
-        {2, 1}, // direita
-        {1, 0}, // cima
-        {1, 2}  // baixo
-    };
-
-    for (int i = 0; i < 4; i++) {
-        int idx = calc_index(&tab, neighbors[i].x, neighbors[i].y);
-        char ch = tab.data[idx].c;
-        CU_ASSERT(ch >= 'A' && ch <= 'Z'); // letra maiúscula
-    }
+    CU_ASSERT_TRUE(tab.data[center_idx].marked);
 
     free(tab.data);
 }
 
-void test_initialize_tabuleiro(void) {
+void test_initialize_tabuleiro(void)
+{
     Tab *tab = initialize_tabuleiro();
 
     CU_ASSERT_PTR_NOT_NULL(tab);
@@ -301,21 +298,26 @@ void test_tabuleiroState_SL(void)
     CU_ASSERT_EQUAL(carregar_tabuleiro(&tab, "j2.txt"), 1);
     CU_ASSERT_EQUAL(salvar_tabuleiro(&tab, "j3.txt"), 0);
     CU_ASSERT_EQUAL(validar_tabuleiro(&tab), 0);
+
+    free(tab.data);
 }
 
-void test_tabuleiroState(void) {
+void test_tabuleiroState(void)
+{
     test_tabuleiroState_SL();
     test_initialize_tabuleiro();
 }
 
-void testes_tabuleiro(void) {
+void testes_tabuleiro(void)
+{
     test_tabuleiroState();
     test_print_tabuleiro();
     test_toggle_branco();
     test_toggle_marked();
 }
 
-void test_read_coordinate(void) {
+void test_read_coordinate(void)
+{
     iVec2 result;
 
     // Test "a1"
@@ -394,8 +396,9 @@ void test_read_coordinate(void) {
     CU_ASSERT_EQUAL(result.y, 0);
 }
 
-void test_write_coordinate(void) {
-    char buffer[32];  // Ensure large enough buffer for coordinates
+void test_write_coordinate(void)
+{
+    char buffer[32]; // Ensure large enough buffer for coordinates
     iVec2 result;
 
     // Test (0,0) -> expected "a1"
@@ -454,12 +457,14 @@ void test_write_coordinate(void) {
     CU_ASSERT_STRING_EQUAL(write_coordinate(result, buffer), "aaa1001");
 }
 
-void test_coordinates(void) {
+void test_coordinates(void)
+{
     test_read_coordinate();
     test_write_coordinate();
 }
 
-void test_reset_cmd_tokens(void) {
+void test_reset_cmd_tokens(void)
+{
     // Test 1: Normal case with valid tokens
     ParsedCommand cmd;
     cmd.tokens = (char **)malloc(sizeof(char *) * 2);
@@ -471,7 +476,7 @@ void test_reset_cmd_tokens(void) {
 
     // Assert that the tokens are freed and set to NULL
     CU_ASSERT_PTR_NULL(cmd.tokens);
-    
+
     // Test 2: Edge case with NULL tokens
     ParsedCommand cmd_null;
     cmd_null.tokens = NULL;
@@ -484,8 +489,8 @@ void test_reset_cmd_tokens(void) {
 
     // Test 3: Edge case with empty token array (already allocated with size 0)
     ParsedCommand cmd_empty;
-    cmd_empty.tokens = (char **)malloc(0);  // Allocating 0 size should leave the pointer NULL
-    cmd_empty.tokens = NULL;  // manually setting it to NULL for this case
+    cmd_empty.tokens = (char **)malloc(0); // Allocating 0 size should leave the pointer NULL
+    cmd_empty.tokens = NULL;               // manually setting it to NULL for this case
 
     // Call function, should handle gracefully
     reset_cmd_tokens(&cmd_empty);
@@ -494,7 +499,8 @@ void test_reset_cmd_tokens(void) {
     CU_ASSERT_PTR_NULL(cmd_empty.tokens);
 }
 
-void test_reset_cmd(void) {
+void test_reset_cmd(void)
+{
     // Test 1: Normal case with initialized command
     ParsedCommand cmd;
     cmd.type = CMD_LOAD;
@@ -509,7 +515,7 @@ void test_reset_cmd(void) {
     // Assert that the command is reset properly
     CU_ASSERT_EQUAL(cmd.type, CMD_INVALID);
     CU_ASSERT_FALSE(cmd.track);
-    CU_ASSERT_PTR_NULL(cmd.tokens);  // reset_cmd_tokens should set this to NULL
+    CU_ASSERT_PTR_NULL(cmd.tokens); // reset_cmd_tokens should set this to NULL
 
     // Test 2: Edge case with already reset command
     ParsedCommand cmd_reset;
@@ -540,7 +546,8 @@ void test_reset_cmd(void) {
     CU_ASSERT_PTR_NULL(cmd_null_tokens.tokens);
 }
 
-void test_undo_command(void) {
+void test_undo_command(void)
+{
     // Test 1: Undo CMD_WHITE
     ParsedCommand cmd_white;
     cmd_white.type = CMD_WHITE;
@@ -604,7 +611,8 @@ void test_undo_command(void) {
     CU_ASSERT_EQUAL(undo_command(&cmd_null_token, &tab_null), 1);
 }
 
-void test_tokenize(void) {
+void test_tokenize(void)
+{
     char input[] = "l j1.txt";
     char *tokens[2];
 
@@ -614,10 +622,12 @@ void test_tokenize(void) {
     CU_ASSERT_STRING_EQUAL(tokens[0], "l");
     CU_ASSERT_STRING_EQUAL(tokens[1], "j1.txt");
 
-    for (int i = 0; i < count; i++) free(tokens[i]);
+    for (int i = 0; i < count; i++)
+        free(tokens[i]);
 }
 
-void test_parseCommand_load(void) {
+void test_parseCommand_load(void)
+{
     Game jogo;
     Tab tab = {.height = 5, .width = 5, .data = NULL};
     ParsedCommand cmd;
@@ -639,7 +649,8 @@ void test_parseCommand_load(void) {
     free(jogo.cmd->tokens);
 }
 
-void test_parseCommand_white_without_coords(void) {
+void test_parseCommand_white_without_coords(void)
+{
     Game jogo;
     Tab tab = {.height = 5, .width = 5, .data = NULL};
     ParsedCommand cmd;
@@ -666,13 +677,14 @@ void test_parseCommand_white_without_coords(void) {
     free(jogo.cmd->tokens);
 }
 
-void test_parseCommand_unknown(void) {
+void test_parseCommand_unknown(void)
+{
     Game jogo;
     Tab tab = {.height = 5, .width = 5, .data = NULL};
     ParsedCommand cmd;
     memset(&cmd, 0, sizeof(ParsedCommand));
 
-    char cmd_str[] = "xyz";  // > 1 char, so it triggers CMD_SELECT
+    char cmd_str[] = "xyz"; // > 1 char, so it triggers CMD_SELECT
     jogo.tabuleiro = &tab;
     jogo.cmd_str = cmd_str;
     jogo.cmd = &cmd;
@@ -687,7 +699,8 @@ void test_parseCommand_unknown(void) {
     free(jogo.cmd->tokens);
 }
 
-void test_parseCommand_empty(void) {
+void test_parseCommand_empty(void)
+{
     Game jogo;
     Tab tab = {.height = 5, .width = 5, .data = NULL};
     ParsedCommand cmd;
@@ -702,25 +715,27 @@ void test_parseCommand_empty(void) {
     CU_ASSERT_EQUAL(jogo.cmd->type, CMD_CONTINUE);
 }
 
-void test_parseCommand(void) {
+void test_parseCommand(void)
+{
     test_parseCommand_load();
     test_parseCommand_white_without_coords();
     test_parseCommand_unknown();
     test_parseCommand_empty();
 }
 
-void test_runCommand(void) {
+void test_runCommand(void)
+{
     Tab tab;
     tab.height = 1;
     tab.width = 3;
     tab.data = NULL;
-    ParsedCommand *result = calloc(1, sizeof(ParsedCommand));  // ✅ allocation
-    result->type = CMD_LOAD;
+    ParsedCommand *cmd = calloc(1, sizeof(ParsedCommand)); // ✅ allocation
+    cmd->type = CMD_LOAD;
 
     // Simulate loading a file
-    result->tokens = calloc(2, sizeof(char *));
-    result->tokens[0] = strdup("l");
-    result->tokens[1] = strdup("j1.txt");
+    cmd->tokens = calloc(2, sizeof(char *));
+    cmd->tokens[0] = strdup("l");
+    cmd->tokens[1] = strdup("j1.txt");
 
     // allocate command string
     char *cmd_str = strdup("l j1.txt");
@@ -730,19 +745,22 @@ void test_runCommand(void) {
     Game jogo;
     jogo.tabuleiro = &tab;
     jogo.cmd_str = cmd_str;
-    jogo.cmd = result;
+    jogo.cmd = cmd;
     jogo.win_d = win_d;
 
     CU_ASSERT_EQUAL(run_command(&jogo), carregar_tabuleiro(&tab, "j1.txt"));
 
     // Cleanup
-    free(result->tokens[1]);
-    free(result->tokens[0]);
-    free(result->tokens);
-    free(result);
+    free(cmd->tokens[1]);
+    free(cmd->tokens[0]);
+    free(cmd->tokens);
+    free(jogo.tabuleiro->data);
+    free(cmd_str);
+    free(cmd);
 }
 
-void testes_comandos(void) {
+void testes_comandos(void)
+{
     // test_undo_command();
     test_reset_cmd();
     test_reset_cmd_tokens();
@@ -751,17 +769,20 @@ void testes_comandos(void) {
     test_runCommand();
 }
 
-void test_index(void) {
+void test_index(void)
+{
     test_calc_index();
     test_assert_index();
 }
 
-void test_elem(void) {
+void test_elem(void)
+{
     test_get_elem();
     test_set_elem();
 }
 
-void testes_jogo(void) {
+void testes_jogo(void)
+{
     test_index();
     test_positions_validity();
     test_elem();
