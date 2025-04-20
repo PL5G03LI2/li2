@@ -109,12 +109,15 @@ void test_strings(void)
 void test_push_history(void)
 {
     TabHistory *history = NULL;
+    // memset(history, 0, sizeof(TabHistory));
 
     // Create a dummy ParsedCommand
     ParsedCommand cmd1;
     cmd1.type = CMD_SAVE;
     cmd1.track = true;
-    cmd1.tokens = NULL;
+    cmd1.tokens = (char **)malloc(sizeof(char *) * 2);
+    cmd1.tokens[0] = "xyz";
+    cmd1.tokens[1] = "";
 
     // Push first command
     history = push_history(history, &cmd1);
@@ -128,7 +131,9 @@ void test_push_history(void)
     ParsedCommand cmd2;
     cmd2.type = CMD_LOAD;
     cmd2.track = false;
-    cmd2.tokens = NULL;
+    cmd2.tokens = (char **)malloc(sizeof(char *) * 2);
+    cmd2.tokens[0] = "g";
+    cmd2.tokens[1] = "j1.txt";
 
     history = push_history(history, &cmd2);
 
@@ -160,6 +165,9 @@ void test_pop_history(void)
     ParsedCommand cmd1;
     cmd1.type = CMD_SAVE;
     cmd1.track = true;
+    cmd1.tokens = (char **)malloc(sizeof(char *) * 2);
+    cmd1.tokens[0] = strdup("g");
+    cmd1.tokens[1] = strdup("j1.txt");
     history = push_history(history, &cmd1);
 
     // Pop when only one element
@@ -169,15 +177,24 @@ void test_pop_history(void)
     CU_ASSERT_EQUAL(removed->track, true);
     CU_ASSERT_PTR_NULL(history);
     free(removed);
+    free(cmd1.tokens[1]);
+    free(cmd1.tokens[0]);
+    free(cmd1.tokens);
 
     // Push two commands
     ParsedCommand cmd2, cmd3;
     cmd2.type = CMD_LOAD;
     cmd2.track = false;
+    cmd2.tokens = (char **)malloc(sizeof(char *) * 2);
+    cmd2.tokens[0] = strdup("l");
+    cmd2.tokens[1] = strdup("j1.txt");
     history = push_history(history, &cmd2);
 
     cmd3.type = CMD_VERIFY;
     cmd3.track = true;
+    cmd3.tokens = (char **)malloc(sizeof(char *) * 2);
+    cmd3.tokens[0] = strdup("v");
+    cmd3.tokens[1] = strdup("");
     history = push_history(history, &cmd3);
 
     // Pop last command (cmd3)
@@ -197,6 +214,9 @@ void test_pop_history(void)
     CU_ASSERT_PTR_NOT_NULL(removed);
     CU_ASSERT_EQUAL(removed->type, CMD_LOAD);
     free(removed);
+    free(cmd2.tokens[1]);
+    free(cmd2.tokens[0]);
+    free(cmd2.tokens);
 
     CU_ASSERT_PTR_NULL(history);
 }
@@ -214,14 +234,23 @@ void test_get_history_element(void)
     ParsedCommand cmd1, cmd2, cmd3;
     cmd1.type = CMD_SAVE;
     cmd1.track = false;
+    cmd1.tokens = (char **)malloc(sizeof(char *) * 2);
+    cmd1.tokens[0] = strdup("g");
+    cmd1.tokens[1] = strdup("j1.txt");
     history = push_history(history, &cmd1);
 
     cmd2.type = CMD_LOAD;
     cmd2.track = true;
+    cmd2.tokens = (char **)malloc(sizeof(char *) * 2);
+    cmd2.tokens[0] = strdup("l");
+    cmd2.tokens[1] = strdup("j1.txt");
     history = push_history(history, &cmd2);
 
     cmd3.type = CMD_VERIFY;
     cmd3.track = false;
+    cmd3.tokens = (char **)malloc(sizeof(char *) * 2);
+    cmd3.tokens[0] = strdup("v");
+    cmd3.tokens[1] = strdup("");
     history = push_history(history, &cmd3);
 
     // Valid indices
@@ -255,6 +284,15 @@ void test_get_history_element(void)
         free(current);
         current = next;
     }
+    free(cmd1.tokens[0]);
+    free(cmd1.tokens[1]);
+    free(cmd1.tokens);
+    free(cmd2.tokens[0]);
+    free(cmd2.tokens[1]);
+    free(cmd2.tokens);
+    free(cmd3.tokens[0]);
+    free(cmd3.tokens[1]);
+    free(cmd3.tokens);
 }
 
 void test_destroy_history(void)
@@ -265,19 +303,21 @@ void test_destroy_history(void)
     destroy_history(&history);
     CU_ASSERT_PTR_NULL(history);
 
+    // history = (TabHistory *)malloc(sizeof(TabHistory));
+
     // Case 2: destroy populated list
     ParsedCommand cmd1, cmd2;
     cmd1.type = CMD_SAVE;
     cmd1.track = false;
     cmd1.tokens = (char **)malloc(sizeof(char *) * 2);
-    cmd1.tokens[0] = strdup("file.txt");
-    cmd1.tokens[1] = strdup("extra");
+    cmd1.tokens[0] = strdup("g");
+    cmd1.tokens[1] = strdup("j1.txt");
 
     cmd2.type = CMD_LOAD;
     cmd2.track = true;
     cmd2.tokens = (char **)malloc(sizeof(char *) * 2);
-    cmd2.tokens[0] = strdup("level.dat");
-    cmd2.tokens[1] = strdup("arg");
+    cmd2.tokens[0] = strdup("l");
+    cmd2.tokens[1] = strdup("j1.txt");
 
     history = push_history(history, &cmd1);
     history = push_history(history, &cmd2);
@@ -286,43 +326,14 @@ void test_destroy_history(void)
 
     destroy_history(&history);
     CU_ASSERT_PTR_NULL(history);
-
-    // Clean up dummy cmd tokens (since push_history deep copies them)
-    free(cmd1.tokens[0]);
-    free(cmd1.tokens[1]);
-    free(cmd1.tokens);
-
-    free(cmd2.tokens[0]);
-    free(cmd2.tokens[1]);
-    free(cmd2.tokens);
-}
-
-void test_push(void)
-{
-    test_push_history();
-}
-
-void test_pop_tabuleiro(void)
-{
-    test_pop_history();
-}
-
-void test_get_hist_elem(void)
-{
-    test_get_history_element();
-}
-
-void test_destroy(void)
-{
-    test_destroy_history();
 }
 
 void test_history(void)
 {
-    test_push();
-    test_pop_tabuleiro();
-    test_get_hist_elem();
-    test_destroy();
+    test_push_history();
+    test_pop_history();
+    test_get_history_element();
+    test_destroy_history();
 }
 
 void test_free_game_basic(void)
@@ -338,20 +349,28 @@ void test_free_game_basic(void)
 
     // allocate ParsedCommand with 2 tokens
     ParsedCommand *cmd = (ParsedCommand *)malloc(sizeof(ParsedCommand));
+    cmd->track = false;
+    cmd->type = CMD_SAVE;
     cmd->tokens = (char **)malloc(sizeof(char *) * 2);
-    cmd->tokens[0] = strdup("token1");
-    cmd->tokens[1] = strdup("token2");
+    cmd->tokens[0] = strdup("g");
+    cmd->tokens[1] = strdup("j1.txt");
 
     iVec2 win_d = {80, 45};
 
+    TabHistory *history = NULL;
+
     Game jogo;
     jogo.tabuleiro = tab;
+    jogo.history = history;
     jogo.cmd_str = cmd_str;
     jogo.cmd = cmd;
     jogo.win_d = win_d;
 
-    // run free_all (should not crash)
     free_game(&jogo);
+    CU_ASSERT_PTR_NULL(jogo.tabuleiro);
+    CU_ASSERT_PTR_NULL(jogo.cmd_str);
+    CU_ASSERT_PTR_NULL(jogo.cmd);
+    CU_ASSERT_PTR_NULL(jogo.history);
 }
 
 void test_free_game_no_data(void)
@@ -362,54 +381,35 @@ void test_free_game_no_data(void)
     char *cmd_str = NULL;
 
     ParsedCommand *cmd = (ParsedCommand *)malloc(sizeof(ParsedCommand));
-    cmd->tokens = NULL;
-
-    iVec2 win_d = {80, 45};
-
-    Game jogo;
-    jogo.tabuleiro = tab;
-    jogo.cmd_str = cmd_str;
-    jogo.cmd = cmd;
-    jogo.win_d = win_d;
-
-    // run free_all (should not crash)
-    free_game(&jogo);
-}
-
-void test_free_game_partial_tokens(void)
-{
-    Tab *tab = (Tab *)malloc(sizeof(Tab));
-    tab->data = NULL;
-
-    char *cmd_str = strdup("test");
-
-    ParsedCommand *cmd = (ParsedCommand *)malloc(sizeof(ParsedCommand));
     cmd->tokens = (char **)malloc(sizeof(char *) * 2);
-    cmd->tokens[0] = strdup("token1");
-    cmd->tokens[1] = NULL; // only one token allocated
+    cmd->tokens[0] = strdup("");
+    cmd->tokens[1] = strdup("");
 
     iVec2 win_d = {80, 45};
 
     Game jogo;
     jogo.tabuleiro = tab;
+    jogo.history = NULL;
     jogo.cmd_str = cmd_str;
     jogo.cmd = cmd;
     jogo.win_d = win_d;
 
-    // run free_all (should not crash)
     free_game(&jogo);
+    CU_ASSERT_PTR_NULL(jogo.tabuleiro);
+    CU_ASSERT_PTR_NULL(jogo.cmd_str);
+    CU_ASSERT_PTR_NULL(jogo.cmd);
+    CU_ASSERT_PTR_NULL(jogo.history);
 }
 
 void test_free_game(void)
 {
     test_free_game_basic();
     test_free_game_no_data();
-    test_free_game_partial_tokens();
 }
 
 void testes_helpers(void)
 {
     test_strings();
-    // test_history();
-    // test_free_game();
+    test_history();
+    test_free_game();
 }

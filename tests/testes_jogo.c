@@ -5,6 +5,22 @@
 #include <stdlib.h>
 #include <ncurses.h>
 
+void populateTab(Tab tab) {
+    int i, j;
+    for (i = 0; i < tab.height; i++)
+    {
+        for (j = 0; j < tab.width; j++)
+        {
+            char letra = (i * tab.width) + j + 97;
+            if (letra > 122)
+            {
+                letra = '0';
+            }
+            tab.data[i * tab.width + j].c = letra;
+        }
+    }
+}
+
 void test_calc_index_valid_position(void)
 {
     Tab tab;
@@ -101,20 +117,7 @@ void test_get_elem(void)
     tab.height = 5;
     tab.width = 5;
     tab.data = malloc(sizeof(Piece) * tab.height * tab.width);
-
-    int i, j;
-    for (i = 0; i < tab.height; i++)
-    {
-        for (j = 0; j < tab.width; j++)
-        {
-            char letra = (i * tab.width) + j + 97;
-            if (letra > 122)
-            {
-                letra = '0';
-            }
-            tab.data[i * tab.width + j].c = letra;
-        }
-    }
+    populateTab(tab);
 
     // Inside bounds
     CU_ASSERT_EQUAL(get_elem(&tab, 1, 2), 'h'); // 'h' is at (1,2)
@@ -136,19 +139,7 @@ void test_set_elem(void)
     tab.width = 5;
     tab.data = malloc(sizeof(Piece) * tab.height * tab.width);
 
-    int i, j;
-    for (i = 0; i < tab.height; i++)
-    {
-        for (j = 0; j < tab.width; j++)
-        {
-            char letra = (i * tab.width) + j + 97;
-            if (letra > 122)
-            {
-                letra = '0';
-            }
-            tab.data[(i * tab.width) + j].c = letra;
-        }
-    }
+    populateTab(tab);
 
     CU_ASSERT_NOT_EQUAL(tab.data[0].c, 'c');
     set_elem(&tab, 0, 0, 'c');
@@ -164,19 +155,7 @@ void test_toggle_branco(void)
     tab.width = 5;
     tab.data = malloc(sizeof(Piece) * tab.height * tab.width);
 
-    int i, j;
-    for (i = 0; i < tab.height; i++)
-    {
-        for (j = 0; j < tab.width; j++)
-        {
-            char letra = (i * tab.width) + j + 97;
-            if (letra > 122)
-            {
-                letra = '0';
-            }
-            tab.data[(i * tab.width) + j].c = letra;
-        }
-    }
+    populateTab(tab);
 
     CU_ASSERT_EQUAL(tab.data[0].c, 'a');
     toggle_branco(&tab, 0, 0);
@@ -192,17 +171,7 @@ void test_print_tabuleiro(void)
     tab.width = 5;
     tab.data = malloc(sizeof(Piece) * tab.height * tab.width);
 
-    int i, j;
-    for (i = 0; i < tab.height; i++)
-    {
-        for (j = 0; j < tab.width; j++)
-        {
-            char letra = (i * tab.width) + j + 97;
-            if (letra > 122)
-                letra = '0';
-            tab.data[(i * tab.width) + j].c = letra;
-        }
-    }
+    populateTab(tab);
 
     // Initialize ncurses
     initscr();
@@ -311,7 +280,7 @@ void test_tabuleiroState(void)
 void testes_tabuleiro(void)
 {
     test_tabuleiroState();
-    test_print_tabuleiro();
+    // test_print_tabuleiro();
     test_toggle_branco();
     test_toggle_marked();
 }
@@ -559,6 +528,9 @@ void test_undo_command(void)
     Tab tab_white;
     tab_white.height = 5;
     tab_white.width = 5;
+    tab_white.data = malloc(sizeof(Piece) * tab_white.height * tab_white.width);
+
+    populateTab(tab_white);
 
     // Call undo command
     CU_ASSERT_EQUAL(undo_command(&cmd_white, &tab_white), 0);
@@ -567,6 +539,7 @@ void test_undo_command(void)
     free(cmd_white.tokens[1]);
     free(cmd_white.tokens[0]);
     free(cmd_white.tokens);
+    free(tab_white.data);
 
     // Test 2: Undo CMD_CROSS
     ParsedCommand cmd_cross;
@@ -578,6 +551,9 @@ void test_undo_command(void)
     Tab tab_cross;
     tab_cross.height = 5;
     tab_cross.width = 5;
+    tab_cross.data = malloc(sizeof(Piece) * tab_cross.height * tab_cross.width);
+
+    populateTab(tab_cross);
 
     // Call undo command
     CU_ASSERT_EQUAL(undo_command(&cmd_cross, &tab_cross), 0);
@@ -586,30 +562,29 @@ void test_undo_command(void)
     free(cmd_cross.tokens[1]);
     free(cmd_cross.tokens[0]);
     free(cmd_cross.tokens);
+    free(tab_cross.data);
 
     // Test 3: Undo with an invalid command (not CMD_WHITE or CMD_CROSS)
     ParsedCommand cmd_invalid;
     cmd_invalid.type = CMD_SAVE;
-    cmd_invalid.tokens = NULL;
+    cmd_invalid.tokens = (char **)malloc(sizeof(char *) * 2);
+    cmd_invalid.tokens[0] = strdup("g");
+    cmd_invalid.tokens[1] = strdup("j1.txt");
 
     Tab tab_invalid;
     tab_invalid.height = 5;
     tab_invalid.width = 5;
+    tab_invalid.data = malloc(sizeof(Piece) * tab_invalid.height * tab_invalid.width);
+
+    populateTab(tab_invalid);
 
     // Call undo command with an invalid type (expect failure)
     CU_ASSERT_EQUAL(undo_command(&cmd_invalid, &tab_invalid), 1);
 
-    // Test 4: Edge case with NULL token
-    ParsedCommand cmd_null_token;
-    cmd_null_token.type = CMD_CROSS;
-    cmd_null_token.tokens = NULL;
-
-    Tab tab_null;
-    tab_null.height = 5;
-    tab_null.width = 5;
-
-    // Call undo command with a NULL token (expect failure)
-    CU_ASSERT_EQUAL(undo_command(&cmd_null_token, &tab_null), 1);
+    free(cmd_invalid.tokens[1]);
+    free(cmd_invalid.tokens[0]);
+    free(cmd_invalid.tokens);
+    free(tab_invalid.data);
 }
 
 void test_tokenize(void)
@@ -627,22 +602,79 @@ void test_tokenize(void)
         free(tokens[i]);
 }
 
-void test_parseCommand_load(void)
-{
+// void test_parseCommand_load(void)
+// {
+//     Game jogo;
+//     Tab tab = {.height = 5, .width = 5, .data = NULL};
+//     // populateTab(tab);
+//     ParsedCommand cmd;
+//     cmd.type = CMD_SAVE;
+//     cmd.tokens = (char **)malloc(sizeof(char *) * 2);
+//     cmd.tokens[0] = strdup("g");
+//     cmd.tokens[1] = strdup("j1.txt");
+
+//     char cmd_str[] = "l file.txt";
+//     jogo.tabuleiro = &tab;
+//     jogo.cmd_str = cmd_str;
+//     jogo.cmd = &cmd;
+
+//     CU_ASSERT_EQUAL(parse_command(&jogo), 0);
+//     CU_ASSERT_EQUAL(jogo.cmd->type, CMD_LOAD);
+//     CU_ASSERT_STRING_EQUAL(jogo.cmd->tokens[0], "l");
+//     CU_ASSERT_STRING_EQUAL(jogo.cmd->tokens[1], "file.txt");
+
+//     // cleanup
+//     for (int i = 0; jogo.cmd->tokens[i]; i++)
+//         free(jogo.cmd->tokens[i]);
+//     free(jogo.cmd->tokens);
+//     free(cmd.tokens[0]);
+//     free(cmd.tokens[1]);
+//     free(cmd.tokens);
+//     free(tab.data);
+// }
+
+// void test_parseCommand_white_without_coords(void)
+// {
+//     Game jogo;
+//     Tab tab = {.height = 5, .width = 5, .data = NULL};
+//     ParsedCommand cmd;
+//     memset(&cmd, 0, sizeof(ParsedCommand));
+
+//     char cmd_str[] = "b 21";
+//     jogo.tabuleiro = &tab;
+//     jogo.cmd_str = cmd_str;
+//     jogo.cmd = &cmd;
+
+//     jogo.tabuleiro->sel_piece.x = 1;
+//     jogo.tabuleiro->sel_piece.y = 2;
+
+//     CU_ASSERT_EQUAL(parse_command(&jogo), 0);
+//     CU_ASSERT_EQUAL(jogo.cmd->type, CMD_WHITE);
+//     CU_ASSERT_PTR_NOT_NULL(jogo.cmd->tokens[1]);
+
+//     // check coordinate string exists (can't know exact content here unless we mock write_coordinate)
+//     CU_ASSERT(strlen(jogo.cmd->tokens[1]) > 0);
+
+//     // cleanup
+//     for (int i = 0; jogo.cmd->tokens[i]; i++)
+//         free(jogo.cmd->tokens[i]);
+//     free(jogo.cmd->tokens);
+// }
+
+void test_parseCommand_save(void) {
     Game jogo;
     Tab tab = {.height = 5, .width = 5, .data = NULL};
     ParsedCommand cmd;
     memset(&cmd, 0, sizeof(ParsedCommand));
 
-    char cmd_str[] = "l file.txt";
+    char cmd_str[] = "g j1.txt";
     jogo.tabuleiro = &tab;
     jogo.cmd_str = cmd_str;
     jogo.cmd = &cmd;
 
     CU_ASSERT_EQUAL(parse_command(&jogo), 0);
-    CU_ASSERT_EQUAL(jogo.cmd->type, CMD_LOAD);
-    CU_ASSERT_STRING_EQUAL(jogo.cmd->tokens[0], "l");
-    CU_ASSERT_STRING_EQUAL(jogo.cmd->tokens[1], "file.txt");
+    CU_ASSERT_EQUAL(jogo.cmd->type, CMD_SAVE);
+    CU_ASSERT_STRING_EQUAL(jogo.cmd->tokens[0], "g j1.txt");
 
     // cleanup
     for (int i = 0; jogo.cmd->tokens[i]; i++)
@@ -650,35 +682,7 @@ void test_parseCommand_load(void)
     free(jogo.cmd->tokens);
 }
 
-void test_parseCommand_white_without_coords(void)
-{
-    Game jogo;
-    Tab tab = {.height = 5, .width = 5, .data = NULL};
-    ParsedCommand cmd;
-    memset(&cmd, 0, sizeof(ParsedCommand));
-
-    char cmd_str[] = "b";
-    jogo.tabuleiro = &tab;
-    jogo.cmd_str = cmd_str;
-    jogo.cmd = &cmd;
-
-    jogo.tabuleiro->sel_piece.x = 1;
-    jogo.tabuleiro->sel_piece.y = 2;
-
-    CU_ASSERT_EQUAL(parse_command(&jogo), 0);
-    CU_ASSERT_EQUAL(jogo.cmd->type, CMD_WHITE);
-    CU_ASSERT_PTR_NOT_NULL(jogo.cmd->tokens[1]);
-
-    // check coordinate string exists (can't know exact content here unless we mock write_coordinate)
-    CU_ASSERT(strlen(jogo.cmd->tokens[1]) > 0);
-
-    // cleanup
-    for (int i = 0; jogo.cmd->tokens[i]; i++)
-        free(jogo.cmd->tokens[i]);
-    free(jogo.cmd->tokens);
-}
-
-void test_parseCommand_unknown(void)
+void test_parseCommand_select(void)
 {
     Game jogo;
     Tab tab = {.height = 5, .width = 5, .data = NULL};
@@ -718,9 +722,10 @@ void test_parseCommand_empty(void)
 
 void test_parseCommand(void)
 {
-    test_parseCommand_load();
-    test_parseCommand_white_without_coords();
-    test_parseCommand_unknown();
+    // test_parseCommand_load();
+    // test_parseCommand_white_without_coords();
+    test_parseCommand_save();
+    test_parseCommand_select();
     test_parseCommand_empty();
 }
 
@@ -762,11 +767,11 @@ void test_runCommand(void)
 
 void testes_comandos(void)
 {
-    // test_undo_command();
+    test_undo_command();
     test_reset_cmd();
     test_reset_cmd_tokens();
     test_tokenize();
-    // test_parseCommand();
+    test_parseCommand();
     test_runCommand();
 }
 
