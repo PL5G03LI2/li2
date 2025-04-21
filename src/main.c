@@ -4,11 +4,11 @@
 #include <stdbool.h>
 #include <ncurses.h>
 
-#include "jogo/tabuleiro.h"
-#include "jogo/comandos.h"
-#include "helpers/history.h"
-#include "helpers/memory.h"
-#include "helpers/strs.h"
+#include "../include/jogo/tabuleiro.h"
+#include "../include/jogo/comandos.h"
+#include "../include/helpers/history.h"
+#include "../include/helpers/memory.h"
+#include "../include/helpers/strs.h"
 
 int init_game(Game *game)
 {

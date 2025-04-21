@@ -459,7 +459,7 @@ void test_reset_cmd_tokens(void)
 
     // Test 3: Edge case with empty token array (already allocated with size 0)
     ParsedCommand cmd_empty;
-    cmd_empty.tokens = (char **)malloc(0); // Allocating 0 size should leave the pointer NULL
+    // cmd_empty.tokens = (char **)malloc(0); // Allocating 0 size should leave the pointer NULL
     cmd_empty.tokens = NULL;               // manually setting it to NULL for this case
 
     // Call function, should handle gracefully

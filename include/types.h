@@ -12,6 +12,7 @@ typedef struct
 {
     char c;
     bool marked;
+    bool violated;
 } Piece;
 
 typedef struct

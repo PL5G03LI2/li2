@@ -1,213 +1,197 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <ncurses.h>
-
+#include <ctype.h>
+#include "types.h"
 #include "helpers/strs.h"
-#include "jogo/tabuleiro.h"
 
-Tab *initialize_tabuleiro(void)
-{
-    Tab *tabuleiro = (Tab *)malloc(sizeof(Tab));
+// Forward declarations
+bool assert_pos(Tab *tab, int x, int y);
 
-    tabuleiro->height = 0;
-    tabuleiro->width = 0;
-    tabuleiro->sel_piece.x = 0;
-    tabuleiro->sel_piece.y = 0;
-    tabuleiro->data = NULL;
-
-    return tabuleiro;
+/** Allocates and initializes a Tab structure */
+Tab *initialize_tabuleiro(void) {
+    Tab *tab = malloc(sizeof(Tab));
+    if (!tab) return NULL;
+    tab->height = 0;
+    tab->width = 0;
+    tab->sel_piece.x = 0;
+    tab->sel_piece.y = 0;
+    tab->data = NULL;
+    return tab;
 }
 
-int calc_index(Tab *tab, int x, int y)
-{
-    if (assert_pos(tab, x, y))
-        return x * tab->width + y;
-
-    return -1;
+/** Checks if (x,y) is within board bounds */
+bool assert_pos(Tab *tab, int x, int y) {
+    return (x >= 0 && x < tab->height && y >= 0 && y < tab->width);
 }
 
-bool assert_index(Tab *tab, int i)
-{
-    int max_i = tab->height * tab->width;
-    return (0 <= i && i <= max_i);
+/** Calculates linear index for (x=row, y=col) */
+int calc_index(Tab *tab, int x, int y) {
+    if (!assert_pos(tab, x, y)) return -1;
+    return x * tab->width + y;
 }
 
-bool assert_pos(Tab *tab, int x, int y)
-{
-    return !(x < 0 || x >= tab->height || y < 0 || y >= tab->width);
+/** Checks if a linear index is valid */
+bool assert_index(Tab *tab, int i) {
+    return (i >= 0 && i < tab->height * tab->width);
 }
 
-char get_elem(Tab *tab, int x, int y)
-{
-    if (!assert_pos(tab, x, y))
-        return '\0';
+/** Returns character at (x,y), or ' ' if invalid */
+char get_elem(Tab *tab, int x, int y) {
+    if (!assert_pos(tab, x, y)) return ' ';
     return tab->data[calc_index(tab, x, y)].c;
 }
 
-void set_elem(Tab *tab, int x, int y, char c)
-{
-    if (assert_pos(tab, x, y))
-        tab->data[calc_index(tab, x, y)].c = c;
+/** Sets character at (x,y) if valid */
+void set_elem(Tab *tab, int x, int y, char c) {
+    if (!assert_pos(tab, x, y)) return;
+    tab->data[calc_index(tab, x, y)].c = c;
 }
 
-void toggle_branco(Tab *tab, int x, int y)
-{
-    if (assert_pos(tab, x, y))
-    {
-        char c = get_elem(tab, x, y);
-
-        if (isUpper(c))
-            c = toLower(c);
-        else
-            c = toUpper(c);
-
-        tab->data[calc_index(tab, x, y)].c = c;
-    }
+/** Toggles a cell between lowercase and uppercase (white) */
+void toggle_branco(Tab *tab, int x, int y) {
+    if (!assert_pos(tab, x, y)) return;
+    Piece *p = &tab->data[calc_index(tab, x, y)];
+    if (islower((unsigned char)p->c)) p->c = toupper((unsigned char)p->c);
+    else if (isupper((unsigned char)p->c)) p->c = tolower((unsigned char)p->c);
 }
 
-void toggle_marked(Tab *tab, int x, int y)
-{
-    if (!assert_pos(tab, x, y))
-        return;
-
-    Piece *piece = &tab->data[calc_index(tab, x, y)];
-    piece->marked = !piece->marked;
-}
-
-void print_piece(Piece piece)
-{
-    if (piece.marked)
-        printw("#");
-    else
-        printw("%c", piece.c);
-}
-
-void print_tab(Tab *tab, iVec2 win_d)
-{
-    int height = tab->height;
-    int width = tab->width;
-
-    // Calculate the total width and height of the board display (including headers and borders)
-    int board_width = 3 + 2 * width; // "a |" + " x x x"
-    int board_height = 3 + height;   // headers + rows
-
-    // Calculate top-left corner to center the board
-    int start_y = (win_d.y - board_height) / 2;
-    int start_x = (win_d.x - board_width) / 2;
-
-    // Print column headers
-    mvprintw(start_y, start_x + 1, " ");
-    for (int i = 0; i < width; i++)
-    {
-        printw("%d ", i + 1);
-    }
-
-    // Print separator
-    mvprintw(start_y + 1, start_x, "--");
-    for (int i = 0; i < width; i++)
-    {
-        printw("--");
-    }
-
-    // Print each row of the grid
-    for (int x = 0; x < height; x++)
-    {
-        // Print row label
-        mvprintw(start_y + 2 + x, start_x, "%c|", x + 'a');
-
-        // Print each character in the row
-        for (int y = 0; y < width; y++)
-        {
-            int index = calc_index(tab, x, y);
-            Piece piece = tab->data[index];
-            bool selected = x == tab->sel_piece.x && y == tab->sel_piece.y;
-
-            if (selected)
-            {
-                attron(COLOR_PAIR(1));
-                mvprintw(start_y + 2 + x, start_x + 2 + 2 * y, "%c", piece.marked ? '#' : piece.c);
-                attroff(COLOR_PAIR(1));
-            }
-            else
-            {
-                mvprintw(start_y + 2 + x, start_x + 2 + 2 * y, "%c", piece.marked ? '#' : piece.c);
-            }
+/** Toggles marked status and forces orthogonal neighbors white */
+void toggle_marked(Tab *tab, int x, int y) {
+    if (!assert_pos(tab, x, y)) return;
+    Piece *p = &tab->data[calc_index(tab, x, y)];
+    p->marked = !p->marked;
+    // For each orthogonal neighbor:
+    const int dx[4] = {1, -1, 0, 0};
+    const int dy[4] = {0, 0, 1, -1};
+    for (int i = 0; i < 4; i++) {
+        int nx = x + dx[i], ny = y + dy[i];
+        if (assert_pos(tab, nx, ny)) {
+            toggle_branco(tab, nx, ny);
         }
     }
 }
 
-int carregar_tabuleiro(Tab *tab, const char *filename)
-{
-    FILE *file = fopen(filename, "r");
-    if (!file)
-        return 1;
-
-    int height, width;
-    fscanf(file, "%d %d", &height, &width);
-
-    tab->height = height;
-    tab->width = width;
-    if (tab->data != NULL)
-        free(tab->data);
-    tab->data = (Piece *)calloc(height * width, sizeof(Piece));
-
-    for (int i = 0; i < height; i++)
-    {
-        for (int j = 0; j < width; j++)
-        {
-            fscanf(file, " %c", &tab->data[calc_index(tab, j, i)].c);
-            tab->data[calc_index(tab, j, i)].marked = 0;
+/** Validate board: mark duplicates as violated and return overall validity */
+bool validar_tabuleiro(Tab *tab) {
+    int h = tab->height, w = tab->width;
+    // Reset violations
+    for (int i = 0; i < h * w; i++) {
+        tab->data[i].violated = false;
+    }
+    bool ok = true;
+    // Check rows
+    for (int x = 0; x < h; x++) {
+        for (int y = 0; y < w; y++) {
+            char c = tab->data[x*w+y].c;
+            if (c == '#') continue;
+            for (int y2 = y + 1; y2 < w; y2++) {
+                if (tab->data[x*w+y2].c == c) {
+                    tab->data[x*w+y].violated = true;
+                    tab->data[x*w+y2].violated = true;
+                    ok = false;
+                }
+            }
         }
     }
+    // Check columns
+    for (int y = 0; y < w; y++) {
+        for (int x = 0; x < h; x++) {
+            char c = tab->data[x*w+y].c;
+            if (c == '#') continue;
+            for (int x2 = x + 1; x2 < h; x2++) {
+                if (tab->data[x2*w+y].c == c) {
+                    tab->data[x*w+y].violated = true;
+                    tab->data[x2*w+y].violated = true;
+                    ok = false;
+                }
+            }
+        }
+    }
+    return ok;
+}
 
-    fclose(file);
+/** Initialize ncurses color pairs once */
+static void init_colors(void) {
+    start_color();
+    use_default_colors();
+    init_pair(1, COLOR_WHITE, COLOR_BLUE);   // selected normal
+    init_pair(2, COLOR_RED,   COLOR_WHITE);  // selected violated
+    init_pair(3, COLOR_WHITE, COLOR_RED);    // violated not selected
+    init_pair(4, COLOR_WHITE, -1);           // default
+}
+
+/** Prints the board centered in window dimensions win_d */
+void print_tab(Tab *tab, iVec2 win_d) {
+    static bool colors_inited = false;
+    if (!colors_inited) {
+        init_colors();
+        colors_inited = true;
+    }
+    int h = tab->height, w = tab->width;
+    int board_h = 3 + h;
+    int board_w = 3 + 2*w;
+    int start_y = (win_d.y - board_h) / 2;
+    int start_x = (win_d.x - board_w) / 2;
+    // Column headers
+    mvprintw(start_y, start_x+2, " ");
+    for (int y = 0; y < w; y++) printw("%d ", y+1);
+    // Separator
+    mvprintw(start_y+1, start_x, "--");
+    for (int y = 0; y < w; y++) printw("--");
+    // Rows
+    for (int x = 0; x < h; x++) {
+        mvprintw(start_y+2+x, start_x, "%c|", 'a'+x);
+        for (int y = 0; y < w; y++) {
+            int idx = x*w + y;
+            Piece p = tab->data[idx];
+            bool sel = (x==tab->sel_piece.x && y==tab->sel_piece.y);
+            int cp = 4;
+            if (p.violated) cp = sel ? 2 : 3;
+            else if (sel)    cp = 1;
+            attron(COLOR_PAIR(cp));
+            mvprintw(start_y+2+x, start_x+2+2*y, "%c", p.marked ? '#' : p.c);
+            attroff(COLOR_PAIR(cp));
+        }
+    }
+}
+
+/** Loads board from file */
+int carregar_tabuleiro(Tab *tab, const char *filename) {
+    FILE *f = fopen(filename, "r");
+    if (!f) return 1;
+    int h, w;
+    if (fscanf(f, "%d %d", &h, &w) != 2) { fclose(f); return 1; }
+    tab->height = h;
+    tab->width  = w;
+    free(tab->data);
+    tab->data = calloc(h*w, sizeof(Piece));
+    for (int x = 0; x < h; x++) {
+        for (int y = 0; y < w; y++) {
+            Piece *p = &tab->data[x*w + y];
+            fscanf(f, " %c", &p->c);
+            p->marked = false;
+            p->violated = false;
+        }
+    }
+    fclose(f);
     return 0;
 }
 
-int salvar_tabuleiro(Tab *tab, const char *filename)
-{
-    FILE *file = fopen(filename, "w");
-    if (!file)
-        return 1;
-
-    fprintf(file, "%d %d\n", tab->height, tab->width);
-    for (int i = 0; i < tab->height; i++)
-    {
-        for (int j = 0; j < tab->width; j++)
-        {
-            fprintf(file, "%c", get_elem(tab, i, j));
+/** Saves board to file */
+int salvar_tabuleiro(Tab *tab, const char *filename) {
+    FILE *f = fopen(filename, "w");
+    if (!f) return 1;
+    fprintf(f, "%d %d\n", tab->height, tab->width);
+    for (int x = 0; x < tab->height; x++) {
+        for (int y = 0; y < tab->width; y++) {
+            fprintf(f, "%c", tab->data[x*tab->width + y].c);
         }
-        fprintf(file, "\n");
+        fprintf(f, "\n");
     }
-
-    fclose(file);
+    fclose(f);
     return 0;
 }
 
-bool validar_tabuleiro(Tab *tab)
-{
-    for (int i = 0; i < tab->height; i++)
-    {
-        for (int j = 0; j < tab->width; j++)
-        {
-            char c = get_elem(tab, i, j);
-
-            if (c == '#')
-                continue;
-
-            for (int k = 0; k < tab->width; k++)
-            {
-                if (k != j && get_elem(tab, i, k) == c)
-                    return false;
-            }
-
-            for (int k = 0; k < tab->height; k++)
-            {
-                if (k != i && get_elem(tab, k, j) == c)
-                    return false;
-            }
-        }
-    }
-
-    return true;
-}
+/* End of tabuleiro.c */

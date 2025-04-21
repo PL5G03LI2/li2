@@ -1,11 +1,10 @@
-#include "types.h"
+#ifndef TABULEIRO_H
+#define TABULEIRO_H
 
-#ifndef TAB_H
-#define TAB_H
+#include "types.h"
 
 /**
  * Allocates and initializes tabuleiro.
-
  * @returns A pointer to the initialized tabuleiro.
  * @returns NULL in case of allocation failure.
 */
@@ -13,7 +12,6 @@ Tab *initialize_tabuleiro(void);
 
 /**
  * Calculates the index of the position provided
-
  * @returns 0 <= index <= height * width;
  * @returns -1 if invalid;
 */
@@ -21,7 +19,6 @@ int calc_index(Tab *tabuleiro, int x, int y);
 
 /**
  * Ensures valid string index.
-
  * @returns true if index is in bounds.
  * @returns false otherwise.
  */
@@ -45,9 +42,9 @@ char get_elem(Tab *tabuleiro, int x, int y);
  */
 void set_elem(Tab *tabuleiro, int x, int y, char c);
 
-/**
- * Set a position to white letter (Uppercase)
- */
+// /**
+//  * Set a position to white letter (Uppercase)
+//  */
 void toggle_branco(Tab *tabuleiro, int x, int y);
 
 /**
@@ -56,7 +53,7 @@ void toggle_branco(Tab *tabuleiro, int x, int y);
 void print_tab(Tab *tabuleiro, iVec2 win_d);
 
 /**
- * Toggle marked status of a piece and toggles branco of all ortogonal neighbours
+ * Toggle marked status of a piece and toggles branco of all orthogonal neighbours
  */
 void toggle_marked(Tab *tabuleiro, int x, int y);
 
@@ -75,8 +72,8 @@ int salvar_tabuleiro(Tab *tab, const char *filename);
 /**
  * Verifica se o tabuleiro é válido segundo as regras do jogo
  * Confirma que não há repetições de caracteres nas linhas e colunas
-
  * @returns `true` se o tabuleiro for válido, `false` caso contrário
 */
 bool validar_tabuleiro(Tab *tab);
+
 #endif
