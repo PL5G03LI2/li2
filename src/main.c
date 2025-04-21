@@ -130,8 +130,8 @@ int main(void)
         printf("Your terminal does not support colors...\n");
         return 1;
     }
-    start_color();
-    init_pair(1, COLOR_BLACK, COLOR_WHITE);
+    // start_color();
+    // init_pair(1, COLOR_BLACK, COLOR_WHITE);   |isto causava o erro de cores |
 
     Game game = {NULL, NULL, NULL, NULL, {0, 0}};
     getmaxyx(stdscr, game.win_d.y, game.win_d.x);

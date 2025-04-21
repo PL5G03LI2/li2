@@ -134,8 +134,8 @@ void print_tab(Tab *tab, iVec2 win_d) {
     int board_w = 3 + 2*w;
     int start_y = (win_d.y - board_h) / 2;
     int start_x = (win_d.x - board_w) / 2;
-    // Column headers
-    mvprintw(start_y, start_x+2, " ");
+    // Column headers - moved one position left
+    mvprintw(start_y, start_x+1," ");
     for (int y = 0; y < w; y++) printw("%d ", y+1);
     // Separator
     mvprintw(start_y+1, start_x, "--");
