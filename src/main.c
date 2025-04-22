@@ -55,38 +55,43 @@ int init_game(Game *game)
     return 0;
 }
 
-int repl(Game *game)
+void render(Game *game)
+{
+    // clear the whole board area
+    for (int i = 0; i < game->win_d.y - 2; i++)
+    {
+        move(i, 0);
+        clrtoeol();
+    }
+
+    if (game->tabuleiro->data)
+    {
+        iVec2 min_d = {game->tabuleiro->width * 2 + 2, game->tabuleiro->height + 6};
+        if (game->win_d.x < min_d.x || game->win_d.y < min_d.y)
+        {
+            print_info("Window too small.", game->win_d);
+        }
+        else
+            print_tab(game->tabuleiro, game->win_d);
+    }
+    else
+    {
+        move(game->win_d.y / 2, game->win_d.x / 2 - 22);
+        printw("Awaiting load command... Hint: l <save_file>");
+    }
+
+    move(game->win_d.y - 1, 0);
+    clrtoeol(); // clear the line before input.
+    addch(':');
+}
+
+void repl(Game *game)
 {
     while (game->cmd->type != CMD_EXIT)
     {
         getmaxyx(stdscr, game->win_d.y, game->win_d.x);
 
-        // clear the whole board area
-        for (int i = 0; i < game->win_d.y - 2; i++)
-        {
-            move(i, 0);
-            clrtoeol();
-        }
-
-        if (game->tabuleiro->data)
-        {
-            iVec2 min_d = {game->tabuleiro->width * 2 + 2, game->tabuleiro->height + 6};
-            if (game->win_d.x < min_d.x || game->win_d.y < min_d.y)
-            {
-                print_info("Window too small.", game->win_d);
-            }
-            else
-                print_tab(game->tabuleiro, game->win_d);
-        }
-        else
-        {
-            move(game->win_d.y / 2, game->win_d.x / 2 - 22);
-            printw("Awaiting load command... Hint: l <save_file>");
-        }
-
-        move(game->win_d.y - 1, 0);
-        clrtoeol(); // clear the line before input.
-        addch(':');
+        render(game);
 
         if (await_command(game->cmd_str))
         {
@@ -105,7 +110,9 @@ int repl(Game *game)
             game->history = push_history(game->history, game->cmd);
         }
 
-        if (game->cmd->type == CMD_INVALID || (game->cmd->type != CMD_LOAD && game->tabuleiro->data == NULL))
+        bool cmd_invalid = game->cmd->type == CMD_INVALID;
+        bool no_load_intent_while_no_tab = (game->cmd->type != CMD_LOAD && game->tabuleiro->data == NULL);
+        if (cmd_invalid || no_load_intent_while_no_tab)
         {
             print_info("Invalid command.", game->win_d);
             continue;
@@ -117,8 +124,6 @@ int repl(Game *game)
             continue;
         }
     }
-
-    return 0;
 }
 
 int main(void)
@@ -131,18 +136,12 @@ int main(void)
         return 1;
     }
 
-
     Game game = {NULL, NULL, NULL, NULL, {0, 0}};
     getmaxyx(stdscr, game.win_d.y, game.win_d.x);
 
     init_game(&game);
 
-    if (repl(&game))
-    {
-        free_game(&game);
-        endwin();
-        return 1;
-    }
+    repl(&game);
 
     // Nothing more to do, clean up.
     free_game(&game);
