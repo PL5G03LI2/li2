@@ -73,53 +73,69 @@ void toggle_marked(Tab *tab, int x, int y) {
     }
 }
 
-/** Validate board: mark duplicates as violated and return overall validity */
+
+// Checks whether the board is valid according to game rules.
+
 bool validar_tabuleiro(Tab *tab) {
     int h = tab->height, w = tab->width;
-    // Reset violations
+
+    // Reset all 'violated' flags before validation
     for (int i = 0; i < h * w; i++) {
         tab->data[i].violated = false;
     }
-    bool ok = true;
-    // Check rows
+
+    bool ok = true; // Assume the board is valid until proven otherwise
+
+    // Check rows for duplicate characters
     for (int x = 0; x < h; x++) {
         for (int y = 0; y < w; y++) {
-            char c = tab->data[x*w+y].c;
-            if (c == '#') continue;
+            char c = tab->data[x * w + y].c;
+
+            if (c == '#') continue; // Ignore unused or empty cells
+
+            // Compare the current character with the rest of the row
             for (int y2 = y + 1; y2 < w; y2++) {
-                if (tab->data[x*w+y2].c == c) {
-                    tab->data[x*w+y].violated = true;
-                    tab->data[x*w+y2].violated = true;
-                    ok = false;
+                if (tab->data[x * w + y2].c == c) {
+                    // Mark both positions as violated
+                    tab->data[x * w + y].violated = true;
+                    tab->data[x * w + y2].violated = true;
+                    ok = false; // The board is invalid
                 }
             }
         }
     }
-    // Check columns
+
+    // Check columns for duplicate characters
     for (int y = 0; y < w; y++) {
         for (int x = 0; x < h; x++) {
-            char c = tab->data[x*w+y].c;
-            if (c == '#') continue;
+            char c = tab->data[x * w + y].c;
+
+            if (c == '#') continue; // Ignore empty cells
+
+            // Compare the current character with the rest of the column
             for (int x2 = x + 1; x2 < h; x2++) {
-                if (tab->data[x2*w+y].c == c) {
-                    tab->data[x*w+y].violated = true;
-                    tab->data[x2*w+y].violated = true;
-                    ok = false;
+                if (tab->data[x2 * w + y].c == c) {
+                    // Mark both positions as violated
+                    tab->data[x * w + y].violated = true;
+                    tab->data[x2 * w + y].violated = true;
+                    ok = false; // The board is invalid
                 }
             }
         }
     }
-    return ok;
+
+    return ok; // Return true if no violations were found, false otherwise
 }
+
 
 /** Initialize ncurses color pairs once */
 static void init_colors(void) {
     start_color();
     use_default_colors();
-    init_pair(1, COLOR_WHITE, COLOR_BLUE);   // selected normal
-    init_pair(2, COLOR_RED,   COLOR_WHITE);  // selected violated
-    init_pair(3, COLOR_WHITE, COLOR_RED);    // violated not selected
-    init_pair(4, COLOR_WHITE, -1);           // default
+    init_pair(1, -1, COLOR_WHITE);   // selected normal
+    init_pair(2, COLOR_WHITE, COLOR_RED );  // selected violated
+    init_pair(3, COLOR_RED, COLOR_WHITE );    // violated not selected
+    init_pair(4, COLOR_WHITE, -1 );           // default
 }
 
 /** Prints the board centered in window dimensions win_d */
@@ -129,32 +145,47 @@ void print_tab(Tab *tab, iVec2 win_d) {
         init_colors();
         colors_inited = true;
     }
+    //board dimensions calculation
     int h = tab->height, w = tab->width;
-    int board_h = 3 + h;
-    int board_w = 3 + 2*w;
-    int start_y = (win_d.y - board_h) / 2;
-    int start_x = (win_d.x - board_w) / 2;
-    // Column headers - moved one position left
+    int board_h = 3 + h;          // Height: rows + header + separator
+    int board_w = 3 + 2*w;        // Width: 2 chars per cell + padding
+    int start_y = (win_d.y - board_h) / 2;  // Vertical centering
+    int start_x = (win_d.x - board_w) / 2;  // Horizontal centering
+    // Column headers
+    attron(COLOR_PAIR(4));
     mvprintw(start_y, start_x+1," ");
     for (int y = 0; y < w; y++) printw("%d ", y+1);
-    // Separator
+    attroff(COLOR_PAIR(4));
+
+    // Separator (uses default color)
     mvprintw(start_y+1, start_x, "--");
     for (int y = 0; y < w; y++) printw("--");
+
     // Rows
     for (int x = 0; x < h; x++) {
-        mvprintw(start_y+2+x, start_x, "%c|", 'a'+x);
+        // Row Header (e.g., "a|")
+        attron(COLOR_PAIR(4));
+        mvprintw(start_y+2+x, start_x, "%c|", 'a'+x); // "a|", "b|", etc.
+        attroff(COLOR_PAIR(4));
+    
+        // Cells in the Row
         for (int y = 0; y < w; y++) {
             int idx = x*w + y;
             Piece p = tab->data[idx];
-            bool sel = (x==tab->sel_piece.x && y==tab->sel_piece.y);
-            int cp = 4;
-            if (p.violated) cp = sel ? 2 : 3;
-            else if (sel)    cp = 1;
+            bool sel = (x == tab->sel_piece.x && y == tab->sel_piece.y);
+    
+            // Color Logic
+            int cp = 4;  // Default: white text, default background
+            if (p.violated) cp = sel ? 2 : 3;  // Violated cells
+            else if (sel) cp = 1;               // Selected cell
+    
+            // Print Cell
             attron(COLOR_PAIR(cp));
             mvprintw(start_y+2+x, start_x+2+2*y, "%c", p.marked ? '#' : p.c);
             attroff(COLOR_PAIR(cp));
         }
     }
+    refresh(); //Flushes all changes to the terminal screen.
 }
 
 /** Loads board from file */
