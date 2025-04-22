@@ -67,17 +67,6 @@ void toggle_marked(Tab *tab, int x, int y)
         return;
     Piece *p = &tab->data[calc_index(tab, x, y)];
     p->marked = !p->marked;
-    // For each orthogonal neighbor:
-    const int dx[4] = {1, -1, 0, 0};
-    const int dy[4] = {0, 0, 1, -1};
-    for (int i = 0; i < 4; i++)
-    {
-        int nx = x + dx[i], ny = y + dy[i];
-        if (assert_pos(tab, nx, ny))
-        {
-            toggle_branco(tab, nx, ny);
-        }
-    }
 }
 
 bool validar_tabuleiro(Tab *tab)
