@@ -52,6 +52,16 @@ char *trim_str(char *str)
     return out;
 }
 
+void clear_info(iVec2 win_d)
+{
+    iVec2 prev;
+    getyx(stdscr, prev.y, prev.x);
+    move(win_d.y - 2, 0);
+    clrtoeol();
+    refresh();
+    move(prev.y, prev.x);
+}
+
 void print_info(const char *string, iVec2 win_d)
 {
     iVec2 prev;

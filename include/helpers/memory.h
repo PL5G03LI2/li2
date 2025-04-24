@@ -4,6 +4,13 @@
 #define MEMORY_H
 
 /**
+ * Initializes all fields of Game
+ *
+ * @param game A pointer to the game to initialize.
+ */
+int init_game(Game *game);
+
+/**
  * @brief Frees a command and it's tokens.
  *
  * @param cmd Double pointer to the command.
