@@ -70,7 +70,7 @@ void toggle_marked(Tab *tabuleiro, int x, int y);
  * Carrega um tabuleiro a partir de um ficheiro especificado
  * @returns 0 se o carregamento for bem-sucedido, 1 caso contrário
  */
-int carregar_tabuleiro(Tab *tab, const char *filename);
+int carregar_jogo(Game *game, const char *filename);
 
 /**
  * Guarda o estado atual do tabuleiro num ficheiro

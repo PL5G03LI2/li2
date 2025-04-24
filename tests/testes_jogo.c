@@ -264,8 +264,8 @@ void test_tabuleiroState_SL(void)
     tab.width = 3;
     tab.data = NULL;
 
-    CU_ASSERT_EQUAL(carregar_tabuleiro(&tab, "j1.txt"), 0);
-    CU_ASSERT_EQUAL(carregar_tabuleiro(&tab, "j2.txt"), 1);
+    CU_ASSERT_EQUAL(carregar_jogo(&tab, "j1.txt"), 0);
+    CU_ASSERT_EQUAL(carregar_jogo(&tab, "j2.txt"), 1);
     CU_ASSERT_EQUAL(salvar_jogo(&tab, "j3.txt"), 0);
     CU_ASSERT_EQUAL(validar_tabuleiro(&tab), 0);
 
@@ -754,7 +754,7 @@ void test_runCommand(void)
     jogo.cmd = cmd;
     jogo.win_d = win_d;
 
-    CU_ASSERT_EQUAL(run_command(&jogo), carregar_tabuleiro(&tab, "j1.txt"));
+    CU_ASSERT_EQUAL(run_command(&jogo), carregar_jogo(&tab, "j1.txt"));
 
     // Cleanup
     free(cmd->tokens[1]);

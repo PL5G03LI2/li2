@@ -1,6 +1,54 @@
 #include <stdlib.h>
+
 #include "helpers/history.h"
+#include "helpers/memory.h"
+#include "jogo/tabuleiro.h"
 #include "types.h"
+
+int init_game(Game *game)
+{
+    game->tabuleiro = initialize_tabuleiro();
+    if (game->tabuleiro == NULL)
+        return 1;
+
+    game->cmd_str = (char *)calloc(256, sizeof(char));
+    if (game->cmd_str == NULL)
+    {
+        free_game(game);
+        return 1;
+    }
+
+    game->cmd = (ParsedCommand *)malloc(sizeof(ParsedCommand));
+    if (game->cmd == NULL)
+    {
+        free_game(game);
+        return 1;
+    }
+
+    game->cmd->type = CMD_INVALID;
+    game->cmd->track = false;
+
+    game->cmd->tokens = (char **)calloc(2, sizeof(char *));
+    if (game->cmd->tokens == NULL)
+    {
+        free_game(game);
+        return 1;
+    }
+
+    for (int i = 0; i < 2; i++)
+    {
+        game->cmd->tokens[i] = (char *)calloc(32, sizeof(char));
+        if (game->cmd->tokens[i] == NULL)
+        {
+            free_game(game);
+            return 1;
+        }
+    }
+
+    game->history = NULL;
+
+    return 0;
+}
 
 void free_command(ParsedCommand **cmd)
 {
