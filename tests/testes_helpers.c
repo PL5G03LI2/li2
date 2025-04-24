@@ -231,27 +231,30 @@ void test_get_history_element(void)
     CU_ASSERT_PTR_NULL(result);
 
     // Push commands
-    ParsedCommand cmd1, cmd2, cmd3;
-    cmd1.type = CMD_SAVE;
-    cmd1.track = false;
-    cmd1.tokens = (char **)malloc(sizeof(char *) * 2);
-    cmd1.tokens[0] = strdup("g");
-    cmd1.tokens[1] = strdup("j1.txt");
-    history = push_history(history, &cmd1);
+    ParsedCommand *cmd1 = malloc(sizeof(ParsedCommand));
+    ParsedCommand *cmd2 = malloc(sizeof(ParsedCommand));
+    ParsedCommand *cmd3 = malloc(sizeof(ParsedCommand));
 
-    cmd2.type = CMD_LOAD;
-    cmd2.track = true;
-    cmd2.tokens = (char **)malloc(sizeof(char *) * 2);
-    cmd2.tokens[0] = strdup("l");
-    cmd2.tokens[1] = strdup("j1.txt");
-    history = push_history(history, &cmd2);
+    cmd1->type = CMD_SAVE;
+    cmd1->track = false;
+    cmd1->tokens = (char **)malloc(sizeof(char *) * 2);
+    cmd1->tokens[0] = strdup("g");
+    cmd1->tokens[1] = strdup("j1.txt");
+    history = push_history(history, cmd1);
 
-    cmd3.type = CMD_VERIFY;
-    cmd3.track = false;
-    cmd3.tokens = (char **)malloc(sizeof(char *) * 2);
-    cmd3.tokens[0] = strdup("v");
-    cmd3.tokens[1] = strdup("");
-    history = push_history(history, &cmd3);
+    cmd2->type = CMD_LOAD;
+    cmd2->track = true;
+    cmd2->tokens = (char **)malloc(sizeof(char *) * 2);
+    cmd2->tokens[0] = strdup("l");
+    cmd2->tokens[1] = strdup("j1.txt");
+    history = push_history(history, cmd2);
+
+    cmd3->type = CMD_VERIFY;
+    cmd3->track = false;
+    cmd3->tokens = (char **)malloc(sizeof(char *) * 2);
+    cmd3->tokens[0] = strdup("v");
+    cmd3->tokens[1] = strdup("");
+    history = push_history(history, cmd3);
 
     // Valid indices
     result = get_history_element(history, 0);
@@ -276,15 +279,9 @@ void test_get_history_element(void)
 
     // Clean up
     destroy_history(&history);
-    free(cmd1.tokens[0]);
-    free(cmd1.tokens[1]);
-    free(cmd1.tokens);
-    free(cmd2.tokens[0]);
-    free(cmd2.tokens[1]);
-    free(cmd2.tokens);
-    free(cmd3.tokens[0]);
-    free(cmd3.tokens[1]);
-    free(cmd3.tokens);
+    free_command(&cmd1);
+    free_command(&cmd2);
+    free_command(&cmd3);
 }
 
 void test_destroy_history(void)
@@ -295,36 +292,32 @@ void test_destroy_history(void)
     destroy_history(&history);
     CU_ASSERT_PTR_NULL(history);
 
-    // history = (TabHistory *)malloc(sizeof(TabHistory));
-
     // Case 2: destroy populated list
-    ParsedCommand cmd1, cmd2;
-    cmd1.type = CMD_SAVE;
-    cmd1.track = false;
-    cmd1.tokens = (char **)malloc(sizeof(char *) * 2);
-    cmd1.tokens[0] = strdup("g");
-    cmd1.tokens[1] = strdup("j1.txt");
+    ParsedCommand *cmd1 = malloc(sizeof(ParsedCommand));
+    ParsedCommand *cmd2 = malloc(sizeof(ParsedCommand));
 
-    cmd2.type = CMD_LOAD;
-    cmd2.track = true;
-    cmd2.tokens = (char **)malloc(sizeof(char *) * 2);
-    cmd2.tokens[0] = strdup("l");
-    cmd2.tokens[1] = strdup("j1.txt");
+    cmd1->type = CMD_SAVE;
+    cmd1->track = false;
+    cmd1->tokens = (char **)malloc(sizeof(char *) * 2);
+    cmd1->tokens[0] = strdup("g");
+    cmd1->tokens[1] = strdup("j1.txt");
 
-    history = push_history(history, &cmd1);
-    history = push_history(history, &cmd2);
+    cmd2->type = CMD_LOAD;
+    cmd2->track = true;
+    cmd2->tokens = (char **)malloc(sizeof(char *) * 2);
+    cmd2->tokens[0] = strdup("l");
+    cmd2->tokens[1] = strdup("j1.txt");
+
+    history = push_history(history, cmd1);
+    history = push_history(history, cmd2);
 
     CU_ASSERT_PTR_NOT_NULL(history);
 
     destroy_history(&history);
     CU_ASSERT_PTR_NULL(history);
 
-    free(cmd1.tokens[0]);
-    free(cmd1.tokens[1]);
-    free(cmd1.tokens);
-    free(cmd2.tokens[0]);
-    free(cmd2.tokens[1]);
-    free(cmd2.tokens);
+    free_command(&cmd1);
+    free_command(&cmd2);
 }
 
 void test_history(void)
