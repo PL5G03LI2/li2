@@ -1,512 +1,407 @@
-#include "arrays.h"
-#include "comandos.h"
-#include "strs.h"
-#include "tabuleiro.h"
+#include "../include/jogo/comandos.h"
+#include "../include/helpers/strs.h"
+#include "../include/jogo/tabuleiro.h"
+#include "../include/helpers/memory.h"
+#include "../include/helpers/history.h"
 #include <CUnit/CUnit.h>
 #include <stdlib.h>
+#include <ncurses.h>
+
+void test_isUpper(void)
+{
+    CU_ASSERT_EQUAL(isUpper('c'), 0);
+    CU_ASSERT_NOT_EQUAL(isUpper('A'), 0);
+}
 
 void test_toUpper(void)
 {
     CU_ASSERT_EQUAL(toUpper('c'), 'C');
-    CU_ASSERT_EQUAL(toUpper('A'), 'A'); // Uppercase remains unchanged
+    CU_ASSERT_EQUAL(toUpper('A'), 'A');
+}
+
+void test_isLower(void)
+{
+    CU_ASSERT_EQUAL(isLower('A'), 0);
+    CU_ASSERT_NOT_EQUAL(isLower('c'), 0);
+}
+
+void test_toLower(void)
+{
+    CU_ASSERT_EQUAL(toLower('c'), 'c');
+    CU_ASSERT_EQUAL(toLower('A'), 'a');
+}
+
+void test_trim_str_basic(void)
+{
+    char *input = strdup("   hello world   ");
+    char *result = trim_str(input);
+    CU_ASSERT_STRING_EQUAL(result, "hello world");
+    free(input);
+    free(result);
+}
+
+void test_trim_str_no_spaces(void)
+{
+    char *input = strdup("Hello");
+    char *result = trim_str(input);
+    CU_ASSERT_STRING_EQUAL(result, "Hello");
+    free(input);
+    free(result);
+}
+
+void test_trim_str_all_spaces(void)
+{
+    char *input = strdup("     ");
+    char *result = trim_str(input);
+    CU_ASSERT_STRING_EQUAL(result, "");
+    free(input);
+    free(result);
+}
+
+void test_trim_str_empty(void)
+{
+    char *input = strdup("");
+    char *result = trim_str(input);
+    CU_ASSERT_STRING_EQUAL(result, "");
+    free(input);
+    free(result);
+}
+
+void test_trim_str_null(void)
+{
+    char *result = trim_str(NULL);
+    CU_ASSERT_PTR_NULL(result);
+}
+
+void test_trim_str(void)
+{
+    test_trim_str_basic();
+    test_trim_str_no_spaces();
+    test_trim_str_all_spaces();
+    test_trim_str_empty();
+    test_trim_str_null();
+}
+
+void test_print_info(void)
+{
+    initscr(); // Start curses mode
+    noecho();  // Don't echo input
+    cbreak();  // Disable line buffering
+
+    const char *test_str = "Hello, world!";
+    iVec2 win_size = {.x = 80, .y = 24};
+
+    print_info(test_str, win_size);
+
+    endwin(); // End curses mode
 }
 
 void test_strings(void)
 {
+    test_isUpper();
     test_toUpper();
+    test_isLower();
+    test_toLower();
+    test_trim_str();
+    test_print_info();
 }
 
-void test_tabuleiroState(void)
-{
-    Tab tab;
-    tab.height = 1;
-    tab.width = 3;
-    tab.data = NULL;
-
-    CU_ASSERT_EQUAL(carregar_tabuleiro(&tab, "j1.txt"), 0);
-    CU_ASSERT_EQUAL(carregar_tabuleiro(&tab, "j2.txt"), 1);
-    CU_ASSERT_EQUAL(salvar_tabuleiro(&tab, "j3.txt"), 0);
-    CU_ASSERT_EQUAL(validar_tabuleiro(&tab), 0);
-}
-
-// void test_await(void) {
-//     char buffer[256];
-    
-//     FILE *fake_input1 = fmemopen("sajnbfiosdjngosdnmfosmdfskndgksjdnfksdjn\n", 50, "r");
-//     CU_ASSERT_PTR_NOT_NULL(fake_input1);
-//     CU_ASSERT_EQUAL(await_command(buffer, fake_input1), 0);
-//     fclose(fake_input1);
-
-//     FILE *fake_input2 = fmemopen("l j1.txt\n", 10, "r");
-//     CU_ASSERT_PTR_NOT_NULL(fake_input2);
-//     CU_ASSERT_EQUAL(await_command(buffer, fake_input2), 0);
-//     CU_ASSERT_STRING_EQUAL(buffer, "l j1.txt");
-//     fclose(fake_input2);
-// }
-
-void test_tokenize(void) {
-    char input[] = "move piece 1";
-    char *tokens[3];
-
-    int count = tokenize_cmd(input, tokens);
-
-    CU_ASSERT_EQUAL(count, 3);
-    CU_ASSERT_STRING_EQUAL(tokens[0], "move");
-    CU_ASSERT_STRING_EQUAL(tokens[1], "piece");
-    CU_ASSERT_STRING_EQUAL(tokens[2], "1");
-
-    for (int i = 0; i < count; i++) free(tokens[i]);
-}
-
-void test_parseCommand(void) {
-    Tab tab;
-    tab.height = 1;
-    tab.width = 3;
-    tab.data = malloc(sizeof(Piece) * tab.height * tab.width);
-    ParsedCommand *result = calloc(1, sizeof(ParsedCommand));
-    char cmd_copy[] = "l j1.txt";
-
-    CU_ASSERT_EQUAL(parse_command(&tab, cmd_copy, result), 0);
-    CU_ASSERT_EQUAL(result->type, CMD_LOAD);
-    
-    // Cleanup
-    if (result->tokens) {
-        for (int i = 0; result->tokens[i]; ++i)
-            free(result->tokens[i]);
-        free(result->tokens);
-    }
-
-    free(result);
-    free(tab.data);
-}
-
-void test_runCommand(void) {
-    Tab tab;
-    tab.height = 1;
-    tab.width = 3;
-    tab.data = NULL;
-    ParsedCommand *result = calloc(1, sizeof(ParsedCommand));  // ✅ allocation
-    result->type = CMD_LOAD;
-
-    // Simulate loading a file
-    result->tokens = calloc(2, sizeof(char *));
-    result->tokens[1] = strdup("j1.txt");
-
-    CU_ASSERT_EQUAL(run_command(result, &tab), carregar_tabuleiro(&tab, "j1.txt"));
-
-    // Cleanup
-    free(result->tokens[1]);
-    free(result->tokens);
-    free(result);
-}
-
-void test_CMD(void) {
-    // test_await();
-    test_tokenize();
-    test_parseCommand();
-    test_runCommand();
-}
-
-void test_comandos(void)
-{
-    test_tabuleiroState();
-    test_CMD();
-}
-
-void test_push_single(void)
+void test_push_history(void)
 {
     TabHistory *history = NULL;
-    Tab tab;
-    tab.height = 1;
-    tab.width = 3;
-    tab.data = malloc(sizeof(Piece) * tab.height * tab.width);
+    // memset(history, 0, sizeof(TabHistory));
 
-    int i, j;
-    for (i = 0; i < tab.height; i++)
-    {
-        for (j = 0; j < tab.width; j++)
-        {
-            char letra = (i * tab.width) + j + 97;
-            if (letra > 122)
-            {
-                letra = '0';
-            }
-            tab.data[(i * tab.width) + j].c = letra;
-        }
-    }
+    // Create a dummy ParsedCommand
+    ParsedCommand *cmd1 = malloc(sizeof(ParsedCommand));
+    cmd1->type = CMD_SAVE;
+    cmd1->track = true;
+    cmd1->tokens = (char **)malloc(sizeof(char *) * 2);
+    cmd1->tokens[0] = strdup("xyz");
+    cmd1->tokens[1] = strdup("");
 
-    history = push(history, tab);
-
+    // Push first command
+    history = push_history(history, cmd1);
     CU_ASSERT_PTR_NOT_NULL(history);
-    CU_ASSERT_EQUAL(history->tab.data[0].c, 'a');
-    CU_ASSERT_EQUAL(history->tab.data[1].c, 'b');
-    CU_ASSERT_EQUAL(history->tab.data[2].c, 'c');
-    CU_ASSERT_EQUAL(history->tab.height, 1);
-    CU_ASSERT_EQUAL(history->tab.width, 3);
+    CU_ASSERT_PTR_NOT_NULL(history->cmd);
+    CU_ASSERT_EQUAL(history->cmd->type, CMD_SAVE);
+    CU_ASSERT_EQUAL(history->cmd->track, true);
     CU_ASSERT_PTR_NULL(history->next);
 
-    free(history);
-    free(tab.data);
+    // Push a second command
+    ParsedCommand *cmd2 = malloc(sizeof(ParsedCommand));
+    cmd2->type = CMD_LOAD;
+    cmd2->track = false;
+    cmd2->tokens = (char **)malloc(sizeof(char *) * 2);
+    cmd2->tokens[0] = strdup("g");
+    cmd2->tokens[1] = strdup("j1.txt");
+
+    history = push_history(history, cmd2);
+
+    // Find second node
+    TabHistory *second = history->next;
+    CU_ASSERT_PTR_NOT_NULL(second);
+    CU_ASSERT_PTR_NOT_NULL(second->cmd);
+    CU_ASSERT_EQUAL(second->cmd->type, CMD_LOAD);
+    CU_ASSERT_EQUAL(second->cmd->track, false);
+    CU_ASSERT_PTR_NULL(second->next);
+
+    // Clean up
+    free_command(&cmd1);
+    free_command(&cmd2);
+
+    destroy_history(&history);
 }
 
-void test_push_multiple(void)
+void test_pop_history(void)
 {
     TabHistory *history = NULL;
-    Tab tab1;
-    Tab tab2;
-    tab1.height = 1;
-    tab1.width = 3;
-    tab2.height = 2;
-    tab2.width = 3;
-    tab1.data = malloc(sizeof(Piece) * tab1.height * tab1.width);
-    tab2.data = malloc(sizeof(Piece) * tab2.height * tab2.width);
+    ParsedCommand *removed;
 
-    int i, j;
-    for (i = 0; i < tab1.height; i++)
-    {
-        for (j = 0; j < tab1.width; j++)
-        {
-            char letra = (i * tab1.width) + j + 97;
-            if (letra > 122)
-            {
-                letra = '0';
-            }
-            tab1.data[(i * tab1.width) + j].c = letra;
-        }
-    }
-    for (i = 0; i < tab2.height; i++)
-    {
-        for (j = 0; j < tab2.width; j++)
-        {
-            char letra = (i * tab2.width) + j + 97;
-            if (letra > 122)
-            {
-                letra = '0';
-            }
-            tab2.data[(i * tab2.width) + j].c = letra;
-        }
-    }
+    // Pop from empty history
+    removed = pop_history(&history);
+    CU_ASSERT_PTR_NULL(removed);
 
-    history = push(history, tab1);
-    history = push(history, tab2);
+    // Push first command
+    ParsedCommand *cmd1 = malloc(sizeof(ParsedCommand));
+    cmd1->type = CMD_SAVE;
+    cmd1->track = true;
+    cmd1->tokens = (char **)malloc(sizeof(char *) * 2);
+    cmd1->tokens[0] = strdup("g");
+    cmd1->tokens[1] = strdup("j1.txt");
+    history = push_history(history, cmd1);
+
+    // Pop when only one element
+    removed = pop_history(&history);
+    CU_ASSERT_PTR_NOT_NULL(removed);
+    CU_ASSERT_EQUAL(removed->type, CMD_SAVE);
+    CU_ASSERT_EQUAL(removed->track, true);
+    CU_ASSERT_PTR_NULL(history);
+    free_command(&removed);
+    free_command(&cmd1);
+
+    // Push two commands
+    ParsedCommand *cmd2 = malloc(sizeof(ParsedCommand));
+    ParsedCommand *cmd3 = malloc(sizeof(ParsedCommand));
+
+    cmd2->type = CMD_LOAD;
+    cmd2->track = false;
+    cmd2->tokens = (char **)malloc(sizeof(char *) * 2);
+    cmd2->tokens[0] = strdup("l");
+    cmd2->tokens[1] = strdup("j1.txt");
+    history = push_history(history, cmd2);
+
+    cmd3->type = CMD_VERIFY;
+    cmd3->track = true;
+    cmd3->tokens = (char **)malloc(sizeof(char *) * 2);
+    cmd3->tokens[0] = strdup("v");
+    cmd3->tokens[1] = strdup("");
+    history = push_history(history, cmd3);
+
+    // Pop last command (cmd3)
+    removed = pop_history(&history);
+    CU_ASSERT_PTR_NOT_NULL(removed);
+    CU_ASSERT_EQUAL(removed->type, CMD_VERIFY);
+    CU_ASSERT_EQUAL(removed->track, true);
+    free_command(&removed);
+
+    // Check remaining head is cmd2
+    CU_ASSERT_PTR_NOT_NULL(history);
+    CU_ASSERT_PTR_NULL(history->next);
+    CU_ASSERT_EQUAL(history->cmd->type, CMD_LOAD);
+
+    // Pop last remaining
+    removed = pop_history(&history);
+    CU_ASSERT_PTR_NOT_NULL(removed);
+    CU_ASSERT_EQUAL(removed->type, CMD_LOAD);
+    free_command(&removed);
+    free_command(&cmd2);
+    free_command(&cmd3);
+
+    destroy_history(&history);
+    CU_ASSERT_PTR_NULL(history);
+}
+
+void test_get_history_element(void)
+{
+    TabHistory *history = NULL;
+    ParsedCommand *result;
+
+    // Test empty history
+    result = get_history_element(history, 0);
+    CU_ASSERT_PTR_NULL(result);
+
+    // Push commands
+    ParsedCommand *cmd1 = malloc(sizeof(ParsedCommand));
+    ParsedCommand *cmd2 = malloc(sizeof(ParsedCommand));
+    ParsedCommand *cmd3 = malloc(sizeof(ParsedCommand));
+
+    cmd1->type = CMD_SAVE;
+    cmd1->track = false;
+    cmd1->tokens = (char **)malloc(sizeof(char *) * 2);
+    cmd1->tokens[0] = strdup("g");
+    cmd1->tokens[1] = strdup("j1.txt");
+    history = push_history(history, cmd1);
+
+    cmd2->type = CMD_LOAD;
+    cmd2->track = true;
+    cmd2->tokens = (char **)malloc(sizeof(char *) * 2);
+    cmd2->tokens[0] = strdup("l");
+    cmd2->tokens[1] = strdup("j1.txt");
+    history = push_history(history, cmd2);
+
+    cmd3->type = CMD_VERIFY;
+    cmd3->track = false;
+    cmd3->tokens = (char **)malloc(sizeof(char *) * 2);
+    cmd3->tokens[0] = strdup("v");
+    cmd3->tokens[1] = strdup("");
+    history = push_history(history, cmd3);
+
+    // Valid indices
+    result = get_history_element(history, 0);
+    CU_ASSERT_PTR_NOT_NULL(result);
+    CU_ASSERT_EQUAL(result->type, CMD_SAVE);
+
+    result = get_history_element(history, 1);
+    CU_ASSERT_PTR_NOT_NULL(result);
+    CU_ASSERT_EQUAL(result->type, CMD_LOAD);
+
+    result = get_history_element(history, 2);
+    CU_ASSERT_PTR_NOT_NULL(result);
+    CU_ASSERT_EQUAL(result->type, CMD_VERIFY);
+
+    // Out-of-bounds index
+    result = get_history_element(history, 3);
+    CU_ASSERT_PTR_NULL(result);
+
+    // Negative index
+    result = get_history_element(history, -1);
+    CU_ASSERT_PTR_NULL(result);
+
+    // Clean up
+    destroy_history(&history);
+    free_command(&cmd1);
+    free_command(&cmd2);
+    free_command(&cmd3);
+}
+
+void test_destroy_history(void)
+{
+    TabHistory *history = NULL;
+
+    // Case 1: destroy empty list
+    destroy_history(&history);
+    CU_ASSERT_PTR_NULL(history);
+
+    // Case 2: destroy populated list
+    ParsedCommand *cmd1 = malloc(sizeof(ParsedCommand));
+    ParsedCommand *cmd2 = malloc(sizeof(ParsedCommand));
+
+    cmd1->type = CMD_SAVE;
+    cmd1->track = false;
+    cmd1->tokens = (char **)malloc(sizeof(char *) * 2);
+    cmd1->tokens[0] = strdup("g");
+    cmd1->tokens[1] = strdup("j1.txt");
+
+    cmd2->type = CMD_LOAD;
+    cmd2->track = true;
+    cmd2->tokens = (char **)malloc(sizeof(char *) * 2);
+    cmd2->tokens[0] = strdup("l");
+    cmd2->tokens[1] = strdup("j1.txt");
+
+    history = push_history(history, cmd1);
+    history = push_history(history, cmd2);
 
     CU_ASSERT_PTR_NOT_NULL(history);
-    CU_ASSERT_EQUAL(history->tab.data[0].c, 'a');
-    CU_ASSERT_EQUAL(history->tab.data[1].c, 'b');
-    CU_ASSERT_EQUAL(history->tab.data[2].c, 'c');
 
-    CU_ASSERT_PTR_NOT_NULL(history->next);
-    CU_ASSERT_EQUAL(history->next->tab.data[3].c, 'd');
-    CU_ASSERT_EQUAL(history->next->tab.data[4].c, 'e');
-    CU_ASSERT_EQUAL(history->next->tab.data[5].c, 'f');
+    destroy_history(&history);
+    CU_ASSERT_PTR_NULL(history);
 
-    CU_ASSERT_PTR_NULL(history->next->next);
-
-    CU_ASSERT_PTR_NULL(history->next->next);
-
-    free(history->next);
-    free(history);
-    free(tab1.data);
-    free(tab2.data);
+    free_command(&cmd1);
+    free_command(&cmd2);
 }
 
-void test_pop_empty(void)
+void test_history(void)
 {
+    test_push_history();
+    test_pop_history();
+    test_get_history_element();
+    test_destroy_history();
+}
+
+void test_free_game_basic(void)
+{
+    // allocate tabuleiro
+    Tab *tab = (Tab *)malloc(sizeof(Tab));
+    tab->data = (Piece *)malloc(sizeof(Piece) * 4);
+    tab->height = 2;
+    tab->width = 2;
+
+    // allocate command string
+    char *cmd_str = strdup("l file.txt");
+
+    // allocate ParsedCommand with 2 tokens
+    ParsedCommand *cmd = (ParsedCommand *)malloc(sizeof(ParsedCommand));
+    cmd->track = false;
+    cmd->type = CMD_SAVE;
+    cmd->tokens = (char **)malloc(sizeof(char *) * 2);
+    cmd->tokens[0] = strdup("g");
+    cmd->tokens[1] = strdup("j1.txt");
+
+    iVec2 win_d = {80, 45};
+
     TabHistory *history = NULL;
-    Tab popped = pop(&history);
 
-    CU_ASSERT_PTR_NULL(popped.data);
-    CU_ASSERT_PTR_NULL(history); // List should remain empty
+    Game jogo;
+    jogo.tabuleiro = tab;
+    jogo.history = history;
+    jogo.cmd_str = cmd_str;
+    jogo.cmd = cmd;
+    jogo.win_d = win_d;
+
+    free_game(&jogo);
+    CU_ASSERT_PTR_NULL(jogo.tabuleiro);
+    CU_ASSERT_PTR_NULL(jogo.cmd_str);
+    CU_ASSERT_PTR_NULL(jogo.cmd);
+    CU_ASSERT_PTR_NULL(jogo.history);
 }
 
-void test_pop_single(void)
+void test_free_game_no_data(void)
 {
-    TabHistory *history = malloc(sizeof(TabHistory));
-    history->tab.data = malloc(sizeof(Piece) * 3);
-    history->tab.data[0].c = 'a';
-    history->tab.data[1].c = 'b';
-    history->tab.data[2].c = 'c';
-    history->tab.height = 1;
-    history->tab.width = 3;
-    history->next = NULL;
+    Tab *tab = (Tab *)malloc(sizeof(Tab));
+    tab->data = NULL;
 
-    Tab popped = pop(&history);
+    char *cmd_str = NULL;
 
-    CU_ASSERT_EQUAL(popped.data[0].c, 'a'); // Ensure popped.data is correctly populated
-    CU_ASSERT_EQUAL(popped.data[1].c, 'b');
-    CU_ASSERT_EQUAL(popped.data[2].c, 'c');
-    CU_ASSERT_EQUAL(popped.height, 1);
-    CU_ASSERT_EQUAL(popped.width, 3);
-    CU_ASSERT_PTR_NULL(history); // List should be empty after pop
+    ParsedCommand *cmd = (ParsedCommand *)malloc(sizeof(ParsedCommand));
+    cmd->tokens = (char **)malloc(sizeof(char *) * 2);
+    cmd->tokens[0] = strdup("");
+    cmd->tokens[1] = strdup("");
 
-    free(popped.data); // Free the memory that was allocated for popped data
-    free(history);     // Free the history pointer, which was previously set to NULL in pop
+    iVec2 win_d = {80, 45};
+
+    Game jogo;
+    jogo.tabuleiro = tab;
+    jogo.history = NULL;
+    jogo.cmd_str = cmd_str;
+    jogo.cmd = cmd;
+    jogo.win_d = win_d;
+
+    free_game(&jogo);
+    CU_ASSERT_PTR_NULL(jogo.tabuleiro);
+    CU_ASSERT_PTR_NULL(jogo.cmd_str);
+    CU_ASSERT_PTR_NULL(jogo.cmd);
+    CU_ASSERT_PTR_NULL(jogo.history);
 }
 
-void test_pop_multi(void)
+void test_free_game(void)
 {
-    // Create first node
-    TabHistory *history = malloc(sizeof(TabHistory));
-    history->tab.data = malloc(sizeof(Piece) * 5);
-    history->tab.data[0].c = 'f';
-    history->tab.data[1].c = 'i';
-    history->tab.data[2].c = 'r';
-    history->tab.data[3].c = 's';
-    history->tab.data[4].c = 't';
-    history->tab.height = 1;
-    history->tab.width = 5;
-    history->next = NULL;
-
-    Tab tab;
-    tab.height = 1;
-    tab.width = 6;
-    tab.data = malloc(sizeof(Piece) * tab.height * tab.width);
-
-    tab.data[0].c = 's';
-    tab.data[1].c = 'e';
-    tab.data[2].c = 'c';
-    tab.data[3].c = 'o';
-    tab.data[4].c = 'n';
-    tab.data[5].c = 'd';
-
-    // Create second node
-    history = push(history, tab);
-
-    // Pop last element
-    Tab popped = pop(&history);
-
-    CU_ASSERT_EQUAL(popped.data[0].c, 's');
-    CU_ASSERT_EQUAL(popped.data[1].c, 'e');
-    CU_ASSERT_EQUAL(popped.data[2].c, 'c');
-    CU_ASSERT_EQUAL(popped.data[3].c, 'o');
-    CU_ASSERT_EQUAL(popped.data[4].c, 'n');
-    CU_ASSERT_EQUAL(popped.data[5].c, 'd');
-    CU_ASSERT_EQUAL(popped.height, 1);
-    CU_ASSERT_EQUAL(popped.width, 6);
-    CU_ASSERT_PTR_NOT_NULL(history); // List should still contain "first"
-    CU_ASSERT_EQUAL(history->tab.data[0].c, 'f');
-    CU_ASSERT_EQUAL(history->tab.data[1].c, 'i');
-    CU_ASSERT_EQUAL(history->tab.data[2].c, 'r');
-    CU_ASSERT_EQUAL(history->tab.data[3].c, 's');
-    CU_ASSERT_EQUAL(history->tab.data[4].c, 't');
-
-    // Only free the 'tab.data' pointers as required
-    free(tab.data);          // Free the allocated memory for "second"
-    free(popped.data);       // Free the memory that was popped
-    free(history->tab.data); // Free the remaining "first" node's data
-    free(history);           // Free the remaining node ("first")
+    test_free_game_basic();
+    test_free_game_no_data();
 }
 
-void test_get_hist_elem_empty(void)
+void testes_helpers(void)
 {
-    TabHistory *history = NULL;
-    Tab *result = get_hist_elem(&history, 0);
-
-    CU_ASSERT_PTR_NULL(result);
-}
-
-void test_get_hist_elem_negativeIndex(void)
-{
-    TabHistory *history = malloc(sizeof(TabHistory));
-    history->tab.data = malloc(sizeof(Piece) * 4);
-    history->tab.data[0].c = 't';
-    history->tab.data[1].c = 'e';
-    history->tab.data[2].c = 's';
-    history->tab.data[3].c = 't';
-    history->tab.height = 5;
-    history->tab.width = 5;
-    history->next = NULL;
-
-    Tab *result = get_hist_elem(&history, -1);
-
-    CU_ASSERT_PTR_NULL(result);
-
-    free(history->tab.data);
-    free(history);
-}
-
-void test_get_hist_elem_first(void)
-{
-    TabHistory *history = malloc(sizeof(TabHistory));
-    history->tab.data = malloc(sizeof(Piece) * 4);
-    history->tab.data[0].c = 't';
-    history->tab.data[1].c = 'e';
-    history->tab.data[2].c = 's';
-    history->tab.data[3].c = 't';
-    history->tab.height = 1;
-    history->tab.width = 4;
-    history->next = NULL;
-
-    Tab *result = get_hist_elem(&history, 0);
-
-    CU_ASSERT_PTR_NOT_NULL(result);
-    CU_ASSERT_EQUAL(result->data[0].c, 't');
-    CU_ASSERT_EQUAL(result->data[1].c, 'e');
-    CU_ASSERT_EQUAL(result->data[2].c, 's');
-    CU_ASSERT_EQUAL(result->data[3].c, 't');
-    CU_ASSERT_EQUAL(result->height, 1);
-    CU_ASSERT_EQUAL(result->width, 4);
-
-    free(history->tab.data);
-    free(history);
-}
-
-void test_get_hist_elem_last(void)
-{
-    TabHistory *history = malloc(sizeof(TabHistory));
-    history->tab.data = malloc(sizeof(Piece) * 5);
-    history->tab.data[0].c = 'f';
-    history->tab.data[1].c = 'i';
-    history->tab.data[2].c = 'r';
-    history->tab.data[3].c = 's';
-    history->tab.data[4].c = 't';
-    history->tab.height = 1;
-    history->tab.width = 5;
-    history->next = NULL;
-
-    Tab tab;
-    tab.height = 1;
-    tab.width = 6;
-    tab.data = malloc(sizeof(Piece) * tab.height * tab.width);
-
-    tab.data[0].c = 's';
-    tab.data[1].c = 'e';
-    tab.data[2].c = 'c';
-    tab.data[3].c = 'o';
-    tab.data[4].c = 'n';
-    tab.data[5].c = 'd';
-
-    history = push(history, tab);
-
-    Tab *result = get_hist_elem(&history, 1);
-
-    CU_ASSERT_PTR_NOT_NULL(result);
-    CU_ASSERT_EQUAL(result->data[0].c, 's');
-    CU_ASSERT_EQUAL(result->data[1].c, 'e');
-    CU_ASSERT_EQUAL(result->data[2].c, 'c');
-    CU_ASSERT_EQUAL(result->data[3].c, 'o');
-    CU_ASSERT_EQUAL(result->data[4].c, 'n');
-    CU_ASSERT_EQUAL(result->data[5].c, 'd');
-    CU_ASSERT_EQUAL(result->height, 1);
-    CU_ASSERT_EQUAL(result->width, 6);
-
-    free(tab.data);
-    free(history->next->tab.data);
-    free(history->next);
-    free(history->tab.data);
-    free(history);
-}
-
-void test_get_hist_elem_OOB(void)
-{
-    TabHistory *history = malloc(sizeof(TabHistory));
-    history->tab.data = malloc(sizeof(Piece) * 4);
-    history->tab.data[0].c = 'o';
-    history->tab.data[1].c = 'n';
-    history->tab.data[2].c = 'l';
-    history->tab.data[3].c = 'y';
-    history->tab.height = 2;
-    history->tab.width = 2;
-    history->next = NULL;
-
-    Tab *result = get_hist_elem(&history, 5); // Out of bounds
-
-    CU_ASSERT_PTR_NULL(result);
-
-    free(history->tab.data);
-    free(history);
-}
-
-void test_destroy_empty(void)
-{
-    TabHistory *history = NULL;
-    destroy(&history);
-
-    CU_ASSERT_PTR_NULL(history); // The head should remain NULL
-}
-
-void test_destroy_single(void)
-{
-    TabHistory *history = malloc(sizeof(TabHistory));
-    history->tab.data = malloc(sizeof(Piece) * 6);
-    history->tab.data[0].c = 's';
-    history->tab.data[1].c = 'i';
-    history->tab.data[2].c = 'n';
-    history->tab.data[3].c = 'g';
-    history->tab.data[4].c = 'l';
-    history->tab.data[5].c = 'e';
-    history->tab.height = 1;
-    history->tab.width = 6;
-    history->next = NULL;
-
-    destroy(&history);
-    CU_ASSERT_PTR_NULL(history); // The head should be NULL after destruction
-}
-
-void test_destroy_multi(void)
-{
-    TabHistory *history = malloc(sizeof(TabHistory));
-    history->tab.data = malloc(sizeof(Piece) * 5);
-    history->tab.data[0].c = 'f';
-    history->tab.data[1].c = 'i';
-    history->tab.data[2].c = 'r';
-    history->tab.data[3].c = 's';
-    history->tab.data[4].c = 't';
-    history->tab.height = 1;
-    history->tab.width = 5;
-    history->next = malloc(sizeof(TabHistory));
-
-    history->next->tab.data = malloc(sizeof(Piece) * 6); // Allocate for the next node's tab data
-    history->next->tab.data[0].c = 's';
-    history->next->tab.data[1].c = 'e';
-    history->next->tab.data[2].c = 'c';
-    history->next->tab.data[3].c = 'o';
-    history->next->tab.data[4].c = 'n';
-    history->next->tab.data[5].c = 'd';
-    history->next->tab.height = 1;
-    history->next->tab.width = 6;
-    history->next->next = NULL;
-
-    // Call destroy to free the entire list and its data
-    destroy(&history);
-
-    // After destruction, history should be NULL
-    CU_ASSERT_PTR_NULL(history); // The head should be NULL after destruction
-}
-
-void test_push(void)
-{
-    test_push_single();
-    test_push_multiple();
-}
-
-void test_pop_tabuleiro(void)
-{
-    test_pop_empty();
-    test_pop_single();
-    test_pop_multi();
-}
-
-void test_get_hist_elem(void)
-{
-    test_get_hist_elem_empty();
-    test_get_hist_elem_negativeIndex();
-    test_get_hist_elem_first();
-    test_get_hist_elem_last();
-    test_get_hist_elem_OOB();
-}
-
-void test_destroy(void)
-{
-    test_destroy_empty();
-    test_destroy_single();
-    test_destroy_multi();
-}
-
-void test_arrays(void)
-{
-    test_push();
-    test_pop_tabuleiro();
-    test_get_hist_elem();
-    test_destroy();
+    test_strings();
+    test_history();
+    test_free_game();
 }

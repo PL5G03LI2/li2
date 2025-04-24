@@ -1,11 +1,6 @@
 #ifndef TYPES_H
 #define TYPES_H
-
-typedef enum
-{
-    false = 0,
-    true = 1
-} bool;
+#include <stdbool.h>
 
 typedef struct
 {
@@ -17,6 +12,7 @@ typedef struct
 {
     char c;
     bool marked;
+    bool violated;
 } Piece;
 
 typedef struct
@@ -26,12 +22,6 @@ typedef struct
     int height;
     int width;
 } Tab;
-
-typedef struct node
-{
-    Tab tab;
-    struct node *next;
-} TabHistory;
 
 typedef enum
 {
@@ -54,5 +44,22 @@ typedef struct
 {
     CommandType type;
     char **tokens;
+    bool track;
 } ParsedCommand;
+
+typedef struct node
+{
+    ParsedCommand *cmd;
+    struct node *next;
+} TabHistory;
+
+typedef struct game
+{
+    Tab *tabuleiro;
+    TabHistory *history;
+    char *cmd_str;
+    ParsedCommand *cmd;
+    iVec2 win_d;
+} Game;
+
 #endif

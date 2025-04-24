@@ -1,17 +1,15 @@
-#include "testes_jogo.h"
-#include "testes_helpers.h"
+#include "../tests/testes_jogo.h"
+#include "../tests/testes_helpers.h"
 #include <CUnit/CUnit.h>
 #include <CUnit/Basic.h>
-#include "../jogo/tabuleiro.h" // Include your game logic header
+#include "../include/jogo/tabuleiro.h" // Include your game logic header
 
 void add_tests(void)
 {
     CU_pSuite suite = CU_add_suite("Puzzle Game Tests", 0, 0);
 
-    CU_add_test(suite, "Test arrays", test_arrays);
-    CU_add_test(suite, "Test strings", test_strings);
-    CU_add_test(suite, "Test tabuleiro state", test_tabuleiroState);
-    CU_add_test(suite, "Test comandos", test_comandos);
+    CU_add_test(suite, "Test jogo", testes_jogo);
+    CU_add_test(suite, "Test helpers", testes_helpers);
 }
 
 int main(void)
