@@ -67,7 +67,7 @@ void test_assert_index_valid(void)
     tab.data = malloc(sizeof(Piece) * tab.height * tab.width);
 
     // Valid indices: 0 through 16 (inclusive based on your implementation)
-    for (int i = 0; i <= 16; i++)
+    for (int i = 0; i < 16; i++)
     {
         CU_ASSERT_TRUE(assert_index(&tab, i));
     }

@@ -39,7 +39,7 @@ bool assert_index(Tab *tab, int i)
 char get_elem(Tab *tab, int x, int y)
 {
     if (!assert_pos(tab, x, y))
-        return ' ';
+        return '\0';
     return tab->data[calc_index(tab, x, y)].c;
 }
 
