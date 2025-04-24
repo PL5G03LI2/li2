@@ -244,10 +244,25 @@ int run_command(Game *game)
     switch (game->cmd->type)
     {
     case CMD_SAVE:
-        return salvar_jogo(game, game->cmd->tokens[1]);
+        return salvar_jogo(game, game->cmd->tokens[1] ? game->cmd->tokens[1] : game->save_to);
 
     case CMD_LOAD:
-        return carregar_jogo(game, game->cmd->tokens[1]);
+    {
+        char *new_save = strdup(game->cmd->tokens[1]);
+        if (!new_save)
+            return 1;
+
+        if (!carregar_jogo(game, game->cmd->tokens[1]))
+        {
+            if (game->save_to)
+                free(game->save_to);
+            game->save_to = new_save;
+            return 0;
+        }
+
+        free(new_save);
+        return 1;
+    }
 
     case CMD_SELECT:
     {
@@ -299,6 +314,7 @@ int run_command(Game *game)
     }
 
     case CMD_EXIT:
+        salvar_jogo(game, game->save_to);
         return 0;
 
     case CMD_HELP:

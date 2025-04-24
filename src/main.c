@@ -1,17 +1,30 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <signal.h>
+#include <string.h>
 #include <stdbool.h>
 #include <ncurses.h>
 
-#include "../include/jogo/tabuleiro.h"
-#include "../include/jogo/comandos.h"
-#include "../include/helpers/history.h"
-#include "../include/helpers/memory.h"
-#include "../include/helpers/strs.h"
+#include "jogo/tabuleiro.h"
+#include "jogo/comandos.h"
+#include "helpers/history.h"
+#include "helpers/memory.h"
+#include "helpers/strs.h"
 
-void render(Game *game)
+static void init_colors(void)
 {
+    start_color();
+    use_default_colors();
+    init_pair(1, COLOR_BLACK, COLOR_WHITE); // selected normal
+    init_pair(2, COLOR_RED, COLOR_WHITE);   // selected violated
+    init_pair(3, COLOR_WHITE, COLOR_RED);   // violated not selected
+    init_pair(4, COLOR_WHITE, -1);          // default
+}
+
+void render(Game *game, char *info)
+{
+    clear_info(game->win_d);
+    print_info(info, game->win_d);
+
     // clear the whole board area
     for (int i = 0; i < game->win_d.y - 2; i++)
     {
@@ -21,13 +34,7 @@ void render(Game *game)
 
     if (game->tabuleiro->data)
     {
-        iVec2 min_d = {game->tabuleiro->width * 2 + 2, game->tabuleiro->height + 6};
-        if (game->win_d.x < min_d.x || game->win_d.y < min_d.y)
-        {
-            print_info("Window too small.", game->win_d);
-        }
-        else
-            print_tab(game->tabuleiro, game->win_d);
+        print_tab(game->tabuleiro, game->win_d);
     }
     else
     {
@@ -42,21 +49,22 @@ void render(Game *game)
 
 void repl(Game *game)
 {
+    char info[256];
     while (game->cmd->type != CMD_EXIT)
     {
         getmaxyx(stdscr, game->win_d.y, game->win_d.x);
 
-        render(game);
+        render(game, info);
 
         if (await_command(game->cmd_str))
         {
-            print_info("Failed to read command", game->win_d);
+            strcpy(info, "Failed to read command.");
             continue;
         }
 
         if (parse_command(game))
         {
-            print_info("Failed to parse command", game->win_d);
+            strcpy(info, "Failed to parse command");
             continue;
         }
 
@@ -69,15 +77,16 @@ void repl(Game *game)
         bool no_load_intent_while_no_tab = (game->cmd->type != CMD_LOAD && game->tabuleiro->data == NULL);
         if (cmd_invalid || no_load_intent_while_no_tab)
         {
-            print_info("Invalid command.", game->win_d);
+            strcpy(info, "Invalid command.");
             continue;
         }
 
         if (run_command(game))
         {
-            print_info("Failed to run command.", game->win_d);
+            strcpy(info, "Failed to run command.");
             continue;
         }
+        strcpy(info, "");
     }
 }
 
@@ -91,9 +100,9 @@ int main(void)
         return 1;
     }
 
-    Game game = {NULL, NULL, NULL, NULL, {0, 0}};
-    getmaxyx(stdscr, game.win_d.y, game.win_d.x);
+    init_colors();
 
+    Game game;
     init_game(&game);
 
     repl(&game);

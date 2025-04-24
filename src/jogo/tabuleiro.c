@@ -149,30 +149,20 @@ bool validar_tabuleiro(Tab *tab)
     return ok; // Return true if no violations were found, false otherwise
 }
 
-static void init_colors(void)
-{
-    start_color();
-    use_default_colors();
-    init_pair(1, COLOR_BLACK, COLOR_WHITE); // selected normal
-    init_pair(2, COLOR_RED, COLOR_WHITE);   // selected violated
-    init_pair(3, COLOR_WHITE, COLOR_RED);   // violated not selected
-    init_pair(4, COLOR_WHITE, -1);          // default
-}
-
 void print_tab(Tab *tab, iVec2 win_d)
 {
-    static bool colors_inited = false;
-    if (!colors_inited)
-    {
-        init_colors();
-        colors_inited = true;
-    }
-    // board dimensions calculation
     int h = tab->height, w = tab->width;
     int board_h = 3 + h;                   // Height: rows + header + separator
     int board_w = 3 + 2 * w;               // Width: 2 chars per cell + padding
     int start_y = (win_d.y - board_h) / 2; // Vertical centering
     int start_x = (win_d.x - board_w) / 2; // Horizontal centering
+
+    if (win_d.x < board_w || win_d.y - 2 < board_h)
+    {
+        print_info("Window too small.", win_d);
+        return;
+    }
+
     // Column headers
     attron(COLOR_PAIR(4));
     mvprintw(start_y, start_x + 1, " ");
@@ -290,11 +280,7 @@ int carregar_jogo(Game *game, const char *filename)
             tab->data[idx].marked = true;
     }
 
-    // Reset file position to start of "violated" line
-    fseek(f, -strlen(buffer), SEEK_CUR);
-
-    // Read "violated" marker
-    if (fscanf(f, "%s", buffer) != 1)
+    if (fscanf(f, "%s", buffer) != 1 || strcmp(buffer, "violated") != 0)
     {
         fclose(f);
         return 1;
@@ -308,28 +294,32 @@ int carregar_jogo(Game *game, const char *filename)
             tab->data[idx].violated = true;
     }
 
-    // Reset file position to start of "history" line
-    fseek(f, -strlen(buffer), SEEK_CUR);
-
     // Read "history" marker
-    if (fscanf(f, "%s", buffer) != 1)
+    if (fscanf(f, "%s", buffer) != 1 || strcmp(buffer, "history") != 0)
     {
         fclose(f);
         return 1;
     }
 
-    // Read command history
+    // Read command history - skip empty lines and verify format
     char token1[32], token2[32];
-    while (fscanf(f, "%s %s", token1, token2) == 2)
+    char line[256];
+    while (fgets(line, sizeof(line), f))
     {
-        snprintf(game->cmd_str, 256, "%s %s", token1, token2);
-        if (parse_command(game))
-        {
-            fclose(f);
-            return 1;
-        }
+        // Skip empty lines
+        if (line[0] == '\n' || line[0] == '\0')
+            continue;
 
-        game->history = push_history(game->history, game->cmd);
+        if (sscanf(line, "%s %s", token1, token2) == 2)
+        {
+            snprintf(game->cmd_str, 256, "%s %s", token1, token2);
+            if (parse_command(game))
+            {
+                fclose(f);
+                return 1;
+            }
+            game->history = push_history(game->history, game->cmd);
+        }
     }
 
     fclose(f);

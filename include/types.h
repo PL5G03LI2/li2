@@ -60,6 +60,7 @@ typedef struct game
     char *cmd_str;
     ParsedCommand *cmd;
     iVec2 win_d;
+    char *save_to;
 } Game;
 
 #endif

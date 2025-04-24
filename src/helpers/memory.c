@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <ncurses.h>
 
 #include "helpers/history.h"
 #include "helpers/memory.h"
@@ -47,6 +48,10 @@ int init_game(Game *game)
 
     game->history = NULL;
 
+    getmaxyx(stdscr, game->win_d.y, game->win_d.x);
+
+    game->save_to = NULL;
+
     return 0;
 }
 
@@ -82,4 +87,6 @@ void free_game(Game *game)
     free_command(&(game->cmd));
 
     destroy_history(&(game->history));
+
+    free(game->save_to);
 }
