@@ -2,6 +2,19 @@
 #include "helpers/history.h"
 #include "types.h"
 
+void free_command(ParsedCommand **cmd)
+{
+    if (*cmd != NULL && (*cmd)->tokens)
+    {
+        for (int i = 0; i < 2; i++)
+            free((*cmd)->tokens[i]);
+
+        free((*cmd)->tokens);
+        free(*cmd);
+        *cmd = NULL;
+    }
+}
+
 void free_game(Game *game)
 {
     if (game->tabuleiro)
@@ -18,15 +31,7 @@ void free_game(Game *game)
         game->cmd_str = NULL;
     }
 
-    if (game->cmd && game->cmd->tokens)
-    {
-        for (int i = 0; i < 2; i++)
-            free(game->cmd->tokens[i]);
-
-        free(game->cmd->tokens);
-        free(game->cmd);
-        game->cmd = NULL;
-    }
+    free_command(&(game->cmd));
 
     destroy_history(&(game->history));
 }

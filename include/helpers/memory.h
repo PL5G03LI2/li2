@@ -4,6 +4,15 @@
 #define MEMORY_H
 
 /**
+ * @brief Frees a command and it's tokens.
+ *
+ * @param cmd Double pointer to the command.
+ *
+ * @note The command will be set to NULL.
+ */
+void free_command(ParsedCommand **cmd);
+
+/**
  * Frees everything in the game.
  *
  * @param tabuleiro The pointer to the game's tabuleiro.
