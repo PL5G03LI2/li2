@@ -5,7 +5,8 @@
 #include <stdlib.h>
 #include <ncurses.h>
 
-void populateTab(Tab tab) {
+void populateTab(Tab tab)
+{
     int i, j;
     for (i = 0; i < tab.height; i++)
     {
@@ -68,7 +69,7 @@ void test_assert_index_valid(void)
     // Valid indices: 0 through 16 (inclusive based on your implementation)
     for (int i = 0; i <= 16; i++)
     {
-        CU_ASSERT_EQUAL(assert_index(&tab, i), 1);
+        CU_ASSERT_TRUE(assert_index(&tab, i));
     }
 
     free(tab.data);
@@ -460,7 +461,7 @@ void test_reset_cmd_tokens(void)
     // Test 3: Edge case with empty token array (already allocated with size 0)
     ParsedCommand cmd_empty;
     // cmd_empty.tokens = (char **)malloc(0); // Allocating 0 size should leave the pointer NULL
-    cmd_empty.tokens = NULL;               // manually setting it to NULL for this case
+    cmd_empty.tokens = NULL; // manually setting it to NULL for this case
 
     // Call function, should handle gracefully
     reset_cmd_tokens(&cmd_empty);
@@ -661,7 +662,8 @@ void test_tokenize(void)
 //     free(jogo.cmd->tokens);
 // }
 
-void test_parseCommand_save(void) {
+void test_parseCommand_save(void)
+{
     Game jogo;
     Tab tab = {.height = 5, .width = 5, .data = NULL};
     ParsedCommand cmd;
@@ -677,7 +679,7 @@ void test_parseCommand_save(void) {
     CU_ASSERT_STRING_EQUAL(jogo.cmd->tokens[0], "g j1.txt");
 
     // cleanup
-    for (int i = 0; jogo.cmd->tokens[i]; i++)
+    for (int i = 0; i < 2; i++)
         free(jogo.cmd->tokens[i]);
     free(jogo.cmd->tokens);
 }
