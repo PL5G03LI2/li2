@@ -266,7 +266,7 @@ void test_tabuleiroState_SL(void)
 
     CU_ASSERT_EQUAL(carregar_tabuleiro(&tab, "j1.txt"), 0);
     CU_ASSERT_EQUAL(carregar_tabuleiro(&tab, "j2.txt"), 1);
-    CU_ASSERT_EQUAL(salvar_tabuleiro(&tab, "j3.txt"), 0);
+    CU_ASSERT_EQUAL(salvar_jogo(&tab, "j3.txt"), 0);
     CU_ASSERT_EQUAL(validar_tabuleiro(&tab), 0);
 
     free(tab.data);

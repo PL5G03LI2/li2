@@ -3,8 +3,11 @@
 #include <stdbool.h>
 #include <ncurses.h>
 #include <ctype.h>
+
 #include "types.h"
+#include "jogo/tabuleiro.h"
 #include "helpers/strs.h"
+#include "helpers/history.h"
 
 Tab *initialize_tabuleiro(void)
 {
@@ -29,6 +32,16 @@ int calc_index(Tab *tab, int x, int y)
     if (!assert_pos(tab, x, y))
         return -1;
     return x * tab->width + y;
+}
+
+iVec2 calc_pos(Tab *tab, int i)
+{
+    iVec2 pos = {-1, -1};
+    if (!assert_index(tab, i))
+        return pos;
+    pos.x = i / tab->width;
+    pos.y = i % tab->width;
+    return pos;
 }
 
 bool assert_index(Tab *tab, int i)
@@ -228,20 +241,63 @@ int carregar_tabuleiro(Tab *tab, const char *filename)
     return 0;
 }
 
-int salvar_tabuleiro(Tab *tab, const char *filename)
+int salvar_jogo(Game *game, const char *filename)
 {
     FILE *f = fopen(filename, "w");
     if (!f)
         return 1;
+
+    Tab *tab = game->tabuleiro;
+
     fprintf(f, "%d %d\n", tab->height, tab->width);
-    for (int x = 0; x < tab->height; x++)
+
+    int total_size = tab->height * tab->width;
+
+    for (int i = 0; i < total_size; i++)
     {
-        for (int y = 0; y < tab->width; y++)
+        Piece p = tab->data[i];
+        fprintf(f, "%c", p.c);
+        if ((i + 1) % tab->width == 0)
         {
-            fprintf(f, "%c", tab->data[x * tab->width + y].c);
+            fprintf(f, "\n");
         }
-        fprintf(f, "\n");
     }
+    fprintf(f, "\n");
+
+    fprintf(f, "selected\n");
+    fprintf(f, "%d %d\n", tab->sel_piece.x, tab->sel_piece.y);
+
+    fprintf(f, "marked\n");
+    for (int i = 0; i < total_size; i++)
+    {
+        Piece p = tab->data[i];
+
+        iVec2 pos = calc_pos(tab, i);
+        if (p.marked)
+            fprintf(f, "%d %d\n", pos.x, pos.y);
+    }
+
+    fprintf(f, "violated\n");
+    for (int i = 0; i < total_size; i++)
+    {
+        Piece p = tab->data[i];
+
+        iVec2 pos = calc_pos(tab, i);
+        if (p.violated)
+            fprintf(f, "%d %d\n", pos.x, pos.y);
+    }
+
+    fprintf(f, "history\n");
+    int i = 0;
+    ParsedCommand *current = get_history_element(game->history, i++);
+    while (current != NULL)
+    {
+        for (int i = 0; i < 2; i++)
+            fprintf(f, "%s ", current->tokens[i]);
+        fprintf(f, "\n");
+        current = get_history_element(game->history, i++);
+    }
+
     fclose(f);
     return 0;
 }

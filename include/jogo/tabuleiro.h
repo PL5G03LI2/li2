@@ -7,15 +7,24 @@
  * Allocates and initializes tabuleiro.
  * @returns A pointer to the initialized tabuleiro.
  * @returns NULL in case of allocation failure.
-*/
+ */
 Tab *initialize_tabuleiro(void);
 
 /**
  * Calculates the index of the position provided
  * @returns 0 <= index <= height * width;
  * @returns -1 if invalid;
-*/
+ */
 int calc_index(Tab *tabuleiro, int x, int y);
+
+/**
+ * Calculates a position, given an index
+ *
+ * @returns
+ *  The calculated position, if valid;
+ *  (-1, -1) otherwise;
+ */
+iVec2 calc_pos(Tab *tabuleiro, int i);
 
 /**
  * Ensures valid string index.
@@ -67,13 +76,13 @@ int carregar_tabuleiro(Tab *tab, const char *filename);
  * Guarda o estado atual do tabuleiro num ficheiro
  * @returns 0 se a gravação for bem-sucedida; 1 caso contrário
  */
-int salvar_tabuleiro(Tab *tab, const char *filename);
+int salvar_jogo(Game *game, const char *filename);
 
 /**
  * Verifica se o tabuleiro é válido segundo as regras do jogo
  * Confirma que não há repetições de caracteres nas linhas e colunas
  * @returns `true` se o tabuleiro for válido, `false` caso contrário
-*/
+ */
 bool validar_tabuleiro(Tab *tab);
 
 #endif

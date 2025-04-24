@@ -244,7 +244,7 @@ int run_command(Game *game)
     switch (game->cmd->type)
     {
     case CMD_SAVE:
-        return salvar_tabuleiro(game->tabuleiro, game->cmd->tokens[1]);
+        return salvar_jogo(game, game->cmd->tokens[1]);
 
     case CMD_LOAD:
         return carregar_tabuleiro(game->tabuleiro, game->cmd->tokens[1]);
