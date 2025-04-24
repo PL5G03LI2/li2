@@ -404,7 +404,6 @@ void test_write_coordinate(void)
     // Test (26 * 26 + 25, 5) -> expected "zz6"
     result.x = 26 * 26 + 25;
     result.y = 5;
-    printf("%s\n", write_coordinate(result, buffer));
     CU_ASSERT_STRING_EQUAL(write_coordinate(result, buffer), "zz6");
 
     // Test large y-value (e.g., (0, 100)) -> expected "a101"
