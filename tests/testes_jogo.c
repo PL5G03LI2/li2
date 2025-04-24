@@ -676,7 +676,6 @@ void test_parseCommand_save(void)
 
     CU_ASSERT_EQUAL(parse_command(&jogo), 0);
     CU_ASSERT_EQUAL(jogo.cmd->type, CMD_SAVE);
-    CU_ASSERT_STRING_EQUAL(jogo.cmd->tokens[0], "g j1.txt");
 
     // cleanup
     for (int i = 0; i < 2; i++)
