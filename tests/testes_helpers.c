@@ -9,7 +9,7 @@
 
 void test_isUpper(void)
 {
-    CU_ASSERT_EQUAL(isUpper('c'), 0);
+    CU_ASSERT_FALSE(isUpper('c'));
     CU_ASSERT_NOT_EQUAL(isUpper('A'), 0);
 }
 
@@ -21,8 +21,8 @@ void test_toUpper(void)
 
 void test_isLower(void)
 {
-    CU_ASSERT_EQUAL(isLower('A'), 0);
-    CU_ASSERT_NOT_EQUAL(isLower('c'), 0);
+    CU_ASSERT_FALSE(isLower('A'));
+    CU_ASSERT_TRUE(isLower('c'));
 }
 
 void test_toLower(void)
@@ -399,9 +399,48 @@ void test_free_game(void)
     test_free_game_no_data();
 }
 
+void test_free_command(void)
+{
+    // Caso 1: dois tokens.
+    ParsedCommand *cmd1 = (ParsedCommand *)malloc(sizeof(ParsedCommand));
+    cmd1->tokens = (char **)malloc(sizeof(char *) * 2);
+    cmd1->tokens[0] = strdup("l");
+    cmd1->tokens[1] = strdup("j1.txt");
+
+    free_command(&cmd1);
+
+    CU_ASSERT_PTR_NULL(cmd1);
+
+    // Caso 2: cmd nulo.
+    ParsedCommand *cmd2 = NULL;
+
+    free_command(&cmd2);
+
+    CU_ASSERT_PTR_NULL(cmd2);
+
+    // Caso 3: um token nulo.
+    ParsedCommand *cmd3 = (ParsedCommand *)malloc(sizeof(ParsedCommand));
+    cmd3->tokens = (char **)malloc(sizeof(char *) * 2);
+    cmd3->tokens[0] = NULL;
+    cmd3->tokens[1] = strdup("j1.txt");
+
+    free_command(&cmd3);
+
+    CU_ASSERT_PTR_NULL(cmd3);
+
+    // Caso 4: tokens nulos.
+    ParsedCommand *cmd4 = (ParsedCommand *)malloc(sizeof(ParsedCommand));
+    cmd4->tokens = NULL;
+    
+    free_command(&cmd4);
+    
+    CU_ASSERT_PTR_NOT_NULL(cmd4);
+}
+
 void testes_helpers(void)
 {
     test_strings();
     test_history();
     test_free_game();
+    test_free_command();
 }
