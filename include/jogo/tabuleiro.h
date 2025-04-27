@@ -78,6 +78,10 @@ int carregar_jogo(Game *game, const char *filename);
  */
 int salvar_jogo(Game *game, const char *filename);
 
+void check_row(Tab *tabuleiro, Piece *p, int index, bool *violated_array);
+
+void check_column(Tab *tabuleiro, Piece *p, int index, bool *violated_array);
+
 /**
  * Verifica se o tabuleiro é válido segundo as regras do jogo
  * Confirma que não há repetições de caracteres nas linhas e colunas
