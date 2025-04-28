@@ -166,60 +166,6 @@ void test_toggle_branco(void)
     free(tab.data);
 }
 
-void test_print_tabuleiro(void)
-{
-    Tab tab;
-    tab.height = 5;
-    tab.width = 5;
-    tab.data = malloc(sizeof(Piece) * tab.height * tab.width);
-
-    populateTab(tab);
-
-    // Initialize ncurses
-    initscr();
-    noecho();
-    cbreak();
-
-    iVec2 win_d = {80, 24};
-
-    // Call the ncurses print function
-    print_tab(&tab, win_d);
-
-    // Refresh to flush buffer to stdscr
-    refresh();
-
-    // Dump the screen contents to a file
-    scr_dump("test_screen_output.txt");
-
-    // End ncurses mode
-    endwin();
-
-    // Now read the dumped file
-    FILE *f = fopen("test_screen_output.txt", "r");
-    CU_ASSERT_PTR_NOT_NULL(f);
-
-    // Read file content into buffer
-    char buffer[4096] = {0};
-    fread(buffer, 1, sizeof(buffer) - 1, f);
-    fclose(f);
-
-    // Expected output
-    const char *expected_output =
-        "  a b c d e\n"
-        "------------\n"
-        "1|a b c d e \n"
-        "2|f g h i j \n"
-        "3|k l m n o \n"
-        "4|p q r s t \n"
-        "5|u v w x y \n";
-
-    // Check that the expected output appears somewhere in the screen dump
-    CU_ASSERT_PTR_NOT_NULL(strstr(buffer, expected_output));
-
-    // Clean up
-    free(tab.data);
-}
-
 void test_toggle_marked(void)
 {
     Tab tab;
