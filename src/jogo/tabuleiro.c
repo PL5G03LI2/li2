@@ -101,7 +101,7 @@ void check_row(Tab *tab, Piece *p, int i, bool *violated)
             continue;
 
         Piece check = tab->data[idx];
-        if (p->c == check.c && !p->marked && !check.marked)
+        if (p->c == check.c && !check.marked && isupper(check.c))
         {
             violated[idx] = true;
             violated[i] = true;
@@ -119,11 +119,35 @@ void check_column(Tab *tab, Piece *p, int i, bool *violated)
             continue;
 
         Piece check = tab->data[idx];
-        if (p->c == check.c && !p->marked && !check.marked)
+        if (p->c == check.c && !check.marked && isupper(check.c))
         {
             violated[idx] = true;
             violated[i] = true;
         }
+    }
+}
+
+void check_marked(Tab *tab, int i, bool *violated)
+{
+
+    iVec2 pos = calc_pos(tab, i);
+    const iVec2 side_deltas[4] = {
+        {1, 0},
+        {0, 1},
+        {-1, 0},
+        {0, -1}};
+
+    for (int i = 0; i < 4; i++)
+    {
+        iVec2 check_pos = add_vec2(pos, side_deltas[i]);
+
+        // check out of bounds
+        if (!assert_pos(tab, check_pos.x, check_pos.y))
+            continue;
+
+        int ind = calc_index(tab, check_pos.x, check_pos.y);
+        if (islower(tab->data[ind].c))
+            violated[i] = true;
     }
 }
 
@@ -212,7 +236,16 @@ bool validar_tabuleiro(Tab *tab)
     for (int i = 0; i < max_i; i++)
     {
         Piece *p = &tab->data[i];
+
+        // if it's marked, check for marked rule
         if (p->marked)
+        {
+            check_marked(tab, i, violated);
+            continue;
+        }
+
+        // non white pieces do not need to get checked
+        if (islower(p->c))
             continue;
 
         // Compare the current character with the rest of the row
@@ -221,8 +254,8 @@ bool validar_tabuleiro(Tab *tab)
         // Compare the current character with the rest of the column
         check_column(tab, p, i, violated);
 
-        if (isupper(p->c))
-            check_paths(tab, p, i, violated);
+        // check if there is an ortogonal path between white pieces
+        check_paths(tab, p, i, violated);
     }
 
     for (int i = 0; i < max_i; i++)
@@ -234,7 +267,7 @@ bool validar_tabuleiro(Tab *tab)
 
     free(violated);
 
-    return ok; // Return true if no violations were found, false otherwise
+    return ok;
 }
 
 void print_tab(Tab *tab, iVec2 win_d)
