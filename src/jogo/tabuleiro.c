@@ -170,13 +170,16 @@ void floodfill(Tab *tab, iVec2 pos, bool *visited, int *visited_white_pieces)
         (*visited_white_pieces)++;
 
     // Directions: up, right, down, left
-    const int dx[] = {-1, 0, 1, 0};
-    const int dy[] = {0, 1, 0, -1};
+    const iVec2 side_deltas[4] = {
+        {1, 0},
+        {0, 1},
+        {-1, 0},
+        {0, -1}};
 
     // Check all four orthogonal directions
     for (int dir = 0; dir < 4; dir++)
     {
-        iVec2 new_pos = {pos.x + dx[dir], pos.y + dy[dir]};
+        iVec2 new_pos = add_vec2(pos, side_deltas[4]);
         floodfill(tab, new_pos, visited, visited_white_pieces);
     }
 }
