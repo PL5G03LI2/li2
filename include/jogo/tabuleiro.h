@@ -11,6 +11,13 @@
 Tab *initialize_tabuleiro(void);
 
 /**
+ * @brief Adds two vectors together
+ *
+ * @returns The resulting vector.
+ */
+iVec2 add_vec2(iVec2 a, iVec2 b);
+
+/**
  * Calculates the index of the position provided
  * @returns 0 <= index <= height * width;
  * @returns -1 if invalid;

@@ -26,6 +26,11 @@ Tab *initialize_tabuleiro(void)
     return tab;
 }
 
+iVec2 add_vec2(iVec2 a, iVec2 b)
+{
+    return (iVec2){a.x + b.x, a.y + b.y};
+}
+
 bool assert_pos(Tab *tab, int x, int y)
 {
     return (x >= 0 && x < tab->height && y >= 0 && y < tab->width);
