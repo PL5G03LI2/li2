@@ -194,10 +194,8 @@ void check_paths(Tab *tab, Piece *p, int i, bool *violated)
     // Count total uppercase pieces (white pieces)
     int total_white_pieces = 0;
     for (int idx = 0; idx < max_i; idx++)
-    {
         if (isupper(tab->data[idx].c) && !tab->data[idx].marked)
             total_white_pieces++;
-    }
 
     // Start flood fill from the current position
     int visited_white_pieces = 0;
@@ -208,17 +206,13 @@ void check_paths(Tab *tab, Piece *p, int i, bool *violated)
 
     // Mark pieces as violated if they are not connected
     if (visited_white_pieces < total_white_pieces)
-    {
         for (int idx = 0; idx < max_i; idx++)
-        {
             if (isupper(tab->data[idx].c) &&
                 !tab->data[idx].marked &&
                 !visited[idx])
             {
                 violated[idx] = true;
             }
-        }
-    }
 
     free(visited);
 }
