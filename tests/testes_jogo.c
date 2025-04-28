@@ -1,6 +1,7 @@
 #include "../include/jogo/comandos.h"
 #include "../include/jogo/tabuleiro.h"
 #include "../include/helpers/history.h"
+#include "helpers/memory.h"
 #include <CUnit/CUnit.h>
 #include <stdlib.h>
 #include <ncurses.h>
@@ -259,17 +260,18 @@ void test_initialize_tabuleiro(void)
 
 void test_tabuleiroState_SL(void)
 {
-    Tab tab;
-    tab.height = 1;
-    tab.width = 3;
-    tab.data = NULL;
+    Game game;
 
-    CU_ASSERT_EQUAL(carregar_jogo(&tab, "j1.txt"), 0);
-    CU_ASSERT_EQUAL(carregar_jogo(&tab, "j2.txt"), 1);
-    CU_ASSERT_EQUAL(salvar_jogo(&tab, "j3.txt"), 0);
-    CU_ASSERT_EQUAL(validar_tabuleiro(&tab), 0);
+    init_game(&game);
 
-    free(tab.data);
+    CU_ASSERT_FALSE(carregar_jogo(&game, "j1.txt"));
+    CU_ASSERT_TRUE(carregar_jogo(&game, "j2.txt"));
+    CU_ASSERT_FALSE(salvar_jogo(&game, "j3.txt"));
+
+    // a brand new board is not invalid by default
+    CU_ASSERT_TRUE(validar_tabuleiro(game.tabuleiro));
+
+    free_game(&game);
 }
 
 void test_tabuleiroState(void)
@@ -731,38 +733,19 @@ void test_parseCommand(void)
 
 void test_runCommand(void)
 {
-    Tab tab;
-    tab.height = 1;
-    tab.width = 3;
-    tab.data = NULL;
-    ParsedCommand *cmd = calloc(1, sizeof(ParsedCommand)); // ✅ allocation
-    cmd->type = CMD_LOAD;
-
-    // Simulate loading a file
-    cmd->tokens = calloc(2, sizeof(char *));
-    cmd->tokens[0] = strdup("l");
-    cmd->tokens[1] = strdup("j1.txt");
+    Game jogo;
+    init_game(&jogo);
 
     // allocate command string
-    char *cmd_str = strdup("l j1.txt");
+    strcpy(jogo.cmd_str, "l j1.txt");
+    parse_command(&jogo);
 
-    iVec2 win_d = {80, 45};
+    jogo.win_d = (iVec2){80, 45};
 
-    Game jogo;
-    jogo.tabuleiro = &tab;
-    jogo.cmd_str = cmd_str;
-    jogo.cmd = cmd;
-    jogo.win_d = win_d;
-
-    CU_ASSERT_EQUAL(run_command(&jogo), carregar_jogo(&tab, "j1.txt"));
+    CU_ASSERT_EQUAL(run_command(&jogo), carregar_jogo(&jogo, "j1.txt"));
 
     // Cleanup
-    free(cmd->tokens[1]);
-    free(cmd->tokens[0]);
-    free(cmd->tokens);
-    free(jogo.tabuleiro->data);
-    free(cmd_str);
-    free(cmd);
+    free_game(&jogo);
 }
 
 void testes_comandos(void)
