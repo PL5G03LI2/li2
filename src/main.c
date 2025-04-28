@@ -1,14 +1,14 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdbool.h>
 #include <ncurses.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <string.h>
 
-#include "jogo/tabuleiro.h"
-#include "jogo/comandos.h"
 #include "helpers/history.h"
 #include "helpers/memory.h"
 #include "helpers/strs.h"
+#include "jogo/comandos.h"
+#include "jogo/tabuleiro.h"
+
 
 static void init_colors(void)
 {
@@ -38,6 +38,7 @@ void render(Game *game, char *info)
   }
   else
   {
+
     move(game->win_d.y / 2, game->win_d.x / 2 - 22);
     printw("Awaiting load command... Hint: l <save_file>");
   }
