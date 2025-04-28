@@ -11,6 +11,13 @@
 Tab *initialize_tabuleiro(void);
 
 /**
+ * @brief Adds two vectors together
+ *
+ * @returns The resulting vector.
+ */
+iVec2 add_vec2(iVec2 a, iVec2 b);
+
+/**
  * Calculates the index of the position provided
  * @returns 0 <= index <= height * width;
  * @returns -1 if invalid;
@@ -77,6 +84,78 @@ int carregar_jogo(Game *game, const char *filename);
  * @returns 0 se a gravação for bem-sucedida; 1 caso contrário
  */
 int salvar_jogo(Game *game, const char *filename);
+
+/**
+ * @brief Checks white piece rule in the row.
+ *
+ * The white piece rule is defined as:
+ *
+ * "In every row and column there can only be a
+ * single replica of the same symbol in white"
+ *
+ * @param tabuleiro The pointer to the board
+ * @param p A pointer to the current piece
+ * @param index The index to start check
+ * @param violated_array A boolean array that mirrors the board's violated states
+ */
+void check_row(Tab *tabuleiro, Piece *p, int index, bool *violated_array);
+
+/**
+ * @brief Checks white piece rule in the column.
+ *
+ * The white piece rule is defined as:
+ *
+ * "In every row and column there can only be a
+ * single replica of the same symbol in white"
+ *
+ * @param tabuleiro The pointer to the board
+ * @param p A pointer to the current piece
+ * @param index The index to start check
+ * @param violated_array A boolean array that mirrors the board's violated states
+ */
+void check_column(Tab *tabuleiro, Piece *p, int index, bool *violated_array);
+
+/**
+ * @brief Checks marked piece rule.
+ *
+ * The marked piece rule is defined as:
+ *
+ * "If a piece is marked, all the adjacent pieces must be white"
+ *
+ * @param tabuleiro The pointer to the board
+ * @param index The index to check
+ * @param violated_array A boolean array that mirrors the board's violated states
+ */
+void check_marked(Tab *tabuleiro, int index, bool *violated);
+
+/**
+ * @brief Recursive approach to floodfill
+ *
+ * This floodfill algorithm will go through every possible path at the same time
+ * and counts how many white pieces it has seen. If, by the end, it didn't count as
+ * many white pieces as there are in the board, it is up to the caller to detect
+ * that and mark the not visited white pieces as violated.
+ *
+ * @param tabuleiro The pointer to the board
+ * @param pos The current position
+ * @param visited A boolean array of the visited pieces
+ * @param visited_white_pieces The amount of white pieces discovered
+ */
+void floodfill(Tab *tabuleiro, iVec2 pos, bool *visited, int *visited_white_pieces);
+
+/**
+ * @brief Checks white piece connection rule.
+ *
+ * The white piece connection rule is defined as:
+ *
+ * "There must be an ortogonal path between white pieces"
+ *
+ * @param tabuleiro The pointer to the board
+ * @param p A pointer to the current piece
+ * @param index The index to check
+ * @param violated_array A boolean array that mirrors the board's violated states
+ */
+void check_paths(Tab *tabuleiro, Piece *p, int index, bool *violated_array);
 
 /**
  * Verifica se o tabuleiro é válido segundo as regras do jogo

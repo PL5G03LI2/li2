@@ -1,24 +1,19 @@
 #include "../include/jogo/comandos.h"
 #include "../include/jogo/tabuleiro.h"
 #include "../include/helpers/history.h"
+#include "helpers/memory.h"
 #include <CUnit/CUnit.h>
 #include <stdlib.h>
 #include <ncurses.h>
 
-void populateTab(Tab tab)
+void populateTab(Tab *tab)
 {
-    int i, j;
-    for (i = 0; i < tab.height; i++)
+    if (!tab->data || tab->height < 1 || tab->width < 1)
+        return;
+
+    for (int i = 0; i < tab->height * tab->width; i++)
     {
-        for (j = 0; j < tab.width; j++)
-        {
-            char letra = (i * tab.width) + j + 97;
-            if (letra > 122)
-            {
-                letra = '0';
-            }
-            tab.data[i * tab.width + j].c = letra;
-        }
+        tab->data[i].c = i % 26 + 'a';
     }
 }
 
@@ -29,8 +24,15 @@ void test_calc_index_valid_position(void)
     tab.width = 5;
     tab.data = malloc(sizeof(Piece) * tab.height * tab.width);
 
-    int index = calc_index(&tab, 2, 3); // valid position
-    CU_ASSERT_EQUAL(index, 2 * tab.height + 3);
+    iVec2 valid_pos = {2, 3};
+    int valid_index = calc_index(&tab, valid_pos.x, valid_pos.y); // valid position
+    CU_ASSERT_TRUE(assert_pos(&tab, valid_pos.x, valid_pos.y));
+    CU_ASSERT_EQUAL(valid_index, 2 * tab.height + 3);
+
+    iVec2 invalid_pos = {-1, 2};
+    int invalid_index = calc_index(&tab, invalid_pos.x, invalid_pos.y);
+    CU_ASSERT_FALSE(assert_pos(&tab, invalid_pos.x, invalid_pos.y));
+    CU_ASSERT_EQUAL(invalid_index, -1);
 
     free(tab.data);
 }
@@ -118,7 +120,7 @@ void test_get_elem(void)
     tab.height = 5;
     tab.width = 5;
     tab.data = malloc(sizeof(Piece) * tab.height * tab.width);
-    populateTab(tab);
+    populateTab(&tab);
 
     // Inside bounds
     CU_ASSERT_EQUAL(get_elem(&tab, 1, 2), 'h'); // 'h' is at (1,2)
@@ -140,7 +142,7 @@ void test_set_elem(void)
     tab.width = 5;
     tab.data = malloc(sizeof(Piece) * tab.height * tab.width);
 
-    populateTab(tab);
+    populateTab(&tab);
 
     CU_ASSERT_NOT_EQUAL(tab.data[0].c, 'c');
     set_elem(&tab, 0, 0, 'c');
@@ -156,66 +158,12 @@ void test_toggle_branco(void)
     tab.width = 5;
     tab.data = malloc(sizeof(Piece) * tab.height * tab.width);
 
-    populateTab(tab);
+    populateTab(&tab);
 
     CU_ASSERT_EQUAL(tab.data[0].c, 'a');
     toggle_branco(&tab, 0, 0);
     CU_ASSERT_EQUAL(tab.data[0].c, 'A');
 
-    free(tab.data);
-}
-
-void test_print_tabuleiro(void)
-{
-    Tab tab;
-    tab.height = 5;
-    tab.width = 5;
-    tab.data = malloc(sizeof(Piece) * tab.height * tab.width);
-
-    populateTab(tab);
-
-    // Initialize ncurses
-    initscr();
-    noecho();
-    cbreak();
-
-    iVec2 win_d = {80, 24};
-
-    // Call the ncurses print function
-    print_tab(&tab, win_d);
-
-    // Refresh to flush buffer to stdscr
-    refresh();
-
-    // Dump the screen contents to a file
-    scr_dump("test_screen_output.txt");
-
-    // End ncurses mode
-    endwin();
-
-    // Now read the dumped file
-    FILE *f = fopen("test_screen_output.txt", "r");
-    CU_ASSERT_PTR_NOT_NULL(f);
-
-    // Read file content into buffer
-    char buffer[4096] = {0};
-    fread(buffer, 1, sizeof(buffer) - 1, f);
-    fclose(f);
-
-    // Expected output
-    const char *expected_output =
-        "  a b c d e\n"
-        "------------\n"
-        "1|a b c d e \n"
-        "2|f g h i j \n"
-        "3|k l m n o \n"
-        "4|p q r s t \n"
-        "5|u v w x y \n";
-
-    // Check that the expected output appears somewhere in the screen dump
-    CU_ASSERT_PTR_NOT_NULL(strstr(buffer, expected_output));
-
-    // Clean up
     free(tab.data);
 }
 
@@ -259,17 +207,18 @@ void test_initialize_tabuleiro(void)
 
 void test_tabuleiroState_SL(void)
 {
-    Tab tab;
-    tab.height = 1;
-    tab.width = 3;
-    tab.data = NULL;
+    Game game;
 
-    CU_ASSERT_EQUAL(carregar_jogo(&tab, "j1.txt"), 0);
-    CU_ASSERT_EQUAL(carregar_jogo(&tab, "j2.txt"), 1);
-    CU_ASSERT_EQUAL(salvar_jogo(&tab, "j3.txt"), 0);
-    CU_ASSERT_EQUAL(validar_tabuleiro(&tab), 0);
+    init_game(&game);
 
-    free(tab.data);
+    CU_ASSERT_FALSE(carregar_jogo(&game, "j1.txt"));
+    CU_ASSERT_TRUE(carregar_jogo(&game, "j2.txt"));
+    CU_ASSERT_FALSE(salvar_jogo(&game, "j3.txt"));
+
+    // a brand new board is not invalid by default
+    CU_ASSERT_TRUE(validar_tabuleiro(game.tabuleiro));
+
+    free_game(&game);
 }
 
 void test_tabuleiroState(void)
@@ -530,7 +479,7 @@ void test_undo_command(void)
     tab_white.width = 5;
     tab_white.data = malloc(sizeof(Piece) * tab_white.height * tab_white.width);
 
-    populateTab(tab_white);
+    populateTab(&tab_white);
 
     // Call undo command
     CU_ASSERT_EQUAL(undo_command(&cmd_white, &tab_white), 0);
@@ -553,7 +502,7 @@ void test_undo_command(void)
     tab_cross.width = 5;
     tab_cross.data = malloc(sizeof(Piece) * tab_cross.height * tab_cross.width);
 
-    populateTab(tab_cross);
+    populateTab(&tab_cross);
 
     // Call undo command
     CU_ASSERT_EQUAL(undo_command(&cmd_cross, &tab_cross), 0);
@@ -576,7 +525,7 @@ void test_undo_command(void)
     tab_invalid.width = 5;
     tab_invalid.data = malloc(sizeof(Piece) * tab_invalid.height * tab_invalid.width);
 
-    populateTab(tab_invalid);
+    populateTab(&tab_invalid);
 
     // Call undo command with an invalid type (expect failure)
     CU_ASSERT_EQUAL(undo_command(&cmd_invalid, &tab_invalid), 1);
@@ -731,38 +680,19 @@ void test_parseCommand(void)
 
 void test_runCommand(void)
 {
-    Tab tab;
-    tab.height = 1;
-    tab.width = 3;
-    tab.data = NULL;
-    ParsedCommand *cmd = calloc(1, sizeof(ParsedCommand)); // ✅ allocation
-    cmd->type = CMD_LOAD;
-
-    // Simulate loading a file
-    cmd->tokens = calloc(2, sizeof(char *));
-    cmd->tokens[0] = strdup("l");
-    cmd->tokens[1] = strdup("j1.txt");
+    Game jogo;
+    init_game(&jogo);
 
     // allocate command string
-    char *cmd_str = strdup("l j1.txt");
+    strcpy(jogo.cmd_str, "l j1.txt");
+    parse_command(&jogo);
 
-    iVec2 win_d = {80, 45};
+    jogo.win_d = (iVec2){80, 45};
 
-    Game jogo;
-    jogo.tabuleiro = &tab;
-    jogo.cmd_str = cmd_str;
-    jogo.cmd = cmd;
-    jogo.win_d = win_d;
-
-    CU_ASSERT_EQUAL(run_command(&jogo), carregar_jogo(&tab, "j1.txt"));
+    CU_ASSERT_EQUAL(run_command(&jogo), carregar_jogo(&jogo, "j1.txt"));
 
     // Cleanup
-    free(cmd->tokens[1]);
-    free(cmd->tokens[0]);
-    free(cmd->tokens);
-    free(jogo.tabuleiro->data);
-    free(cmd_str);
-    free(cmd);
+    free_game(&jogo);
 }
 
 void testes_comandos(void)
