@@ -6,20 +6,14 @@
 #include <stdlib.h>
 #include <ncurses.h>
 
-void populateTab(Tab tab)
+void populateTab(Tab *tab)
 {
-    int i, j;
-    for (i = 0; i < tab.height; i++)
+    if (!tab->data || tab->height < 1 || tab->width < 1)
+        return;
+
+    for (int i = 0; i < tab->height * tab->width; i++)
     {
-        for (j = 0; j < tab.width; j++)
-        {
-            char letra = (i * tab.width) + j + 97;
-            if (letra > 122)
-            {
-                letra = '0';
-            }
-            tab.data[i * tab.width + j].c = letra;
-        }
+        tab->data[i].c = i % 26 + 'a';
     }
 }
 
@@ -30,8 +24,15 @@ void test_calc_index_valid_position(void)
     tab.width = 5;
     tab.data = malloc(sizeof(Piece) * tab.height * tab.width);
 
-    int index = calc_index(&tab, 2, 3); // valid position
-    CU_ASSERT_EQUAL(index, 2 * tab.height + 3);
+    iVec2 valid_pos = {2, 3};
+    int valid_index = calc_index(&tab, valid_pos.x, valid_pos.y); // valid position
+    CU_ASSERT_TRUE(assert_pos(&tab, valid_pos.x, valid_pos.y));
+    CU_ASSERT_EQUAL(valid_index, 2 * tab.height + 3);
+
+    iVec2 invalid_pos = {-1, 2};
+    int invalid_index = calc_index(&tab, invalid_pos.x, invalid_pos.y);
+    CU_ASSERT_FALSE(assert_pos(&tab, invalid_pos.x, invalid_pos.y));
+    CU_ASSERT_EQUAL(invalid_index, -1);
 
     free(tab.data);
 }
@@ -119,7 +120,7 @@ void test_get_elem(void)
     tab.height = 5;
     tab.width = 5;
     tab.data = malloc(sizeof(Piece) * tab.height * tab.width);
-    populateTab(tab);
+    populateTab(&tab);
 
     // Inside bounds
     CU_ASSERT_EQUAL(get_elem(&tab, 1, 2), 'h'); // 'h' is at (1,2)
@@ -141,7 +142,7 @@ void test_set_elem(void)
     tab.width = 5;
     tab.data = malloc(sizeof(Piece) * tab.height * tab.width);
 
-    populateTab(tab);
+    populateTab(&tab);
 
     CU_ASSERT_NOT_EQUAL(tab.data[0].c, 'c');
     set_elem(&tab, 0, 0, 'c');
@@ -157,7 +158,7 @@ void test_toggle_branco(void)
     tab.width = 5;
     tab.data = malloc(sizeof(Piece) * tab.height * tab.width);
 
-    populateTab(tab);
+    populateTab(&tab);
 
     CU_ASSERT_EQUAL(tab.data[0].c, 'a');
     toggle_branco(&tab, 0, 0);
@@ -478,7 +479,7 @@ void test_undo_command(void)
     tab_white.width = 5;
     tab_white.data = malloc(sizeof(Piece) * tab_white.height * tab_white.width);
 
-    populateTab(tab_white);
+    populateTab(&tab_white);
 
     // Call undo command
     CU_ASSERT_EQUAL(undo_command(&cmd_white, &tab_white), 0);
@@ -501,7 +502,7 @@ void test_undo_command(void)
     tab_cross.width = 5;
     tab_cross.data = malloc(sizeof(Piece) * tab_cross.height * tab_cross.width);
 
-    populateTab(tab_cross);
+    populateTab(&tab_cross);
 
     // Call undo command
     CU_ASSERT_EQUAL(undo_command(&cmd_cross, &tab_cross), 0);
@@ -524,7 +525,7 @@ void test_undo_command(void)
     tab_invalid.width = 5;
     tab_invalid.data = malloc(sizeof(Piece) * tab_invalid.height * tab_invalid.width);
 
-    populateTab(tab_invalid);
+    populateTab(&tab_invalid);
 
     // Call undo command with an invalid type (expect failure)
     CU_ASSERT_EQUAL(undo_command(&cmd_invalid, &tab_invalid), 1);
