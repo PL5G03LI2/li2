@@ -4,9 +4,11 @@
 #define MEMORY_H
 
 /**
- * Initializes all fields of Game
+ * @brief Initializes all fields of Game
  *
  * @param game A pointer to the game to initialize.
+ *
+ * @returns 1 if fail, 0 if not.
  */
 int init_game(Game *game);
 
@@ -27,7 +29,7 @@ void free_command(ParsedCommand **cmd);
  * @param cmd The pointer to the last parsed command.
  * @param head The head of the history stack.
  *
- * @note If by the time you need to free memory you haven't initialized or allocated something. Pass NULL to that parameter.
+ * @note This will not free the game pointer itself, as it shouldn't be malloc-ed.
  */
 void free_game(Game *game);
 
