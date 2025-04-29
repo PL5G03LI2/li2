@@ -28,6 +28,8 @@ void free_command(ParsedCommand **cmd);
  * @param cmd_str The String that stores the last command.
  * @param cmd The pointer to the last parsed command.
  * @param head The head of the history stack.
+ *
+ * @note This will not free the game pointer itself, as it shouldn't be malloc-ed.
  */
 void free_game(Game *game);
 
