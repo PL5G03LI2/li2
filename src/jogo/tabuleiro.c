@@ -160,7 +160,7 @@ void floodfill(Tab *tab, iVec2 pos, bool *visited, int *visited_white_pieces)
     int curr_idx = calc_index(tab, pos.x, pos.y);
 
     // If already visited or marked, stop
-    if (visited[curr_idx] || tab->data[curr_idx].marked)
+    if (visited[curr_idx] || tab->data[curr_idx].marked || !isupper(tab->data[curr_idx].c))
         return;
 
     visited[curr_idx] = true;
