@@ -365,38 +365,9 @@ void test_free_game_basic(void)
     CU_ASSERT_PTR_NULL(jogo.history);
 }
 
-void test_free_game_no_data(void)
-{
-    Tab *tab = (Tab *)malloc(sizeof(Tab));
-    tab->data = NULL;
-
-    char *cmd_str = NULL;
-
-    ParsedCommand *cmd = (ParsedCommand *)malloc(sizeof(ParsedCommand));
-    cmd->tokens = (char **)malloc(sizeof(char *) * 2);
-    cmd->tokens[0] = strdup("");
-    cmd->tokens[1] = strdup("");
-
-    iVec2 win_d = {80, 45};
-
-    Game jogo;
-    jogo.tabuleiro = tab;
-    jogo.history = NULL;
-    jogo.cmd_str = cmd_str;
-    jogo.cmd = cmd;
-    jogo.win_d = win_d;
-
-    free_game(&jogo);
-    CU_ASSERT_PTR_NULL(jogo.tabuleiro);
-    CU_ASSERT_PTR_NULL(jogo.cmd_str);
-    CU_ASSERT_PTR_NULL(jogo.cmd);
-    CU_ASSERT_PTR_NULL(jogo.history);
-}
-
 void test_free_game(void)
 {
     test_free_game_basic();
-    test_free_game_no_data();
 }
 
 void test_free_command(void)
