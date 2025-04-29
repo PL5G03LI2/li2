@@ -179,7 +179,7 @@ void floodfill(Tab *tab, iVec2 pos, bool *visited, int *visited_white_pieces)
     // Check all four orthogonal directions
     for (int dir = 0; dir < 4; dir++)
     {
-        iVec2 new_pos = add_vec2(pos, side_deltas[4]);
+        iVec2 new_pos = add_vec2(pos, side_deltas[dir]);
         floodfill(tab, new_pos, visited, visited_white_pieces);
     }
 }
