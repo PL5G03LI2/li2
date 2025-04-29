@@ -1,0 +1,12 @@
+5 5
+ecadc
+dcdec
+bddce
+cdeeb
+accbb
+
+selected
+0 0
+marked
+violated
+history
