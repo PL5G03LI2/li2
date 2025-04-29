@@ -575,6 +575,28 @@ void test_parseCommand_select(void)
     free(jogo.cmd->tokens);
 }
 
+void test_parseCommand_help(void)
+{
+    Game jogo;
+    Tab tab = {.height = 5, .width = 5, .data = NULL};
+    ParsedCommand cmd;
+    memset(&cmd, 0, sizeof(ParsedCommand));
+
+    char cmd_str[] = "a";
+    jogo.tabuleiro = &tab;
+    jogo.cmd_str = cmd_str;
+    jogo.cmd = &cmd;
+
+    CU_ASSERT_EQUAL(parse_command(&jogo), 0);
+    CU_ASSERT_EQUAL(jogo.cmd->type, CMD_HELP);
+    CU_ASSERT_STRING_EQUAL(jogo.cmd->tokens[0], "a");
+
+    // cleanup
+    for (int i = 0; jogo.cmd->tokens[i]; i++)
+        free(jogo.cmd->tokens[i]);
+    free(jogo.cmd->tokens);
+}
+
 void test_parseCommand_empty(void)
 {
     Game jogo;
@@ -593,10 +615,9 @@ void test_parseCommand_empty(void)
 
 void test_parseCommand(void)
 {
-    // test_parseCommand_load();
-    // test_parseCommand_white_without_coords();
     test_parseCommand_save();
     test_parseCommand_select();
+    test_parseCommand_help();
     test_parseCommand_empty();
 }
 

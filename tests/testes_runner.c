@@ -2,7 +2,7 @@
 #include "../tests/testes_helpers.h"
 #include <CUnit/CUnit.h>
 #include <CUnit/Basic.h>
-#include "../include/jogo/tabuleiro.h" // Include your game logic header
+#include "../include/jogo/tabuleiro.h"
 
 void add_tests(void)
 {
