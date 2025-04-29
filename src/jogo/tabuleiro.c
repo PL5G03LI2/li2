@@ -147,7 +147,7 @@ void check_marked(Tab *tab, int i, bool *violated)
 
         int ind = calc_index(tab, check_pos.x, check_pos.y);
         if (islower(tab->data[ind].c))
-            violated[i] = true;
+            violated[ind] = true;
     }
 }
 
