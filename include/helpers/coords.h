@@ -39,4 +39,26 @@ bool assert_index(Tab *tabuleiro, int i);
  */
 bool assert_pos(Tab *tabuleiro, int x, int y);
 
+/**
+ * Reads a token and converts it to a Vector.
+ * This function will add up the x components (a-z) and then convert y components.
+ *
+ * Ex: `read_coordinate("aa10") -> x: 27 + 1, y: 10.`
+ *
+ * @param *coordinate_token The token to convert.
+ *
+ * @returns iVec2 com as coordenadas convertidas.
+ */
+iVec2 read_coordinate(char *coordinate_token);
+
+/**
+ * Converts an iVec2 to a string, stores it in the provided buffer.
+ *
+ * @param coord The vector to convert.
+ * @param *buffer The buffer to store results.
+ *
+ * @returns A pointer to the provided buffer, in case you lost it.
+ */
+char *write_coordinate(iVec2 coord, char *buffer);
+
 #endif
