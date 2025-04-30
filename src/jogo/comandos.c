@@ -242,96 +242,122 @@ int parse_command(Game *game)
     return 0;
 }
 
+int handle_save(Game *game)
+{
+    return salvar_jogo(game, game->cmd->tokens[1] ? game->cmd->tokens[1] : game->save_to);
+}
+
+int handle_load(Game *game)
+{
+    char *new_save = strdup(game->cmd->tokens[1]);
+    if (!new_save)
+        return 1;
+
+    if (!carregar_jogo(game, game->cmd->tokens[1]))
+    {
+        if (game->save_to)
+            free(game->save_to);
+        game->save_to = new_save;
+        return 0;
+    }
+
+    free(new_save);
+    return 1;
+}
+
+int handle_select(Game *game)
+{
+    iVec2 preferred_selection = read_coordinate(game->cmd->tokens[0]);
+    if (assert_pos(game->tabuleiro, preferred_selection.x, preferred_selection.y))
+        game->tabuleiro->sel_piece = preferred_selection;
+    else
+        printw("Position out of bounds!\n");
+
+    return 0;
+}
+
+int handle_white(Game *game)
+{
+    iVec2 coord = read_coordinate(game->cmd->tokens[1]);
+    toggle_branco(game->tabuleiro, coord.x, coord.y);
+
+    return 0;
+}
+
+int handle_cross(Game *game)
+{
+    iVec2 coord = read_coordinate(game->cmd->tokens[1]);
+    toggle_marked(game->tabuleiro, coord.x, coord.y);
+
+    return 0;
+}
+
+int handle_verify(Game *game)
+{
+    if (validar_tabuleiro(game->tabuleiro))
+        printw("Valid tabuleiro.");
+    else
+        printw("Invalid.");
+
+    return 0;
+}
+
+int handle_undo(Game *game)
+{
+    if (game->history == NULL)
+    {
+        printw("No more moves to undo.");
+        return 0;
+    }
+
+    ParsedCommand *lastCmd = pop_history(&(game->history));
+    if (lastCmd != NULL)
+    {
+        int res = undo_command(lastCmd, game->tabuleiro);
+        reset_cmd(lastCmd);
+
+        free(lastCmd);
+
+        return res;
+    }
+
+    return 0;
+}
+
+int handle_exit(Game *game)
+{
+    salvar_jogo(game, game->save_to);
+    return 0;
+}
+
 int run_command(Game *game)
 {
     switch (game->cmd->type)
     {
     case CMD_SAVE:
-        return salvar_jogo(game, game->cmd->tokens[1] ? game->cmd->tokens[1] : game->save_to);
-
+        return handle_save(game);
     case CMD_LOAD:
-    {
-        char *new_save = strdup(game->cmd->tokens[1]);
-        if (!new_save)
-            return 1;
-
-        if (!carregar_jogo(game, game->cmd->tokens[1]))
-        {
-            if (game->save_to)
-                free(game->save_to);
-            game->save_to = new_save;
-            return 0;
-        }
-
-        free(new_save);
-        return 1;
-    }
-
+        return handle_load(game);
     case CMD_SELECT:
-    {
-        iVec2 preferred_selection = read_coordinate(game->cmd->tokens[0]);
-        if (assert_pos(game->tabuleiro, preferred_selection.x, preferred_selection.y))
-            game->tabuleiro->sel_piece = preferred_selection;
-        else
-            printw("Position out of bounds!\n");
-        return 0;
-    }
-
+        return handle_select(game);
     case CMD_WHITE:
-    {
-        iVec2 coord = read_coordinate(game->cmd->tokens[1]);
-        toggle_branco(game->tabuleiro, coord.x, coord.y);
-        return 0;
-    }
-
+        return handle_white(game);
     case CMD_CROSS:
-    {
-        iVec2 coord = read_coordinate(game->cmd->tokens[1]);
-        toggle_marked(game->tabuleiro, coord.x, coord.y);
-        return 0;
-    }
-
+        return handle_cross(game);
     case CMD_VERIFY:
-        if (validar_tabuleiro(game->tabuleiro))
-            printw("Valid tabuleiro.");
-        else
-            printw("Invalid.");
-        return 0;
-
+        return handle_verify(game);
     case CMD_UNDO:
-    {
-        if (game->history == NULL)
-        {
-            printw("No more moves to undo.");
-            return 0;
-        }
-        ParsedCommand *lastCmd = pop_history(&(game->history));
-        if (lastCmd != NULL)
-        {
-            int res = undo_command(lastCmd, game->tabuleiro);
-            reset_cmd(lastCmd);
-            free(lastCmd);
-            return res;
-        }
-        return 0;
-    }
-
+        return handle_undo(game);
     case CMD_EXIT:
-        salvar_jogo(game, game->save_to);
-        return 0;
-
+        return handle_exit(game);
     case CMD_HELP:
         return 1;
-
     case CMD_HELP_ALL:
         return 1;
-
     case CMD_SOLVE:
         return 1;
-
     case CMD_CONTINUE:
         return 0;
-
     default:
         return 1;
     }
