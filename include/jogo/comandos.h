@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "types.h"
+#define CMD_MAX_LENGTH 256
 
 /**
  * Reads a token and converts it to a Vector.
@@ -68,7 +69,7 @@ void reset_cmd(ParsedCommand *cmd);
  *
  * @param *cmd Buffer para guardar o comando, TEM DE SER 256 BYTES.
  */
-int await_command(char *command);
+int await_command(char *buffer);
 
 /**
  * Tokenizes the command.

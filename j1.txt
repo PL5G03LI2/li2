@@ -1,5 +1,5 @@
 9 9
-idaeegfgb
+Idaeegfgb
 hicidebgf
 gbadhbafe
 iafibhged
@@ -12,5 +12,20 @@ bghedadib
 selected
 0 0
 marked
+0 0
 violated
 history
+b b5 
+r 5g 
+b b5 
+b a1 
+b a1 
+b a1 
+b a1 
+b a1 
+b a1 
+b a1 
+b a1 
+b a1 
+b a1 
+b a1 

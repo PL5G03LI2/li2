@@ -10,6 +10,8 @@
 #include "jogo/tabuleiro.h"
 #include "types.h"
 
+
+
 iVec2 read_coordinate(char *coord_tkn)
 {
     iVec2 result;
@@ -154,13 +156,40 @@ void reset_cmd(ParsedCommand *cmd)
     reset_cmd_tokens(cmd);
 }
 
-int await_command(char *command)
-{
-    if (getnstr(command, 256))
-        return 1;
+int await_command(char *buffer) {
+    int ch;
+    int pos = 0;
+    buffer[0] = '\0';
 
-    move(0, 0);
-    printw(command);
+    echo();          // Let ncurses handle character display
+    curs_set(1);
+
+    move(LINES - 1, 0);
+    clrtoeol();
+    printw(":");
+    refresh();
+
+    while((ch = getch()) != '\n' && ch != KEY_ENTER) {
+        if(ch == KEY_BACKSPACE || ch == 127) {
+            if(pos > 0) {
+                pos--;
+                buffer[pos] = '\0';
+                move(LINES - 1, pos + 1);
+                delch();
+            }
+        } 
+        else if(pos < CMD_MAX_LENGTH - 1 && isprint(ch)) {
+            buffer[pos++] = ch;
+            buffer[pos] = '\0';
+            // REMOVE THIS LINE: addch(ch);  // ← THIS CAUSES DOUBLE CHARS
+        }
+        refresh();
+    }
+    
+    noecho();
+    move(LINES - 1, 0);
+    clrtoeol();
+    refresh();
     return 0;
 }
 
@@ -248,6 +277,9 @@ int run_command(Game *game)
 
     case CMD_LOAD:
     {
+        if (!game->cmd->tokens[1] || !*game->cmd->tokens[1])
+            return 1;
+
         char *new_save = strdup(game->cmd->tokens[1]);
         if (!new_save)
             return 1;
