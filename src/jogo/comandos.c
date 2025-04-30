@@ -161,7 +161,7 @@ int await_command(char *buffer) {
     int pos = 0;
     buffer[0] = '\0';
 
-    echo();          // Let ncurses handle character display
+    echo();          
     curs_set(1);
 
     move(LINES - 1, 0);
@@ -181,7 +181,6 @@ int await_command(char *buffer) {
         else if(pos < CMD_MAX_LENGTH - 1 && isprint(ch)) {
             buffer[pos++] = ch;
             buffer[pos] = '\0';
-            // REMOVE THIS LINE: addch(ch);  // ← THIS CAUSES DOUBLE CHARS
         }
         refresh();
     }
