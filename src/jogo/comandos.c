@@ -169,11 +169,17 @@ int await_command(char *command)
 
 int parse_command(Game *game)
 {
+    // reset to default values
     reset_cmd(game->cmd);
+
     char *trimmed_command = trim_str(game->cmd_str);
+
     char **tokens = (char **)calloc(2, sizeof(char *));
     int tokenc = tokenize_cmd(trimmed_command, tokens);
+
+    // free after tokenization
     free(trimmed_command);
+
     bool expect_coords = false;
 
     if (!tokenc)
