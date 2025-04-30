@@ -4,6 +4,7 @@
 #include "helpers/history.h"
 #include "helpers/memory.h"
 #include "jogo/tabuleiro.h"
+
 #include "types.h"
 
 int init_game(Game *game)
@@ -68,15 +69,46 @@ void free_command(ParsedCommand **cmd)
     }
 }
 
+void free_tabuleiro(Tab **tab)
+{
+    if (*tab)
+    {
+        if ((*tab)->data)
+            free((*tab)->data);
+
+        (*tab)->data = NULL;
+
+        free(*tab);
+    }
+
+    *tab = NULL;
+}
+
+void destroy_history(TabHistory **head)
+{
+    TabHistory *current = *head;
+    while (current != NULL)
+    {
+        TabHistory *next = current->next;
+        if (current->cmd)
+        {
+            if (current->cmd->tokens)
+            {
+                for (int i = 0; i < 2; i++)
+                    free(current->cmd->tokens[i]);
+                free(current->cmd->tokens);
+            }
+            free(current->cmd);
+        }
+        free(current);
+        current = next;
+    }
+    *head = NULL;
+}
+
 void free_game(Game *game)
 {
-    if (game->tabuleiro)
-    {
-        if (game->tabuleiro->data)
-            free(game->tabuleiro->data);
-        free(game->tabuleiro);
-        game->tabuleiro = NULL; // Prevent use-after-free
-    }
+    free_tabuleiro(&game->tabuleiro);
 
     if (game->cmd_str)
     {

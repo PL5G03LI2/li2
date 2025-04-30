@@ -77,25 +77,3 @@ ParsedCommand *get_history_element(TabHistory *head, int index)
     }
     return (current ? current->cmd : NULL);
 }
-
-void destroy_history(TabHistory **head)
-{
-    TabHistory *current = *head;
-    while (current != NULL)
-    {
-        TabHistory *next = current->next;
-        if (current->cmd)
-        {
-            if (current->cmd->tokens)
-            {
-                for (int i = 0; i < 2; i++)
-                    free(current->cmd->tokens[i]);
-                free(current->cmd->tokens);
-            }
-            free(current->cmd);
-        }
-        free(current);
-        current = next;
-    }
-    *head = NULL;
-}

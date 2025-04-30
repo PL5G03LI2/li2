@@ -22,6 +22,23 @@ int init_game(Game *game);
 void free_command(ParsedCommand **cmd);
 
 /**
+ * @brief Frees and sets tab (and its data) to NULL.
+ *
+ * @param tab The tab pointer
+ */
+void free_tabuleiro(Tab **tab);
+
+/**
+ * Free the whole history list
+ *
+ * @param head The pointer to the head of the list (stack).
+ *
+ * @note
+ * This will clear the whole history, including free() all of the allocated memory.
+ */
+void destroy_history(TabHistory **head);
+
+/**
  * Frees everything in the game.
  *
  * @param tabuleiro The pointer to the game's tabuleiro.
