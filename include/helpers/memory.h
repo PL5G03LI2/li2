@@ -4,6 +4,13 @@
 #define MEMORY_H
 
 /**
+ * Allocates and initializes tabuleiro.
+ * @returns A pointer to the initialized tabuleiro.
+ * @returns NULL in case of allocation failure.
+ */
+Tab *initialize_tabuleiro(void);
+
+/**
  * @brief Initializes all fields of Game
  *
  * @param game A pointer to the game to initialize.

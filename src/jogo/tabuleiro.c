@@ -15,19 +15,6 @@
 
 #include "types.h"
 
-Tab *initialize_tabuleiro(void)
-{
-    Tab *tab = malloc(sizeof(Tab));
-    if (!tab)
-        return NULL;
-    tab->height = 0;
-    tab->width = 0;
-    tab->sel_piece.x = 0;
-    tab->sel_piece.y = 0;
-    tab->data = NULL;
-    return tab;
-}
-
 char get_elem(Tab *tab, int x, int y)
 {
     if (!assert_pos(tab, x, y))

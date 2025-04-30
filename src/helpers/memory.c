@@ -7,6 +7,19 @@
 
 #include "types.h"
 
+Tab *initialize_tabuleiro(void)
+{
+    Tab *tab = malloc(sizeof(Tab));
+    if (!tab)
+        return NULL;
+    tab->height = 0;
+    tab->width = 0;
+    tab->sel_piece.x = 0;
+    tab->sel_piece.y = 0;
+    tab->data = NULL;
+    return tab;
+}
+
 int init_game(Game *game)
 {
     game->tabuleiro = initialize_tabuleiro();

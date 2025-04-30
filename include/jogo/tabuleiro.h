@@ -4,13 +4,6 @@
 #include "types.h"
 
 /**
- * Allocates and initializes tabuleiro.
- * @returns A pointer to the initialized tabuleiro.
- * @returns NULL in case of allocation failure.
- */
-Tab *initialize_tabuleiro(void);
-
-/**
  * Retorna o char na coordenada (x, y)
  */
 char get_elem(Tab *tabuleiro, int x, int y);
