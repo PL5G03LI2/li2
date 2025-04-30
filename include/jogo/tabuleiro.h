@@ -11,43 +11,6 @@
 Tab *initialize_tabuleiro(void);
 
 /**
- * @brief Adds two vectors together
- *
- * @returns The resulting vector.
- */
-iVec2 add_vec2(iVec2 a, iVec2 b);
-
-/**
- * Calculates the index of the position provided
- * @returns 0 <= index <= height * width;
- * @returns -1 if invalid;
- */
-int calc_index(Tab *tabuleiro, int x, int y);
-
-/**
- * Calculates a position, given an index
- *
- * @returns
- *  The calculated position, if valid;
- *  (-1, -1) otherwise;
- */
-iVec2 calc_pos(Tab *tabuleiro, int i);
-
-/**
- * Ensures valid string index.
- * @returns true if index is in bounds.
- * @returns false otherwise.
- */
-bool assert_index(Tab *tabuleiro, int i);
-
-/**
- * Ensures a valid position.
- * @returns true if position is valid.
- * @returns false otherwise.
- */
-bool assert_pos(Tab *tabuleiro, int x, int y);
-
-/**
  * Retorna o char na coordenada (x, y)
  */
 char get_elem(Tab *tabuleiro, int x, int y);
@@ -72,18 +35,6 @@ void print_tab(Tab *tabuleiro, iVec2 win_d);
  * Toggle marked status of a piece and toggles branco of all orthogonal neighbours
  */
 void toggle_marked(Tab *tabuleiro, int x, int y);
-
-/**
- * Carrega um tabuleiro a partir de um ficheiro especificado
- * @returns 0 se o carregamento for bem-sucedido, 1 caso contrário
- */
-int carregar_jogo(Game *game, const char *filename);
-
-/**
- * Guarda o estado atual do tabuleiro num ficheiro
- * @returns 0 se a gravação for bem-sucedida; 1 caso contrário
- */
-int salvar_jogo(Game *game, const char *filename);
 
 /**
  * @brief Checks white piece rule in the row.
