@@ -195,54 +195,53 @@ int parse_command(Game *game)
     {
         game->cmd->type = CMD_SELECT;
         game->cmd->tokens = tokens;
-    }
-    else
-    {
-        switch (tokens[0][0])
-        {
-        case 'g':
-            game->cmd->type = CMD_SAVE;
-            break;
-        case 'l':
-            game->cmd->type = CMD_LOAD;
-            break;
-        case 'b':
-            game->cmd->type = CMD_WHITE;
-            expect_coords = true;
-            game->cmd->track = true;
-            break;
-        case 'r':
-            game->cmd->type = CMD_CROSS;
-            expect_coords = true;
-            game->cmd->track = true;
-            break;
-        case 'v':
-            game->cmd->type = CMD_VERIFY;
-            break;
-        case 'a':
-            game->cmd->type = CMD_HELP;
-            game->cmd->track = true;
-            break;
-        case 'A':
-            game->cmd->type = CMD_HELP_ALL;
-            break;
-        case 'R':
-            game->cmd->type = CMD_SOLVE;
-            break;
-        case 'd':
-            game->cmd->type = CMD_UNDO;
-            break;
-        case 's':
-            game->cmd->type = CMD_EXIT;
-            break;
-        }
 
-        game->cmd->tokens = tokens;
-        if (expect_coords && tokenc == 1)
-        {
-            game->cmd->tokens[1] = (char *)calloc(32, sizeof(char));
-            write_coordinate(game->tabuleiro->sel_piece, game->cmd->tokens[1]);
-        }
+        return 0;
+    }
+    switch (tokens[0][0])
+    {
+    case 'g':
+        game->cmd->type = CMD_SAVE;
+        break;
+    case 'l':
+        game->cmd->type = CMD_LOAD;
+        break;
+    case 'b':
+        game->cmd->type = CMD_WHITE;
+        expect_coords = true;
+        game->cmd->track = true;
+        break;
+    case 'r':
+        game->cmd->type = CMD_CROSS;
+        expect_coords = true;
+        game->cmd->track = true;
+        break;
+    case 'v':
+        game->cmd->type = CMD_VERIFY;
+        break;
+    case 'a':
+        game->cmd->type = CMD_HELP;
+        game->cmd->track = true;
+        break;
+    case 'A':
+        game->cmd->type = CMD_HELP_ALL;
+        break;
+    case 'R':
+        game->cmd->type = CMD_SOLVE;
+        break;
+    case 'd':
+        game->cmd->type = CMD_UNDO;
+        break;
+    case 's':
+        game->cmd->type = CMD_EXIT;
+        break;
+    }
+
+    game->cmd->tokens = tokens;
+    if (expect_coords && tokenc == 1)
+    {
+        game->cmd->tokens[1] = (char *)calloc(32, sizeof(char));
+        write_coordinate(game->tabuleiro->sel_piece, game->cmd->tokens[1]);
     }
 
     return 0;
