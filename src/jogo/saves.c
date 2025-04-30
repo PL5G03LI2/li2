@@ -11,13 +11,104 @@
 #include "jogo/tabuleiro.h"
 #include "types.h"
 
+int read_board(FILE *f, Tab *tab, int h, int w)
+{
+    tab->height = h;
+    tab->width = w;
+    free(tab->data);
+    tab->data = calloc(h * w, sizeof(Piece));
+    if (!tab->data)
+        return 1;
+
+    for (int i = 0; i < h * w; i++)
+    {
+        Piece *p = &tab->data[i];
+        if (fscanf(f, " %c", &p->c) != 1)
+            return 1;
+        p->marked = false;
+        p->violated = false;
+    }
+    return 0;
+}
+
+int read_selected(FILE *f, Tab *tab)
+{
+    char buffer[32];
+    if (fscanf(f, "%s", buffer) != 1)
+        return 1;
+
+    if (fscanf(f, "%d %d", &tab->sel_piece.x, &tab->sel_piece.y) != 2)
+        return 1;
+
+    return 0;
+}
+
+int read_marked(FILE *f, Tab *tab)
+{
+    char buffer[32];
+    if (fscanf(f, "%s", buffer) != 1)
+        return 1;
+
+    int x, y;
+    while (fscanf(f, "%d %d", &x, &y) == 2)
+    {
+        int idx = calc_index(tab, x, y);
+        if (idx >= 0)
+            tab->data[idx].marked = true;
+    }
+
+    return 0;
+}
+
+int read_violated(FILE *f, Tab *tab)
+{
+    char buffer[32];
+    if (fscanf(f, "%s", buffer) != 1 || strcmp(buffer, "violated") != 0)
+        return 1;
+
+    int x, y;
+    while (fscanf(f, "%d %d", &x, &y) == 2)
+    {
+        int idx = calc_index(tab, x, y);
+        if (idx >= 0)
+            tab->data[idx].violated = true;
+    }
+
+    return 0;
+}
+
+int read_history(FILE *f, Game *game)
+{
+    char buffer[32];
+    if (fscanf(f, "%s", buffer) != 1 || strcmp(buffer, "history") != 0)
+        return 1;
+
+    char token1[32], token2[32];
+    char line[256];
+    while (fgets(line, sizeof(line), f))
+    {
+        if (line[0] == '\n' || line[0] == '\0')
+            continue;
+
+        if (sscanf(line, "%s %s", token1, token2) == 2)
+        {
+            snprintf(game->cmd_str, 256, "%s %s", token1, token2);
+            if (parse_command(game))
+                return 1;
+
+            game->history = push_history(game->history, game->cmd);
+        }
+    }
+
+    return 0;
+}
+
 int carregar_jogo(Game *game, const char *filename)
 {
     FILE *f = fopen(filename, "r");
     if (!f)
         return 1;
 
-    // Read dimensions
     int h, w;
     if (fscanf(f, "%d %d", &h, &w) != 2)
     {
@@ -30,101 +121,34 @@ int carregar_jogo(Game *game, const char *filename)
 
     Tab *tab = game->tabuleiro;
 
-    // Initialize board
-    tab->height = h;
-    tab->width = w;
-    free(tab->data);
-    tab->data = calloc(h * w, sizeof(Piece));
-    if (!tab->data)
+    if (read_board(f, tab, h, w))
     {
         fclose(f);
         return 1;
     }
 
-    // Read board state
-    for (int i = 0; i < h * w; i++)
-    {
-        Piece *p = &tab->data[i];
-        if (fscanf(f, " %c", &p->c) != 1)
-        {
-            fclose(f);
-            return 1;
-        }
-        p->marked = false;
-        p->violated = false;
-    }
-
-    // Read "selected" marker
-    char buffer[32];
-    if (fscanf(f, "%s", buffer) != 1)
+    if (read_selected(f, tab))
     {
         fclose(f);
         return 1;
     }
 
-    // Read selected piece coords
-    if (fscanf(f, "%d %d", &tab->sel_piece.x, &tab->sel_piece.y) != 2)
+    if (read_marked(f, tab))
     {
         fclose(f);
         return 1;
     }
 
-    // Read "marked" marker
-    if (fscanf(f, "%s", buffer) != 1)
+    if (read_violated(f, tab))
     {
         fclose(f);
         return 1;
     }
 
-    // Read marked pieces until "violated" marker
-    int x, y;
-    while (fscanf(f, "%d %d", &x, &y) == 2)
-    {
-        int idx = calc_index(tab, x, y);
-        if (idx >= 0)
-            tab->data[idx].marked = true;
-    }
-
-    if (fscanf(f, "%s", buffer) != 1 || strcmp(buffer, "violated") != 0)
+    if (read_history(f, game))
     {
         fclose(f);
         return 1;
-    }
-
-    // Read violated pieces until "history" marker
-    while (fscanf(f, "%d %d", &x, &y) == 2)
-    {
-        int idx = calc_index(tab, x, y);
-        if (idx >= 0)
-            tab->data[idx].violated = true;
-    }
-
-    // Read "history" marker
-    if (fscanf(f, "%s", buffer) != 1 || strcmp(buffer, "history") != 0)
-    {
-        fclose(f);
-        return 1;
-    }
-
-    // Read command history - skip empty lines and verify format
-    char token1[32], token2[32];
-    char line[256];
-    while (fgets(line, sizeof(line), f))
-    {
-        // Skip empty lines
-        if (line[0] == '\n' || line[0] == '\0')
-            continue;
-
-        if (sscanf(line, "%s %s", token1, token2) == 2)
-        {
-            snprintf(game->cmd_str, 256, "%s %s", token1, token2);
-            if (parse_command(game))
-            {
-                fclose(f);
-                return 1;
-            }
-            game->history = push_history(game->history, game->cmd);
-        }
     }
 
     fclose(f);
