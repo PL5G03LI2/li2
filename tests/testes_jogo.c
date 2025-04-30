@@ -512,9 +512,6 @@ void test_undo_command(void)
     free(cmd_cross.tokens[0]);
     free(cmd_cross.tokens);
     free(tab_cross.data);
-
-    //Apaguei o teste 3 porque estamos a usar um print do ncurses sem o inicializar nos testes,
-    //mas inicializar ncurses em testes de CUnit é bue goofy, ent achei melhor retirar.
 }
 
 void test_tokenize(void)
