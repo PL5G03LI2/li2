@@ -14,14 +14,15 @@
 #define HELP_TABLE_WIDTH 42
 #define HELP_TABLE_HEIGHT 15
 
-static void init_colors(void) {
-    start_color();
-    use_default_colors();
-    init_pair(1, COLOR_BLACK, COLOR_WHITE); // selected normal
-    init_pair(2, COLOR_RED, COLOR_WHITE);   // selected violated
-    init_pair(3, COLOR_BLACK, COLOR_RED);   // violated not selected
-    init_pair(4, COLOR_WHITE, -1);          // default
-  }
+void init_colors(void)
+{
+  start_color();
+  use_default_colors();
+  init_pair(1, COLOR_BLACK, COLOR_WHITE); // selected normal
+  init_pair(2, COLOR_RED, COLOR_WHITE);   // selected violated
+  init_pair(3, COLOR_BLACK, COLOR_RED);   // violated not selected
+  init_pair(4, COLOR_WHITE, -1);          // default
+}
 
   void print_help_table(int start_y, int start_x) {
     const char *commands[] = {

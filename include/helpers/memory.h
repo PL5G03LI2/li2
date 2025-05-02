@@ -4,6 +4,13 @@
 #define MEMORY_H
 
 /**
+ * Allocates and initializes tabuleiro.
+ * @returns A pointer to the initialized tabuleiro.
+ * @returns NULL in case of allocation failure.
+ */
+Tab *initialize_tabuleiro(void);
+
+/**
  * @brief Initializes all fields of Game
  *
  * @param game A pointer to the game to initialize.
@@ -20,6 +27,23 @@ int init_game(Game *game);
  * @note The command will be set to NULL.
  */
 void free_command(ParsedCommand **cmd);
+
+/**
+ * @brief Frees and sets tab (and its data) to NULL.
+ *
+ * @param tab The tab pointer
+ */
+void free_tabuleiro(Tab **tab);
+
+/**
+ * Free the whole history list
+ *
+ * @param head The pointer to the head of the list (stack).
+ *
+ * @note
+ * This will clear the whole history, including free() all of the allocated memory.
+ */
+void destroy_history(TabHistory **head);
 
 /**
  * Frees everything in the game.
