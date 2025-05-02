@@ -6,76 +6,12 @@
 
 #include "helpers/strs.h"
 #include "helpers/history.h"
+#include "helpers/coords.h"
+
+#include "jogo/saves.h"
 #include "jogo/comandos.h"
 #include "jogo/tabuleiro.h"
 #include "types.h"
-
-iVec2 read_coordinate(char *coord_tkn)
-{
-    iVec2 result;
-    result.x = 0;
-    result.y = 0;
-    int i = 0;
-
-    // couldn't find alpha char, return default.
-    if (!isalpha(coord_tkn[i]))
-        return result;
-
-    // Read letters for x-coordinate
-    while (isalpha(coord_tkn[i]))
-    {
-        result.x = result.x * 26 + (toLower(coord_tkn[i]) - 'a' + 1);
-        i++;
-    }
-
-    // couldn't find a digit next, returns default.
-    if (!isdigit(coord_tkn[i]))
-    {
-        result.x = 0;
-        return result;
-    }
-
-    // Read numbers for y-coordinate
-    while (isdigit(coord_tkn[i]))
-    {
-        result.y = result.y * 10 + (coord_tkn[i] - '0');
-        i++;
-    }
-
-    // fix indexing
-    result.x -= 1;
-    result.y -= 1;
-
-    return result;
-}
-
-char *write_coordinate(iVec2 coord, char *buffer)
-{
-    int pos = 0;
-    int x = coord.x + 1;
-    char letters[8] = {0};
-    int letter_count = 0;
-
-    while (x > 0)
-    {
-        int remainder = x % 26;
-        if (remainder == 0)
-        {
-            remainder = 26;
-            x -= 1;
-        }
-        letters[letter_count++] = 'a' + remainder - 1;
-        x = x / 26;
-    }
-
-    for (int i = letter_count - 1; i >= 0; i--)
-        buffer[pos++] = letters[i];
-
-    // Write y coordinate
-    sprintf(buffer + pos, "%d", coord.y + 1);
-
-    return buffer;
-}
 
 ParsedCommand *deep_copy_cmd(ParsedCommand *cmd)
 {
@@ -159,18 +95,22 @@ int await_command(char *command)
     if (getnstr(command, 256))
         return 1;
 
-    move(0, 0);
-    printw(command);
     return 0;
 }
 
 int parse_command(Game *game)
 {
+    // reset to default values
     reset_cmd(game->cmd);
+
     char *trimmed_command = trim_str(game->cmd_str);
+
     char **tokens = (char **)calloc(2, sizeof(char *));
     int tokenc = tokenize_cmd(trimmed_command, tokens);
+
+    // free after tokenization
     free(trimmed_command);
+
     bool expect_coords = false;
 
     if (!tokenc)
@@ -186,56 +126,143 @@ int parse_command(Game *game)
     {
         game->cmd->type = CMD_SELECT;
         game->cmd->tokens = tokens;
+
+        return 0;
     }
-    else
+    switch (tokens[0][0])
     {
-        switch (tokens[0][0])
-        {
-        case 'g':
-            game->cmd->type = CMD_SAVE;
-            break;
-        case 'l':
-            game->cmd->type = CMD_LOAD;
-            break;
-        case 'b':
-            game->cmd->type = CMD_WHITE;
-            expect_coords = true;
-            game->cmd->track = true;
-            break;
-        case 'r':
-            game->cmd->type = CMD_CROSS;
-            expect_coords = true;
-            game->cmd->track = true;
-            break;
-        case 'v':
-            game->cmd->type = CMD_VERIFY;
-            break;
-        case 'a':
-            game->cmd->type = CMD_HELP;
-            game->cmd->track = true;
-            break;
-        case 'A':
-            game->cmd->type = CMD_HELP_ALL;
-            break;
-        case 'R':
-            game->cmd->type = CMD_SOLVE;
-            break;
-        case 'd':
-            game->cmd->type = CMD_UNDO;
-            break;
-        case 's':
-            game->cmd->type = CMD_EXIT;
-            break;
-        }
-
-        game->cmd->tokens = tokens;
-        if (expect_coords && tokenc == 1)
-        {
-            game->cmd->tokens[1] = (char *)calloc(32, sizeof(char));
-            write_coordinate(game->tabuleiro->sel_piece, game->cmd->tokens[1]);
-        }
+    case 'g':
+        game->cmd->type = CMD_SAVE;
+        break;
+    case 'l':
+        game->cmd->type = CMD_LOAD;
+        break;
+    case 'b':
+        game->cmd->type = CMD_WHITE;
+        expect_coords = true;
+        game->cmd->track = true;
+        break;
+    case 'r':
+        game->cmd->type = CMD_CROSS;
+        expect_coords = true;
+        game->cmd->track = true;
+        break;
+    case 'v':
+        game->cmd->type = CMD_VERIFY;
+        break;
+    case 'a':
+        game->cmd->type = CMD_HELP;
+        game->cmd->track = true;
+        break;
+    case 'A':
+        game->cmd->type = CMD_HELP_ALL;
+        break;
+    case 'R':
+        game->cmd->type = CMD_SOLVE;
+        break;
+    case 'd':
+        game->cmd->type = CMD_UNDO;
+        break;
+    case 's':
+        game->cmd->type = CMD_EXIT;
+        break;
     }
 
+    game->cmd->tokens = tokens;
+    if (expect_coords && tokenc == 1)
+    {
+        game->cmd->tokens[1] = (char *)calloc(32, sizeof(char));
+        write_coordinate(game->tabuleiro->sel_piece, game->cmd->tokens[1]);
+    }
+
+    return 0;
+}
+
+int handle_save(Game *game)
+{
+    return salvar_jogo(game, game->cmd->tokens[1] ? game->cmd->tokens[1] : game->save_to);
+}
+
+int handle_load(Game *game)
+{
+    char *new_save = strdup(game->cmd->tokens[1]);
+    if (!new_save)
+        return 1;
+
+    if (!carregar_jogo(game, game->cmd->tokens[1]))
+    {
+        if (game->save_to)
+            free(game->save_to);
+        game->save_to = new_save;
+        return 0;
+    }
+
+    free(new_save);
+    return 1;
+}
+
+int handle_select(Game *game)
+{
+    iVec2 preferred_selection = read_coordinate(game->cmd->tokens[0]);
+    if (assert_pos(game->tabuleiro, preferred_selection.x, preferred_selection.y))
+        game->tabuleiro->sel_piece = preferred_selection;
+    else
+        printw("Position out of bounds!\n");
+
+    return 0;
+}
+
+int handle_white(Game *game)
+{
+    iVec2 coord = read_coordinate(game->cmd->tokens[1]);
+    toggle_branco(game->tabuleiro, coord.x, coord.y);
+
+    return 0;
+}
+
+int handle_cross(Game *game)
+{
+    iVec2 coord = read_coordinate(game->cmd->tokens[1]);
+    toggle_marked(game->tabuleiro, coord.x, coord.y);
+
+    return 0;
+}
+
+int handle_verify(Game *game)
+{
+    if (validar_tabuleiro(game->tabuleiro))
+        printw("Valid tabuleiro.");
+    else
+        printw("Invalid.");
+
+    return 0;
+}
+
+int handle_undo(Game *game)
+{
+    if (game->history == NULL)
+    {
+        printw("No more moves to undo.");
+        return 0;
+    }
+
+    ParsedCommand *lastCmd = pop_history(&(game->history));
+    if (lastCmd != NULL)
+    {
+        int res = undo_command(lastCmd, game->tabuleiro);
+        reset_cmd(lastCmd);
+
+        free(lastCmd);
+
+        return res;
+    }
+
+    return 0;
+}
+
+int handle_exit(Game *game)
+{
+    salvar_jogo(game, game->save_to);
     return 0;
 }
 
@@ -244,91 +271,29 @@ int run_command(Game *game)
     switch (game->cmd->type)
     {
     case CMD_SAVE:
-        return salvar_jogo(game, game->cmd->tokens[1] ? game->cmd->tokens[1] : game->save_to);
-
+        return handle_save(game);
     case CMD_LOAD:
-    {
-        char *new_save = strdup(game->cmd->tokens[1]);
-        if (!new_save)
-            return 1;
-
-        if (!carregar_jogo(game, game->cmd->tokens[1]))
-        {
-            if (game->save_to)
-                free(game->save_to);
-            game->save_to = new_save;
-            return 0;
-        }
-
-        free(new_save);
-        return 1;
-    }
-
+        return handle_load(game);
     case CMD_SELECT:
-    {
-        iVec2 preferred_selection = read_coordinate(game->cmd->tokens[0]);
-        if (assert_pos(game->tabuleiro, preferred_selection.x, preferred_selection.y))
-            game->tabuleiro->sel_piece = preferred_selection;
-        else
-            printw("Position out of bounds!\n");
-        return 0;
-    }
-
+        return handle_select(game);
     case CMD_WHITE:
-    {
-        iVec2 coord = read_coordinate(game->cmd->tokens[1]);
-        toggle_branco(game->tabuleiro, coord.x, coord.y);
-        return 0;
-    }
-
+        return handle_white(game);
     case CMD_CROSS:
-    {
-        iVec2 coord = read_coordinate(game->cmd->tokens[1]);
-        toggle_marked(game->tabuleiro, coord.x, coord.y);
-        return 0;
-    }
-
+        return handle_cross(game);
     case CMD_VERIFY:
-        if (validar_tabuleiro(game->tabuleiro))
-            printw("Valid tabuleiro.");
-        else
-            printw("Invalid.");
-        return 0;
-
+        return handle_verify(game);
     case CMD_UNDO:
-    {
-        if (game->history == NULL)
-        {
-            printw("No more moves to undo.");
-            return 0;
-        }
-        ParsedCommand *lastCmd = pop_history(&(game->history));
-        if (lastCmd != NULL)
-        {
-            int res = undo_command(lastCmd, game->tabuleiro);
-            reset_cmd(lastCmd);
-            free(lastCmd);
-            return res;
-        }
-        return 0;
-    }
-
+        return handle_undo(game);
     case CMD_EXIT:
-        salvar_jogo(game, game->save_to);
-        return 0;
-
+        return handle_exit(game);
     case CMD_HELP:
         return 1;
-
     case CMD_HELP_ALL:
         return 1;
-
     case CMD_SOLVE:
         return 1;
-
     case CMD_CONTINUE:
         return 0;
-
     default:
         return 1;
     }

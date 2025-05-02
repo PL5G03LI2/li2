@@ -9,8 +9,7 @@
 #include "jogo/comandos.h"
 #include "jogo/tabuleiro.h"
 
-
-static void init_colors(void)
+void init_colors(void)
 {
   start_color();
   use_default_colors();

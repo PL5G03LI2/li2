@@ -1,10 +1,16 @@
-#include "../include/jogo/comandos.h"
-#include "../include/jogo/tabuleiro.h"
-#include "../include/helpers/history.h"
-#include "helpers/memory.h"
 #include <CUnit/CUnit.h>
 #include <stdlib.h>
 #include <ncurses.h>
+
+#include "helpers/history.h"
+#include "helpers/memory.h"
+#include "helpers/coords.h"
+
+#include "jogo/comandos.h"
+#include "jogo/tabuleiro.h"
+#include "jogo/saves.h"
+
+#include "types.h"
 
 void populateTab(Tab *tab)
 {
