@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include "types.h"
-#define CMD_MAX_LENGTH 256
+#define CMD_MAX_LENGTH 16
 
 /**
  * Reads a token and converts it to a Vector.

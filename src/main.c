@@ -17,28 +17,13 @@
 static void init_colors(void) {
     start_color();
     use_default_colors();
-    init_pair(1, COLOR_BLACK, COLOR_WHITE);
-    init_pair(2, COLOR_RED, COLOR_WHITE);
-    init_pair(3, COLOR_BLACK, COLOR_RED);
-    init_pair(4, COLOR_WHITE, -1);
-}
+    init_pair(1, COLOR_BLACK, COLOR_WHITE); // selected normal
+    init_pair(2, COLOR_RED, COLOR_WHITE);   // selected violated
+    init_pair(3, COLOR_BLACK, COLOR_RED);   // violated not selected
+    init_pair(4, COLOR_WHITE, -1);          // default
+  }
 
-void draw_box(int y, int x, int height, int width) {
-    mvaddch(y, x, ACS_ULCORNER);
-    for(int i = 1; i < width-1; i++) mvaddch(y, x+i, ACS_HLINE);
-    mvaddch(y, x+width-1, ACS_URCORNER);
-    
-    for(int i = 1; i < height-1; i++) {
-        mvaddch(y+i, x, ACS_VLINE);
-        mvaddch(y+i, x+width-1, ACS_VLINE);
-    }
-    
-    mvaddch(y+height-1, x, ACS_LLCORNER);
-    for(int i = 1; i < width-1; i++) mvaddch(y+height-1, x+i, ACS_HLINE);
-    mvaddch(y+height-1, x+width-1, ACS_LRCORNER);
-}
-
-void print_help_table(int start_y, int start_x) {
+  void print_help_table(int start_y, int start_x) {
     const char *commands[] = {
         "g <file>", "l <file>", "<coord>", 
         "b <coord>", "r <coord>", "v", 
@@ -61,8 +46,24 @@ void print_help_table(int start_y, int start_x) {
     };
 
     attron(COLOR_PAIR(4));
-    draw_box(start_y, start_x, HELP_TABLE_HEIGHT, HELP_TABLE_WIDTH);
-    mvprintw(start_y+1, start_x + (HELP_TABLE_WIDTH/2) - 10, " Available Commands ");
+    
+    
+    int width = HELP_TABLE_WIDTH;
+    int height = HELP_TABLE_HEIGHT;
+    mvaddch(start_y, start_x, ACS_ULCORNER);
+    for(int i = 1; i < width-1; i++) mvaddch(start_y, start_x+i, ACS_HLINE);
+    mvaddch(start_y, start_x+width-1, ACS_URCORNER);
+    
+    for(int i = 1; i < height-1; i++) {
+        mvaddch(start_y+i, start_x, ACS_VLINE);
+        mvaddch(start_y+i, start_x+width-1, ACS_VLINE);
+    }
+    
+    mvaddch(start_y+height-1, start_x, ACS_LLCORNER);
+    for(int i = 1; i < width-1; i++) mvaddch(start_y+height-1, start_x+i, ACS_HLINE);
+    mvaddch(start_y+height-1, start_x+width-1, ACS_LRCORNER);
+
+    mvprintw(start_y+1, start_x + (width/2) - 10, " Available Commands ");
     
     for(int i = 0; commands[i] && descriptions[i]; i++) {
         mvprintw(start_y+3+i, start_x + 2, "%-12s %s", commands[i], descriptions[i]);
