@@ -11,6 +11,9 @@ void init_colors(void)
     init_pair(2, COLOR_RED, COLOR_WHITE);   // selected violated
     init_pair(3, COLOR_BLACK, COLOR_RED);   // violated not selected
     init_pair(4, COLOR_WHITE, -1);          // default
+    init_pair(5, COLOR_BLUE, -1);           // blue on transparent
+    init_pair(6, COLOR_RED, -1);            // red on transparent
+    init_pair(7, COLOR_GREEN, -1);          // green on transparent
 }
 
 void calculate_layout(Game *game)
@@ -92,11 +95,9 @@ void print_tab(Game *game)
     }
 
     // Column headers
-    attron(COLOR_PAIR(4));
     mvwprintw(main.win, start_y, start_x + 1, " ");
     for (int y = 0; y < w; y++)
         wprintw(main.win, "%d ", y + 1);
-    attroff(COLOR_PAIR(4));
 
     // Separator (uses default color)
     mvwprintw(main.win, start_y + 1, start_x, "--");
@@ -107,9 +108,7 @@ void print_tab(Game *game)
     for (int x = 0; x < h; x++)
     {
         // Row Header (e.g., "a|")
-        attron(COLOR_PAIR(4));
         mvwprintw(main.win, start_y + 2 + x, start_x, "%c|", 'a' + x); // "a|", "b|", etc.
-        attroff(COLOR_PAIR(4));
 
         // Cells in the Row
         for (int y = 0; y < w; y++)
@@ -126,9 +125,9 @@ void print_tab(Game *game)
                 cp = 1; // Selected cell
 
             // Print Cell
-            attron(COLOR_PAIR(cp));
+            wattron(main.win, COLOR_PAIR(cp));
             mvwprintw(main.win, start_y + 2 + x, start_x + 2 + 2 * y, "%c", p.marked ? '#' : p.c);
-            attroff(COLOR_PAIR(cp));
+            wattroff(main.win, COLOR_PAIR(cp));
         }
     }
 }
@@ -137,10 +136,12 @@ void render_main(Game *game)
 {
     WIN main = game->game_ui.main_win;
     werase(main.win);
+    wattron(main.win, COLOR_PAIR(5));
     box(main.win, 0, 0);
 
     wmove(main.win, 0, 2);
     wprintw(main.win, "[ Board ]");
+    wattroff(main.win, COLOR_PAIR(5));
 
     if (game->tabuleiro->data)
     {
@@ -148,8 +149,8 @@ void render_main(Game *game)
     }
     else
     {
-        wmove(main.win, main.size.y / 2, main.size.x / 2 - 22);
-        wprintw(main.win, "Awaiting load command... Hint: l <save_file>");
+        wmove(main.win, main.size.y / 2, main.size.x / 2 - 12);
+        wprintw(main.win, "Awaiting load command...");
     }
 
     wrefresh(main.win);
@@ -161,10 +162,13 @@ void render_help(Game *game)
     werase(help.win);
     if (help.size.x == 0 || help.size.y == 0)
         return;
+
+    wattron(help.win, COLOR_PAIR(6));
     box(help.win, 0, 0);
 
     wmove(help.win, 0, 2);
     wprintw(help.win, "[ Help ]");
+    wattroff(help.win, COLOR_PAIR(6));
 
     const char *commands[11] = {
         "g <file>", "l <file>", "<coord>",
@@ -174,11 +178,11 @@ void render_help(Game *game)
     const char *descriptions[11] = {
         "Save",
         "Load",
-        "<letter><number>",
+        "Select",
         "Toggle white",
         "Cross",
         "Verify",
-        "Help (once)",
+        "Help",
         "Help all",
         "Solve",
         "Undo",
@@ -188,7 +192,7 @@ void render_help(Game *game)
     for (int i = 0; i < 11; i++)
     {
         wmove(help.win, 2 + i, 2);
-        wprintw(help.win, "%s %s", commands[i], descriptions[i]);
+        wprintw(help.win, "%s - %s", commands[i], descriptions[i]);
     }
 
     wrefresh(help.win);
@@ -198,9 +202,12 @@ void render_cmd(Game *game, char *info)
 {
     WIN cmd = game->game_ui.cmd_win;
     werase(cmd.win);
+
+    wattron(cmd.win, COLOR_PAIR(7));
     box(cmd.win, 0, 0);
 
     print_info(cmd, info);
+    wattroff(cmd.win, COLOR_PAIR(7));
 
     wmove(cmd.win, 1, 1);
     wrefresh(cmd.win);
