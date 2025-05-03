@@ -85,7 +85,7 @@ void print_tab(Game *game)
     int start_y = (main.size.y - board_h) / 2; // Vertical centering
     int start_x = (main.size.x - board_w) / 2; // Horizontal centering
 
-    if (main.size.x < board_w || main.size.y < board_h)
+    if (main.size.x - 2 < board_w || main.size.y - 2 < board_h)
     {
         mvwprintw(main.win, main.size.y / 2, main.size.x / 2 - 8, "Window too small.");
         return;
