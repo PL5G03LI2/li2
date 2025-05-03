@@ -79,6 +79,8 @@ typedef struct game
     iVec2 win_d;
     char *save_to;
 
+    char *info_str;
+
     UI game_ui;
 } Game;
 

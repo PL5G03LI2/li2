@@ -1,4 +1,5 @@
 #include <curses.h>
+#include <string.h>
 
 #include "jogo/render.h"
 #include "types.h"
@@ -68,13 +69,15 @@ void apply_layout(UI *ui)
     mvwin(cmd.win, cmd.pos.y, cmd.pos.x);
 }
 
-void print_info(WIN cmd_win, const char *string)
+void print_info(WIN cmd_win, char *string)
 {
     wmove(cmd_win.win, 0, 2);
     if (string[0] != '\0')
         wprintw(cmd_win.win, "[ CMD: %s ]", string);
     else
         wprintw(cmd_win.win, "[ CMD ]");
+
+    strcpy(string, "");
 }
 
 void print_tab(Game *game)
@@ -198,7 +201,7 @@ void render_help(Game *game)
     wrefresh(help.win);
 }
 
-void render_cmd(Game *game, char *info)
+void render_cmd(Game *game)
 {
     WIN cmd = game->game_ui.cmd_win;
     werase(cmd.win);
@@ -206,14 +209,14 @@ void render_cmd(Game *game, char *info)
     wattron(cmd.win, COLOR_PAIR(7));
     box(cmd.win, 0, 0);
 
-    print_info(cmd, info);
+    print_info(cmd, game->info_str);
     wattroff(cmd.win, COLOR_PAIR(7));
 
     wmove(cmd.win, 1, 1);
     wrefresh(cmd.win);
 }
 
-void render(Game *game, char *info)
+void render(Game *game)
 {
     curs_set(0);
     clear();
@@ -222,7 +225,7 @@ void render(Game *game, char *info)
 
     render_main(game);
     render_help(game);
-    render_cmd(game, info);
+    render_cmd(game);
 
     curs_set(1);
 }

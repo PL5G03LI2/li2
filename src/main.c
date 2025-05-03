@@ -12,20 +12,19 @@
 
 void repl(Game *game)
 {
-  char info[256];
   while (game->cmd->type != CMD_EXIT)
   {
-    render(game, info);
+    render(game);
 
     if (await_command(game->game_ui.cmd_win, game->cmd_str))
     {
-      strcpy(info, "Failed to read command.");
+      strcpy(game->info_str, "Failed to read command.");
       continue;
     }
 
     if (parse_command(game))
     {
-      strcpy(info, "Failed to parse command");
+      strcpy(game->info_str, "Failed to parse command");
       continue;
     }
 
@@ -38,16 +37,15 @@ void repl(Game *game)
     bool no_load_intent_while_no_tab = (game->cmd->type != CMD_LOAD && game->tabuleiro->data == NULL);
     if (cmd_invalid || no_load_intent_while_no_tab)
     {
-      strcpy(info, "Invalid command.");
+      strcpy(game->info_str, "Invalid command.");
       continue;
     }
 
     if (run_command(game))
     {
-      strcpy(info, "Failed to run command.");
+      strcpy(game->info_str, "Failed to run command.");
       continue;
     }
-    strcpy(info, "");
   }
 }
 

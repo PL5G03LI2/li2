@@ -21,7 +21,7 @@ void apply_layout(UI *ui);
 /**
  * Prints a command info, for example: Invalid command.
  */
-void print_info(WIN cmd_win, const char *str);
+void print_info(WIN cmd_win, char *str);
 
 /**
  * Render the game board to the main window
@@ -41,11 +41,11 @@ void render_help(Game *game);
 /**
  * Renders the command window
  */
-void render_cmd(Game *game, char *info);
+void render_cmd(Game *game);
 
 /**
  * Renders the game
  */
-void render(Game *game, char *info);
+void render(Game *game);
 
 #endif
