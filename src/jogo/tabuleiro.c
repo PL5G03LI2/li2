@@ -224,8 +224,11 @@ bool validar_tabuleiro(Tab *tab)
     return ok;
 }
 
-void print_tab(Tab *tab, iVec2 win_d)
+void print_tab(Game *game)
 {
+    Tab *tab = game->tabuleiro;
+    iVec2 win_d = game->win_d;
+
     int h = tab->height, w = tab->width;
     int board_h = 3 + h;                   // Height: rows + header + separator
     int board_w = 3 + 2 * w;               // Width: 2 chars per cell + padding
