@@ -66,6 +66,22 @@ int init_game(Game *game)
 
     game->save_to = NULL;
 
+    game->info_str = calloc(128, sizeof(char));
+
+    game->game_ui.main_win.win = newwin(0, 0, 0, 0);
+    game->game_ui.main_win.pos = (iVec2){0, 0};
+    game->game_ui.main_win.size = (iVec2){0, 0};
+
+    game->game_ui.help_win.win = newwin(0, 0, 0, 0);
+    game->game_ui.help_win.pos = (iVec2){0, 0};
+    game->game_ui.help_win.size = (iVec2){0, 0};
+
+    game->game_ui.cmd_win.win = newwin(0, 0, 0, 0);
+    game->game_ui.cmd_win.pos = (iVec2){0, 0};
+    game->game_ui.cmd_win.size = (iVec2){0, 0};
+
+    game->game_ui.offsets = (iVec2){0, 0};
+
     return 0;
 }
 
@@ -134,4 +150,10 @@ void free_game(Game *game)
     destroy_history(&(game->history));
 
     free(game->save_to);
+
+    free(game->info_str);
+
+    delwin(game->game_ui.main_win.win);
+    delwin(game->game_ui.help_win.win);
+    delwin(game->game_ui.cmd_win.win);
 }

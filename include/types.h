@@ -1,5 +1,7 @@
 #ifndef TYPES_H
 #define TYPES_H
+
+#include <curses.h>
 #include <stdbool.h>
 
 typedef struct
@@ -53,6 +55,21 @@ typedef struct node
     struct node *next;
 } TabHistory;
 
+typedef struct window
+{
+    WINDOW *win;
+    iVec2 pos;
+    iVec2 size;
+} WIN;
+
+typedef struct ui
+{
+    WIN main_win;
+    WIN help_win;
+    WIN cmd_win;
+    iVec2 offsets;
+} UI;
+
 typedef struct game
 {
     Tab *tabuleiro;
@@ -61,6 +78,10 @@ typedef struct game
     ParsedCommand *cmd;
     iVec2 win_d;
     char *save_to;
+
+    char *info_str;
+
+    UI game_ui;
 } Game;
 
 #endif

@@ -213,5 +213,6 @@ int salvar_jogo(Game *game, const char *filename)
     }
 
     fclose(f);
+
     return 0;
 }

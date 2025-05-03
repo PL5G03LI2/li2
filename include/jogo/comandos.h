@@ -42,11 +42,12 @@ void reset_cmd(ParsedCommand *cmd);
  * Aguarda um comando do utilizador.
  * Lê uma linha de entrada e remove o caractere de nova linha
  *
- * @returns 0 se a leitura for bem-sucedida. 1 caso contrário
+ * @param cmd_win Pointer para a WIN de comandos
+ * @param command O buffer para guardar o comando
  *
- * @param *cmd Buffer para guardar o comando, TEM DE SER 256 BYTES.
+ * @returns 0 se a leitura for bem-sucedida. 1 caso contrário
  */
-int await_command(char *command);
+int await_command(WIN cmd_win, char *command);
 
 /**
  * Tokenizes the command.

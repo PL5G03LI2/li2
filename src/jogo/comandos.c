@@ -90,9 +90,9 @@ void reset_cmd(ParsedCommand *cmd)
     reset_cmd_tokens(cmd);
 }
 
-int await_command(char *command)
+int await_command(WIN cmd_win, char *command)
 {
-    if (getnstr(command, 256))
+    if (wgetnstr(cmd_win.win, command, 16))
         return 1;
 
     return 0;
@@ -207,7 +207,7 @@ int handle_select(Game *game)
     if (assert_pos(game->tabuleiro, preferred_selection.x, preferred_selection.y))
         game->tabuleiro->sel_piece = preferred_selection;
     else
-        printw("Position out of bounds!\n");
+        snprintf(game->info_str, 128, "Out of bounds!");
 
     return 0;
 }
@@ -215,7 +215,10 @@ int handle_select(Game *game)
 int handle_white(Game *game)
 {
     iVec2 coord = read_coordinate(game->cmd->tokens[1]);
-    toggle_branco(game->tabuleiro, coord.x, coord.y);
+    if (assert_pos(game->tabuleiro, coord.x, coord.y))
+        toggle_branco(game->tabuleiro, coord.x, coord.y);
+    else
+        snprintf(game->info_str, 128, "Out of bounds!");
 
     return 0;
 }
@@ -223,7 +226,10 @@ int handle_white(Game *game)
 int handle_cross(Game *game)
 {
     iVec2 coord = read_coordinate(game->cmd->tokens[1]);
-    toggle_marked(game->tabuleiro, coord.x, coord.y);
+    if (assert_pos(game->tabuleiro, coord.x, coord.y))
+        toggle_marked(game->tabuleiro, coord.x, coord.y);
+    else
+        snprintf(game->info_str, 128, "Out of bounds!");
 
     return 0;
 }
@@ -231,9 +237,9 @@ int handle_cross(Game *game)
 int handle_verify(Game *game)
 {
     if (validar_tabuleiro(game->tabuleiro))
-        printw("Valid tabuleiro.");
+        snprintf(game->info_str, 128, "Valid board");
     else
-        printw("Invalid.");
+        snprintf(game->info_str, 128, "Invalid board");
 
     return 0;
 }
@@ -242,7 +248,7 @@ int handle_undo(Game *game)
 {
     if (game->history == NULL)
     {
-        printw("No more moves to undo.");
+        snprintf(game->info_str, 128, "No more moves to undo.");
         return 0;
     }
 
@@ -317,7 +323,6 @@ int undo_command(ParsedCommand *cmd, Tab *tab)
     }
     default:
     {
-        printw("Command not permitted to undo!");
         return 1;
     }
     }
