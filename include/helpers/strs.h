@@ -40,21 +40,4 @@ char toLower(char c);
  */
 char *trim_str(char *str);
 
-/**
- * @brief Clears the info line and refreshes it.
- *
- * @param win_d the window dimensions.
- */
-void clear_info(iVec2 win_d);
-
-/**
- * @brief Prints a one line information to the screen, ensuring to return to previous cursor pos
- *
- * @param str The string to print.
- * @param win_d The window dimensions.
- *
- * @note this will refresh the screen too;
- */
-void print_info(const char *str, iVec2 win_d);
-
 #endif

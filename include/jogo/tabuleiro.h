@@ -20,11 +20,6 @@ void set_elem(Tab *tabuleiro, int x, int y, char c);
 void toggle_branco(Tab *tabuleiro, int x, int y);
 
 /**
- * Imprime o tabuleiro para o ecrã
- */
-void print_tab(Tab *tabuleiro, iVec2 win_d);
-
-/**
  * Toggle marked status of a piece and toggles branco of all orthogonal neighbours
  */
 void toggle_marked(Tab *tabuleiro, int x, int y);

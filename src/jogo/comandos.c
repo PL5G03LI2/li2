@@ -90,9 +90,9 @@ void reset_cmd(ParsedCommand *cmd)
     reset_cmd_tokens(cmd);
 }
 
-int await_command(char *command)
+int await_command(WIN cmd_win, char *command)
 {
-    if (getnstr(command, 256))
+    if (wgetnstr(cmd_win.win, command, 16))
         return 1;
 
     return 0;

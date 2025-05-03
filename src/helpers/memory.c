@@ -148,4 +148,8 @@ void free_game(Game *game)
     destroy_history(&(game->history));
 
     free(game->save_to);
+
+    delwin(game->game_ui.main_win.win);
+    delwin(game->game_ui.help_win.win);
+    delwin(game->game_ui.cmd_win.win);
 }
