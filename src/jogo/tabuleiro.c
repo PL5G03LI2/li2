@@ -86,7 +86,6 @@ void check_column(Tab *tab, Piece *p, int i, bool *violated)
 
 void check_marked(Tab *tab, int i, bool *violated)
 {
-
     iVec2 pos = calc_pos(tab, i);
     const iVec2 side_deltas[4] = {
         {1, 0},
