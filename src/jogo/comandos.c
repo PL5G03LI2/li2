@@ -436,6 +436,7 @@ int handle_solve(Game *game)
         snprintf(game->info_str, 128, "Solved");
     else
         snprintf(game->info_str, 128, "Could not solve");
+    validar_tabuleiro(game->tabuleiro);
     return 0;
 }
 
