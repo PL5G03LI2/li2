@@ -82,3 +82,8 @@ int parse_command(Game *game);
 int run_command(Game *game);
 
 int undo_command(ParsedCommand *cmd, Tab *tab);
+
+// Handlers for new commands
+int handle_help(Game *game);
+int handle_help_all(Game *game);
+int handle_solve(Game *game);

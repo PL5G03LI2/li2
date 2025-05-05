@@ -212,7 +212,7 @@ void render_cmd(Game *game)
     print_info(cmd, game->info_str);
     wattroff(cmd.win, COLOR_PAIR(7));
 
-    wmove(cmd.win, 1, 1);
+    wmove(cmd.win, 1, 2);
     wrefresh(cmd.win);
 }
 
