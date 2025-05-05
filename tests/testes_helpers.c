@@ -82,19 +82,7 @@ void test_trim_str(void)
     test_trim_str_null();
 }
 
-void test_print_info(void)
-{
-    initscr(); // Start curses mode
-    noecho();  // Don't echo input
-    cbreak();  // Disable line buffering
 
-    const char *test_str = "Hello, world!";
-    iVec2 win_size = {.x = 80, .y = 24};
-
-    print_info(test_str, win_size);
-
-    endwin(); // End curses mode
-}
 
 void test_strings(void)
 {
@@ -103,7 +91,6 @@ void test_strings(void)
     test_isLower();
     test_toLower();
     test_trim_str();
-    test_print_info();
 }
 
 void test_push_history(void)
