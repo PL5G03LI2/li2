@@ -3,6 +3,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <ncurses.h>
+#include <stdbool.h>
 
 #include "helpers/strs.h"
 #include "helpers/history.h"
@@ -152,10 +153,11 @@ int parse_command(Game *game)
         break;
     case 'a':
         game->cmd->type = CMD_HELP;
-        game->cmd->track = true;
+        game->cmd->track = false; // hint operations themselves are recorded
         break;
     case 'A':
         game->cmd->type = CMD_HELP_ALL;
+        game->cmd->track = false; // hint operations themselves are recorded
         break;
     case 'R':
         game->cmd->type = CMD_SOLVE;
@@ -272,6 +274,359 @@ int handle_exit(Game *game)
     return 0;
 }
 
+// Hint command: apply a single inference step
+int handle_help(Game *game)
+{
+    Tab *tab = game->tabuleiro;
+    int h = tab->height, w = tab->width;
+    // Rule 1: cross duplicate for a white cell
+    for (int x = 0; x < h; x++)
+    {
+        for (int y = 0; y < w; y++)
+        {
+            int idx = calc_index(tab, x, y);
+            if (isupper(tab->data[idx].c) && !tab->data[idx].marked)
+            {
+                char c = tab->data[idx].c;
+                // row
+                for (int yy = 0; yy < w; yy++)
+                {
+                    int idx2 = calc_index(tab, x, yy);
+                    if (idx2 != idx && tab->data[idx2].c == tolower(c) && !tab->data[idx2].marked)
+                    {
+                        // apply and record as a cross command for undo
+                        tab->data[idx2].marked = true;
+                        {
+                            char coordstr[16];
+                            snprintf(coordstr, sizeof(coordstr), "%c%d", 'a' + yy, x + 1);
+                            ParsedCommand *hc = malloc(sizeof *hc);
+                            hc->type = CMD_CROSS;
+                            hc->tokens = calloc(2, sizeof(char *));
+                            hc->tokens[1] = strdup(coordstr);
+                            hc->track = false;
+                            game->history = push_history(game->history, hc);
+                        }
+                        snprintf(game->info_str, 128, "Hint: crossed at %c%d", 'a' + yy, x + 1);
+                        return 0;
+                    }
+                }
+                // column
+                for (int xx = 0; xx < h; xx++)
+                {
+                    int idx2 = calc_index(tab, xx, y);
+                    if (idx2 != idx && tab->data[idx2].c == tolower(c) && !tab->data[idx2].marked)
+                    {
+                        // apply and record as a cross command for undo
+                        tab->data[idx2].marked = true;
+                        {
+                            char coordstr[16];
+                            snprintf(coordstr, sizeof(coordstr), "%c%d", 'a' + y, xx + 1);
+                            ParsedCommand *hc = malloc(sizeof *hc);
+                            hc->type = CMD_CROSS;
+                            hc->tokens = calloc(2, sizeof(char *));
+                            hc->tokens[1] = strdup(coordstr);
+                            hc->track = false;
+                            game->history = push_history(game->history, hc);
+                        }
+                        snprintf(game->info_str, 128, "Hint: crossed at %c%d", 'a' + y, xx + 1);
+                        return 0;
+                    }
+                }
+            }
+        }
+    }
+    // Rule 2: paint neighbor of a marked cell white
+    for (int i = 0; i < h * w; i++)
+    {
+        if (tab->data[i].marked)
+        {
+            iVec2 pos = calc_pos(tab, i);
+            const iVec2 dirs[4] = {{1, 0}, {0, 1}, {-1, 0}, {0, -1}};
+            for (int d = 0; d < 4; d++)
+            {
+                iVec2 np = add_vec2(pos, dirs[d]);
+                if (assert_pos(tab, np.x, np.y))
+                {
+                    int ni = calc_index(tab, np.x, np.y);
+                    if (islower(tab->data[ni].c))
+                    {
+                        // apply and record as a white command for undo
+                        tab->data[ni].c = toupper(tab->data[ni].c);
+                        {
+                            char coordstr[16];
+                            snprintf(coordstr, sizeof(coordstr), "%c%d", 'a' + np.y, np.x + 1);
+                            ParsedCommand *hc = malloc(sizeof *hc);
+                            hc->type = CMD_WHITE;
+                            hc->tokens = calloc(2, sizeof(char *));
+                            hc->tokens[1] = strdup(coordstr);
+                            hc->track = false;
+                            game->history = push_history(game->history, hc);
+                        }
+                        snprintf(game->info_str, 128, "Hint: painted at %c%d", 'a' + np.y, np.x + 1);
+                        return 0;
+                    }
+                }
+            }
+        }
+    }
+    // No single inference applicable
+    snprintf(game->info_str, 128, "No hints available");
+    return 0;
+}
+
+// Help all command: repeat single hints until none available
+int handle_help_all(Game *game)
+{
+    while (1)
+    {
+        handle_help(game);
+        if (strncmp(game->info_str, "Hint:", 5) != 0)
+            break;
+    }
+    return 0;
+}
+
+// Apply simple inferences: rule1 (cross duplicates), rule2 (white neighbors), and rule3 (prevent isolating whites)
+static bool apply_simple_inferences(Tab *tab)
+{
+    int h = tab->height, w = tab->width;
+    bool changed = false;
+    // Rule1: cross duplicates of uppercase
+    for (int x = 0; x < h; x++)
+    {
+        for (int y = 0; y < w; y++)
+        {
+            int idx = calc_index(tab, x, y);
+            if (isupper(tab->data[idx].c) && !tab->data[idx].marked)
+            {
+                char c = tab->data[idx].c;
+                // row
+                for (int yy = 0; yy < w; yy++)
+                {
+                    int idx2 = calc_index(tab, x, yy);
+                    if (idx2 != idx && tab->data[idx2].c == tolower(c) && !tab->data[idx2].marked)
+                    {
+                        tab->data[idx2].marked = true;
+                        changed = true;
+                    }
+                }
+                // column
+                for (int xx = 0; xx < h; xx++)
+                {
+                    int idx2 = calc_index(tab, xx, y);
+                    if (idx2 != idx && tab->data[idx2].c == tolower(c) && !tab->data[idx2].marked)
+                    {
+                        tab->data[idx2].marked = true;
+                        changed = true;
+                    }
+                }
+            }
+        }
+    }
+    // Rule2: white neighbors of marked
+    for (int i = 0; i < h * w; i++)
+    {
+        if (tab->data[i].marked)
+        {
+            iVec2 pos = calc_pos(tab, i);
+            const iVec2 dirs[4] = {{1, 0}, {0, 1}, {-1, 0}, {0, -1}};
+            for (int d = 0; d < 4; d++)
+            {
+                iVec2 np = add_vec2(pos, dirs[d]);
+                if (assert_pos(tab, np.x, np.y))
+                {
+                    int ni = calc_index(tab, np.x, np.y);
+                    if (islower(tab->data[ni].c))
+                    {
+                        tab->data[ni].c = toupper(tab->data[ni].c);
+                        changed = true;
+                    }
+                }
+            }
+        }
+    }
+    // Rule3: prevent isolating whites – if crossing a cell breaks full validity, paint it white
+    for (int i = 0; i < h * w; i++)
+    {
+        // only consider lowercase, unmarked cells
+        if (!tab->data[i].marked && islower(tab->data[i].c))
+        {
+            // simulate cross
+            tab->data[i].marked = true;
+            // if full validation fails (including connectivity), then must be white
+            if (!validar_tabuleiro(tab))
+            {
+                tab->data[i].marked = false;
+                tab->data[i].c = toupper(tab->data[i].c);
+                changed = true;
+            }
+            else
+            {
+                // revert simulation
+                tab->data[i].marked = false;
+            }
+        }
+    }
+    return changed;
+}
+
+// Validate only row, column, and marked rules (skip connectivity) for partial boards
+static bool validar_parcial(Tab *tab)
+{
+    int max_i = tab->height * tab->width;
+    bool violated_any = false;
+    // check row/column duplicates for uppercase whites
+    for (int i = 0; i < max_i; i++)
+    {
+        Piece p = tab->data[i];
+        if (isupper(p.c) && !p.marked)
+        {
+            // row
+            int x = i / tab->width;
+            for (int y = 0; y < tab->width; y++)
+            {
+                int j = calc_index(tab, x, y);
+                if (j != i && tab->data[j].c == p.c && !tab->data[j].marked)
+                {
+                    violated_any = true;
+                    break;
+                }
+            }
+            if (violated_any)
+                break;
+            // column
+            int y0 = i % tab->width;
+            for (int x0 = 0; x0 < tab->height; x0++)
+            {
+                int j = calc_index(tab, x0, y0);
+                if (j != i && tab->data[j].c == p.c && !tab->data[j].marked)
+                {
+                    violated_any = true;
+                    break;
+                }
+            }
+            if (violated_any)
+                break;
+        }
+        else if (p.marked)
+        {
+            // marked rule: neighbors must be white
+            iVec2 pos = calc_pos(tab, i);
+            const iVec2 dirs[4] = {{1, 0}, {0, 1}, {-1, 0}, {0, -1}};
+            for (int d = 0; d < 4; d++)
+            {
+                iVec2 np = add_vec2(pos, dirs[d]);
+                if (assert_pos(tab, np.x, np.y))
+                {
+                    int j = calc_index(tab, np.x, np.y);
+                    if (islower(tab->data[j].c))
+                    {
+                        violated_any = true;
+                        break;
+                    }
+                }
+            }
+            if (violated_any)
+                break;
+        }
+    }
+    return !violated_any;
+}
+
+// Recursive solver: tries white vs cross for first unknown cell, using inferences and partial validation
+static bool backtrack_solve(Tab *tab)
+{
+    // apply simple inferences until fixed point
+    while (apply_simple_inferences(tab))
+        ;
+
+    int total = tab->height * tab->width;
+    // Check if all cells are decided
+    bool complete = true;
+    for (int i = 0; i < total; i++)
+    {
+        if (islower(tab->data[i].c))
+        {
+            complete = false;
+            break;
+        }
+    }
+    if (complete)
+    {
+        return validar_tabuleiro(tab);
+    }
+    // branch on first undecided cell
+    for (int i = 0; i < total; i++)
+    {
+        if (islower(tab->data[i].c) && !tab->data[i].marked)
+        {
+            // try white
+            char origc = tab->data[i].c;
+            bool origm = tab->data[i].marked;
+            tab->data[i].c = toupper(origc);
+            if (validar_parcial(tab) && backtrack_solve(tab))
+                return true;
+            // revert
+            tab->data[i].c = origc;
+            tab->data[i].marked = origm;
+            // try cross
+            tab->data[i].marked = true;
+            if (validar_parcial(tab) && backtrack_solve(tab))
+                return true;
+            // revert
+            tab->data[i].marked = origm;
+            return false;
+        }
+    }
+    return false;
+}
+
+// Utilities to clone and free a board for safe backtracking
+static Tab *clone_tab(Tab *tab)
+{
+    int total = tab->height * tab->width;
+    Tab *copy = malloc(sizeof(Tab));
+    copy->height = tab->height;
+    copy->width = tab->width;
+    copy->sel_piece = tab->sel_piece;
+    copy->data = malloc(total * sizeof(*copy->data));
+    memcpy(copy->data, tab->data, total * sizeof(*copy->data));
+    return copy;
+}
+static void free_tab(Tab *tab)
+{
+    free(tab->data);
+    free(tab);
+}
+
+// Solve command: apply backtracking on a cloned board and commit only if successful
+int handle_solve(Game *game)
+{
+    Tab *orig = game->tabuleiro;
+    Tab *work = clone_tab(orig);
+    // apply deterministic inferences on work
+    while (apply_simple_inferences(work))
+        ;
+    // attempt backtracking search
+    bool ok = backtrack_solve(work);
+    if (ok)
+    {
+        // copy solved state back to original
+        int total = orig->height * orig->width;
+        memcpy(orig->data, work->data, total * sizeof(*orig->data));
+        // apply inferences on original for display
+        while (apply_simple_inferences(orig))
+            ;
+        snprintf(game->info_str, 128, "Solved");
+    }
+    else
+    {
+        snprintf(game->info_str, 128, "Could not solve");
+    }
+    free_tab(work);
+    return 0;
+}
+
 int run_command(Game *game)
 {
     switch (game->cmd->type)
@@ -293,11 +648,11 @@ int run_command(Game *game)
     case CMD_EXIT:
         return handle_exit(game);
     case CMD_HELP:
-        return 1;
+        return handle_help(game);
     case CMD_HELP_ALL:
-        return 1;
+        return handle_help_all(game);
     case CMD_SOLVE:
-        return 1;
+        return handle_solve(game);
     case CMD_CONTINUE:
         return 0;
     default:
