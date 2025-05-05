@@ -121,42 +121,6 @@ void test_pop_history(void)
     CU_ASSERT_PTR_NULL(history);
 }
 
-// void test_destroy_history(void)
-// {
-//     TabHistory *history = NULL;
-
-//     // Case 1: destroy empty list
-//     destroy_history(&history);
-//     CU_ASSERT_PTR_NULL(history);
-
-//     // Case 2: destroy populated list
-//     ParsedCommand *cmd1 = malloc(sizeof(ParsedCommand));
-//     ParsedCommand *cmd2 = malloc(sizeof(ParsedCommand));
-
-//     cmd1->type = CMD_SAVE;
-//     cmd1->track = false;
-//     cmd1->tokens = (char **)malloc(sizeof(char *) * 2);
-//     cmd1->tokens[0] = strdup("g");
-//     cmd1->tokens[1] = strdup("j1.txt");
-
-//     cmd2->type = CMD_LOAD;
-//     cmd2->track = true;
-//     cmd2->tokens = (char **)malloc(sizeof(char *) * 2);
-//     cmd2->tokens[0] = strdup("l");
-//     cmd2->tokens[1] = strdup("j1.txt");
-
-//     history = push_history(history, cmd1);
-//     history = push_history(history, cmd2);
-
-//     CU_ASSERT_PTR_NOT_NULL(history);
-
-//     destroy_history(&history);
-//     CU_ASSERT_PTR_NULL(history);
-
-//     free_command(&cmd1);
-//     free_command(&cmd2);
-// }
-
 void test_get_history_element(void)
 {
     TabHistory *history = NULL;
@@ -224,6 +188,5 @@ void testes_history(void)
 {
     test_push_history();
     test_pop_history();
-    // test_destroy_history();
     test_get_history_element();
 }

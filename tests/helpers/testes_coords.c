@@ -12,6 +12,49 @@
 
 #include "types.h"
 
+void test_add_vec2(void) {
+    iVec2 a;
+    iVec2 b;
+    iVec2 c;
+    a.x = 0, a.y = 10, b.x = 10, b.y = 20;
+    c.x = 10, c.y = 30;
+    CU_ASSERT_EQUAL(add_vec2(a,b).x, c.x);
+    CU_ASSERT_EQUAL(add_vec2(a,b).y, c.y);
+}
+
+void test_assert_pos(void) {
+    //ta ao contrario (x para altura) porque somos quirky
+    Tab tab;
+    tab.height = 3;
+    tab.width = 5;
+    CU_ASSERT_TRUE(assert_pos(&tab, 0, 0));
+    CU_ASSERT_TRUE(assert_pos(&tab, 2, 4));
+    CU_ASSERT_FALSE(assert_pos(&tab, 2, 5));
+    CU_ASSERT_FALSE(assert_pos(&tab, 3, 4));
+    CU_ASSERT_FALSE(assert_pos(&tab, -1, 0))
+    CU_ASSERT_FALSE(assert_pos(&tab, 0, -1));;
+}
+
+void test_calc_pos(void) {
+    //sim, está ao contrário. The function needs to be fixed/updated.
+    Tab tab;
+    tab.height = 3;
+    tab.width = 5;
+    iVec2 a,b,c;
+    a.x = 0, a.y = 0, b.x = 0, b.y = 1, c.x = 4, c.y = 2;
+    CU_ASSERT_EQUAL(calc_pos(&tab, 0).x, a.x);
+    CU_ASSERT_EQUAL(calc_pos(&tab, 0).y, a.y);
+    CU_ASSERT_EQUAL(calc_pos(&tab, 5).y, b.x);
+    CU_ASSERT_EQUAL(calc_pos(&tab, 5).x, b.y);
+    CU_ASSERT_EQUAL(calc_pos(&tab, 14).y, c.x);
+    CU_ASSERT_EQUAL(calc_pos(&tab, 14).x, c.y);
+}
+
+void test_pos(void) {
+    test_assert_pos();
+    test_calc_pos();
+}
+
 void test_calc_index_valid_position(void)
 {
     Tab tab;
@@ -247,6 +290,8 @@ void test_coordinates(void)
 }
 
 void testes_coords(void) {
+    test_add_vec2();
+    test_pos();
     test_index();
     test_coordinates();
 }
