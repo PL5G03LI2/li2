@@ -11,7 +11,7 @@ iVec2 add_vec2(iVec2 a, iVec2 b)
 
 bool assert_pos(Tab *tab, int x, int y)
 {
-    return (x >= 0 && x < tab->width && y >= 0 && y < tab->height);
+    return (x >= 0 && x < tab->height && y >= 0 && y < tab->width);
 }
 
 int calc_index(Tab *tab, int x, int y)
