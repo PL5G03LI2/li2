@@ -4,7 +4,21 @@
 #include "helpers/history.h"
 #include "helpers/memory.h"
 #include "jogo/tabuleiro.h"
+
 #include "types.h"
+
+Tab *initialize_tabuleiro(void)
+{
+    Tab *tab = malloc(sizeof(Tab));
+    if (!tab)
+        return NULL;
+    tab->height = 0;
+    tab->width = 0;
+    tab->sel_piece.x = 0;
+    tab->sel_piece.y = 0;
+    tab->data = NULL;
+    return tab;
+}
 
 int init_game(Game *game)
 {
@@ -52,6 +66,22 @@ int init_game(Game *game)
 
     game->save_to = NULL;
 
+    game->info_str = calloc(128, sizeof(char));
+
+    game->game_ui.main_win.win = newwin(0, 0, 0, 0);
+    game->game_ui.main_win.pos = (iVec2){0, 0};
+    game->game_ui.main_win.size = (iVec2){0, 0};
+
+    game->game_ui.help_win.win = newwin(0, 0, 0, 0);
+    game->game_ui.help_win.pos = (iVec2){0, 0};
+    game->game_ui.help_win.size = (iVec2){0, 0};
+
+    game->game_ui.cmd_win.win = newwin(0, 0, 0, 0);
+    game->game_ui.cmd_win.pos = (iVec2){0, 0};
+    game->game_ui.cmd_win.size = (iVec2){0, 0};
+
+    game->game_ui.offsets = (iVec2){0, 0};
+
     return 0;
 }
 
@@ -68,15 +98,46 @@ void free_command(ParsedCommand **cmd)
     }
 }
 
+void free_tabuleiro(Tab **tab)
+{
+    if (*tab)
+    {
+        if ((*tab)->data)
+            free((*tab)->data);
+
+        (*tab)->data = NULL;
+
+        free(*tab);
+    }
+
+    *tab = NULL;
+}
+
+void destroy_history(TabHistory **head)
+{
+    TabHistory *current = *head;
+    while (current != NULL)
+    {
+        TabHistory *next = current->next;
+        if (current->cmd)
+        {
+            if (current->cmd->tokens)
+            {
+                for (int i = 0; i < 2; i++)
+                    free(current->cmd->tokens[i]);
+                free(current->cmd->tokens);
+            }
+            free(current->cmd);
+        }
+        free(current);
+        current = next;
+    }
+    *head = NULL;
+}
+
 void free_game(Game *game)
 {
-    if (game->tabuleiro)
-    {
-        if (game->tabuleiro->data)
-            free(game->tabuleiro->data);
-        free(game->tabuleiro);
-        game->tabuleiro = NULL; // Prevent use-after-free
-    }
+    free_tabuleiro(&game->tabuleiro);
 
     if (game->cmd_str)
     {
@@ -89,4 +150,15 @@ void free_game(Game *game)
     destroy_history(&(game->history));
 
     free(game->save_to);
+
+    free(game->info_str);
+
+    if (game->game_ui.main_win.win)
+        delwin(game->game_ui.main_win.win);
+
+    if (game->game_ui.help_win.win)
+        delwin(game->game_ui.help_win.win);
+
+    if (game->game_ui.cmd_win.win)
+        delwin(game->game_ui.cmd_win.win);
 }

@@ -8,64 +8,23 @@
 #include "helpers/strs.h"
 #include "jogo/comandos.h"
 #include "jogo/tabuleiro.h"
-
-
-static void init_colors(void)
-{
-  start_color();
-  use_default_colors();
-  init_pair(1, COLOR_BLACK, COLOR_WHITE); // selected normal
-  init_pair(2, COLOR_RED, COLOR_WHITE);   // selected violated
-  init_pair(3, COLOR_BLACK, COLOR_RED);   // violated not selected
-  init_pair(4, COLOR_WHITE, -1);          // default
-}
-
-void render(Game *game, char *info)
-{
-  clear_info(game->win_d);
-  print_info(info, game->win_d);
-
-  // clear the whole board area
-  for (int i = 0; i < game->win_d.y - 2; i++)
-  {
-    move(i, 0);
-    clrtoeol();
-  }
-
-  if (game->tabuleiro->data)
-  {
-    print_tab(game->tabuleiro, game->win_d);
-  }
-  else
-  {
-
-    move(game->win_d.y / 2, game->win_d.x / 2 - 22);
-    printw("Awaiting load command... Hint: l <save_file>");
-  }
-
-  move(game->win_d.y - 1, 0);
-  clrtoeol(); // clear the line before input.
-  addch(':');
-}
+#include "jogo/render.h"
 
 void repl(Game *game)
 {
-  char info[256];
   while (game->cmd->type != CMD_EXIT)
   {
-    getmaxyx(stdscr, game->win_d.y, game->win_d.x);
+    render(game);
 
-    render(game, info);
-
-    if (await_command(game->cmd_str))
+    if (await_command(game->game_ui.cmd_win, game->cmd_str))
     {
-      strcpy(info, "Failed to read command.");
+      strcpy(game->info_str, "Failed to read command.");
       continue;
     }
 
     if (parse_command(game))
     {
-      strcpy(info, "Failed to parse command");
+      strcpy(game->info_str, "Failed to parse command");
       continue;
     }
 
@@ -78,16 +37,15 @@ void repl(Game *game)
     bool no_load_intent_while_no_tab = (game->cmd->type != CMD_LOAD && game->tabuleiro->data == NULL);
     if (cmd_invalid || no_load_intent_while_no_tab)
     {
-      strcpy(info, "Invalid command.");
+      strcpy(game->info_str, "Invalid command.");
       continue;
     }
 
     if (run_command(game))
     {
-      strcpy(info, "Failed to run command.");
+      strcpy(game->info_str, "Failed to run command.");
       continue;
     }
-    strcpy(info, "");
   }
 }
 

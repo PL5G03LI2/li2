@@ -2,28 +2,6 @@
 #include "types.h"
 
 /**
- * Reads a token and converts it to a Vector.
- * This function will add up the x components (a-z) and then convert y components.
- *
- * Ex: `read_coordinate("aa10") -> x: 27 + 1, y: 10.`
- *
- * @param *coordinate_token The token to convert.
- *
- * @returns iVec2 com as coordenadas convertidas.
- */
-iVec2 read_coordinate(char *coordinate_token);
-
-/**
- * Converts an iVec2 to a string, stores it in the provided buffer.
- *
- * @param coord The vector to convert.
- * @param *buffer The buffer to store results.
- *
- * @returns A pointer to the provided buffer, in case you lost it.
- */
-char *write_coordinate(iVec2 coord, char *buffer);
-
-/**
  * Copies a command to new memory.
  *
  * @param cmd The command to copy.
@@ -64,11 +42,12 @@ void reset_cmd(ParsedCommand *cmd);
  * Aguarda um comando do utilizador.
  * Lê uma linha de entrada e remove o caractere de nova linha
  *
- * @returns 0 se a leitura for bem-sucedida. 1 caso contrário
+ * @param cmd_win Pointer para a WIN de comandos
+ * @param command O buffer para guardar o comando
  *
- * @param *cmd Buffer para guardar o comando, TEM DE SER 256 BYTES.
+ * @returns 0 se a leitura for bem-sucedida. 1 caso contrário
  */
-int await_command(char *command);
+int await_command(WIN cmd_win, char *command);
 
 /**
  * Tokenizes the command.
@@ -103,3 +82,9 @@ int parse_command(Game *game);
 int run_command(Game *game);
 
 int undo_command(ParsedCommand *cmd, Tab *tab);
+
+// Handlers for new commands
+int handle_help(Game *game);
+int handle_help_all(Game *game);
+int handle_solve(Game *game);
+
