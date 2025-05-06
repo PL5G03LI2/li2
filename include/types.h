@@ -32,6 +32,7 @@ typedef enum
     CMD_LOAD,     // l <filename>
     CMD_SELECT,   // <coord>
     CMD_WHITE,    // b <coord>
+    CMD_WHITE_NON_OBSTACLE, // t
     CMD_CROSS,    // r <coord>
     CMD_VERIFY,   // v
     CMD_HELP,     // a
