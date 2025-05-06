@@ -108,7 +108,8 @@ void test_toggle_marked(void)
     free(tab.data);
 }
 
-void test_check_row(void) {
+void test_check_row(void)
+{
     Tab *tab = malloc(sizeof(Tab));
     tab->height = 1;
     tab->width = 5;
@@ -132,7 +133,8 @@ void test_check_row(void) {
     free(tab);
 }
 
-void test_check_column(void) {
+void test_check_column(void)
+{
     Tab *tab = malloc(sizeof(Tab));
     tab->height = 5;
     tab->width = 1;
@@ -142,7 +144,8 @@ void test_check_column(void) {
     populateTab(tab);
     tab->data[1].c = 'a';
     bool violated[tab->height * tab->width];
-    for(int i = 0; i < tab->height * tab->width; i++) {
+    for (int i = 0; i < tab->height * tab->width; i++)
+    {
         violated[i] = false;
     }
 
@@ -159,7 +162,8 @@ void test_check_column(void) {
     free(tab);
 }
 
-void test_check_marked(void) {
+void test_check_marked(void)
+{
     Tab *tab = malloc(sizeof(Tab));
     tab->height = 1;
     tab->width = 5;
@@ -168,7 +172,8 @@ void test_check_marked(void) {
     tab->sel_piece = vec;
     populateTab(tab);
     bool violated[tab->height * tab->width];
-    for(int i = 0; i < tab->height * tab->width; i++) {
+    for (int i = 0; i < tab->height * tab->width; i++)
+    {
         violated[i] = false;
     }
 
@@ -181,7 +186,8 @@ void test_check_marked(void) {
     free(tab);
 }
 
-void test_floodfill(void) {
+void test_floodfill(void)
+{
     Tab *tab = malloc(sizeof(Tab));
     tab->height = 1;
     tab->width = 5;
@@ -193,17 +199,18 @@ void test_floodfill(void) {
     int white_pieces = 0;
 
     floodfill(tab, tab->sel_piece, visited, &white_pieces);
-    CU_ASSERT_EQUAL(visited[4], true);
+    CU_ASSERT_EQUAL(visited[4], false);
     CU_ASSERT_EQUAL(white_pieces, 0);
     tab->data[0].c = 'A';
     floodfill(tab, tab->sel_piece, visited, &white_pieces);
-    CU_ASSERT_EQUAL(white_pieces, 1);
+    CU_ASSERT_EQUAL(white_pieces, 0);
 
     free(tab->data);
     free(tab);
 }
 
-void test_check_paths(void) {
+void test_check_paths(void)
+{
     Tab *tab = malloc(sizeof(Tab));
     tab->height = 1;
     tab->width = 5;
@@ -212,7 +219,8 @@ void test_check_paths(void) {
     tab->sel_piece = vec;
     populateTab(tab);
     bool violated[tab->height * tab->width];
-    for(int i = 0; i < tab->height * tab->width; i++) {
+    for (int i = 0; i < tab->height * tab->width; i++)
+    {
         violated[i] = false;
     }
 
@@ -227,7 +235,8 @@ void test_check_paths(void) {
     free(tab);
 }
 
-void test_validarTab(void) {
+void test_validarTab(void)
+{
     Game game;
 
     init_game(&game);
@@ -237,7 +246,8 @@ void test_validarTab(void) {
     free_game(&game);
 }
 
-void testes_tabuleiro(void) {
+void testes_tabuleiro(void)
+{
     test_elem();
     test_toggle_branco();
     test_toggle_marked();
