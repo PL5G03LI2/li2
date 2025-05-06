@@ -274,8 +274,6 @@ int handle_exit(Game *game)
     return 0;
 }
 
-
-
 int run_command(Game *game)
 {
     switch (game->cmd->type)
@@ -297,7 +295,8 @@ int run_command(Game *game)
     case CMD_EXIT:
         return handle_exit(game);
     case CMD_HELP:
-        return handle_help(game);
+        handle_help(game);
+        return 0;
     case CMD_HELP_ALL:
         return handle_help_all(game);
     case CMD_SOLVE:
