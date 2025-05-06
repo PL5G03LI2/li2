@@ -203,19 +203,21 @@ void test_free_game(void) {
 
     game.tabuleiro = tab;
     game.history = malloc(sizeof(TabHistory));
+    game.history = NULL;
     game.cmd_str = strdup("funciona por favor não te peço mais nada :[");
     game.cmd = malloc(sizeof(ParsedCommand));
+    game.cmd->tokens = malloc(2*sizeof(char *));
+    game.cmd->tokens[0] = strdup("g");
+    game.cmd->tokens[1] = strdup("j1.txt");
     game.save_to = strdup("");
     game.info_str = strdup("");
 
     free_game(&game);
 
-    // CU_ASSERT_PTR_NULL(game.cmd);
-    // CU_ASSERT_PTR_NULL(game.cmd_str);
-    // CU_ASSERT_PTR_NULL(game.history);
-    // CU_ASSERT_PTR_NULL(game.tabuleiro);
-    // CU_ASSERT_PTR_NULL(game.save_to);
-    // CU_ASSERT_PTR_NULL(game.info_str);
+    CU_ASSERT_PTR_NULL(game.cmd);
+    CU_ASSERT_PTR_NULL(game.cmd_str);
+    CU_ASSERT_PTR_NULL(game.history);
+    CU_ASSERT_PTR_NULL(game.tabuleiro);
 }
 
 void testes_memory(void) {
@@ -224,5 +226,5 @@ void testes_memory(void) {
     test_destroy_history();
     test_free_command();
     test_free_tabuleiro();
-    // test_free_game();
+    test_free_game();
 }
