@@ -24,14 +24,15 @@ void populateTabuleiro(Tab *tab)
     }
 }
 
-void test_deep_copy_cmd(void) {
+void test_deep_copy_cmd(void)
+{
     ParsedCommand *nulo = NULL;
     CU_ASSERT_PTR_NULL(deep_copy_cmd(nulo));
 
     ParsedCommand *comando = malloc(sizeof(ParsedCommand));
     comando->track = false;
     comando->type = CMD_SAVE;
-    comando->tokens = (char **)malloc(2*sizeof(char *));
+    comando->tokens = (char **)malloc(2 * sizeof(char *));
     comando->tokens[0] = strdup("g");
     comando->tokens[1] = strdup("j1.txt");
 
@@ -42,13 +43,8 @@ void test_deep_copy_cmd(void) {
     CU_ASSERT_STRING_EQUAL(comando->tokens[0], novoComando->tokens[0]);
     CU_ASSERT_STRING_EQUAL(comando->tokens[1], novoComando->tokens[1]);
 
-    for(int i = 0; i < 2; i++) {
-        free(comando->tokens[i]);
-        free(novoComando->tokens[i]);
-    }
-    free(comando->tokens);
-    free(novoComando->tokens);
-    free(novoComando);
+    free_command(&comando);
+    free_command(&novoComando);
 }
 
 void test_undo_command(void)

@@ -20,10 +20,11 @@ void test_initialize_tabuleiro(void)
     free(tab);
 }
 
-void test_init_game(void) {
+void test_init_game(void)
+{
     Game game;
     init_game(&game);
-    
+
     Tab *tab = initialize_tabuleiro();
 
     CU_ASSERT_PTR_NOT_NULL(tab);
@@ -37,13 +38,8 @@ void test_init_game(void) {
     CU_ASSERT_PTR_NOT_NULL(game.cmd_str);
     CU_ASSERT_PTR_NOT_NULL(game.cmd->tokens);
 
-    free(game.cmd->tokens[0]);
-    free(game.cmd->tokens[1]);
-    free(game.cmd->tokens);
-    free(game.cmd);
-    free(game.cmd_str);
-    free(game.tabuleiro);
-    free(tab);
+    free_game(&game);
+    free_tabuleiro(&tab);
 }
 
 void test_free_command(void)
@@ -78,13 +74,14 @@ void test_free_command(void)
     // Caso 4: tokens nulos.
     ParsedCommand *cmd4 = (ParsedCommand *)malloc(sizeof(ParsedCommand));
     cmd4->tokens = NULL;
-    
-    free_command(&cmd4);
-    
+
+    free(cmd4);
+
     CU_ASSERT_PTR_NOT_NULL(cmd4);
 }
 
-void test_free_tabuleiro(void) {
+void test_free_tabuleiro(void)
+{
     Tab *tab = initialize_tabuleiro();
     tab->data = malloc(sizeof(Piece));
 
@@ -193,7 +190,8 @@ void test_destroy_history(void)
 //     CU_ASSERT_PTR_NULL(jogo.history);
 // }
 
-void test_free_game(void) {
+void test_free_game(void)
+{
     Game game;
 
     Tab *tab = (Tab *)malloc(sizeof(Tab));
@@ -206,7 +204,7 @@ void test_free_game(void) {
     game.history = NULL;
     game.cmd_str = strdup("funciona por favor não te peço mais nada :[");
     game.cmd = malloc(sizeof(ParsedCommand));
-    game.cmd->tokens = malloc(2*sizeof(char *));
+    game.cmd->tokens = malloc(2 * sizeof(char *));
     game.cmd->tokens[0] = strdup("g");
     game.cmd->tokens[1] = strdup("j1.txt");
     game.save_to = strdup("");
@@ -220,7 +218,8 @@ void test_free_game(void) {
     CU_ASSERT_PTR_NULL(game.tabuleiro);
 }
 
-void testes_memory(void) {
+void testes_memory(void)
+{
     test_initialize_tabuleiro();
     test_init_game();
     test_destroy_history();
