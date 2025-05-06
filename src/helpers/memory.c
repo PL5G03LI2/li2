@@ -153,11 +153,12 @@ void free_game(Game *game)
 
     free(game->info_str);
 
-    // if(game->game_ui.main_win.win)
-    // if(game->game_ui.help_win.win)
-    // if(game->game_ui.cmd_win.win)
+    if (game->game_ui.main_win.win)
+        delwin(game->game_ui.main_win.win);
 
-    delwin(game->game_ui.main_win.win);
-    delwin(game->game_ui.help_win.win);
-    delwin(game->game_ui.cmd_win.win);
+    if (game->game_ui.help_win.win)
+        delwin(game->game_ui.help_win.win);
+
+    if (game->game_ui.cmd_win.win)
+        delwin(game->game_ui.cmd_win.win);
 }
