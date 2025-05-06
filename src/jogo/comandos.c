@@ -3,6 +3,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <ncurses.h>
+#include <stdbool.h>
 
 #include "helpers/strs.h"
 #include "helpers/history.h"
@@ -152,10 +153,11 @@ int parse_command(Game *game)
         break;
     case 'a':
         game->cmd->type = CMD_HELP;
-        game->cmd->track = true;
+        game->cmd->track = false; // hint operations themselves are recorded
         break;
     case 'A':
         game->cmd->type = CMD_HELP_ALL;
+        game->cmd->track = false; // hint operations themselves are recorded
         break;
     case 'R':
         game->cmd->type = CMD_SOLVE;
@@ -293,11 +295,12 @@ int run_command(Game *game)
     case CMD_EXIT:
         return handle_exit(game);
     case CMD_HELP:
-        return 1;
+        handle_help(game);
+        return 0;
     case CMD_HELP_ALL:
-        return 1;
+        return handle_help_all(game);
     case CMD_SOLVE:
-        return 1;
+        return handle_solve(game);
     case CMD_CONTINUE:
         return 0;
     default:
