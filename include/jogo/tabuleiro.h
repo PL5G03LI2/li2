@@ -19,10 +19,13 @@ void set_elem(Tab *tabuleiro, int x, int y, char c);
 //  */
 void toggle_branco(Tab *tabuleiro, int x, int y);
 
+void toggle_branco_non_obstacle(Tab *tab);
+
 /**
  * Toggle marked status of a piece and toggles branco of all orthogonal neighbours
  */
 void toggle_marked(Tab *tabuleiro, int x, int y);
+
 
 /**
  * @brief Checks white piece rule in the row.

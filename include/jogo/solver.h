@@ -13,3 +13,7 @@
 #include "jogo/tabuleiro.h"
 #include "types.h"
 
+// Handlers for new commands
+int handle_help(Game *game);
+int handle_help_all(Game *game);
+int handle_solve(Game *game);

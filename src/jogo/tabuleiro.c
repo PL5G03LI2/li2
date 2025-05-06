@@ -48,6 +48,24 @@ void toggle_marked(Tab *tab, int x, int y)
     p->marked = !p->marked;
 }
 
+void toggle_branco_non_obstacle(Tab *tab)
+{
+    if (!tab) return;
+    int max_i = tab->width * tab->height;
+    for (int i = 0; i < max_i; i++)
+    {
+        Piece *p = &tab->data[i];
+        /* if this cell is not a "#", toggle its case */
+        if (p->c != '#')
+        {
+            if (islower((unsigned char)p->c))
+                p->c = toupper((unsigned char)p->c);
+            else if (isupper((unsigned char)p->c))
+                p->c = tolower((unsigned char)p->c);
+        }
+    }
+}
+
 void check_row(Tab *tab, Piece *p, int i, bool *violated)
 {
     int r = calc_pos(tab, i).x * tab->width;

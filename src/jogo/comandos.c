@@ -143,6 +143,10 @@ int parse_command(Game *game)
         expect_coords = true;
         game->cmd->track = true;
         break;
+    case 't':
+        game->cmd->type = CMD_WHITE_NON_OBSTACLE;
+        game->cmd->track = false;
+        break;
     case 'r':
         game->cmd->type = CMD_CROSS;
         expect_coords = true;
@@ -224,6 +228,12 @@ int handle_white(Game *game)
 
     return 0;
 }
+int handle_white_non_obstacle(Game *game)
+{
+    toggle_branco_non_obstacle(game->tabuleiro);
+    snprintf(game->info_str, 128, "Toggled all non-obstacle cells");
+    return 0;
+}
 
 int handle_cross(Game *game)
 {
@@ -286,6 +296,8 @@ int run_command(Game *game)
         return handle_select(game);
     case CMD_WHITE:
         return handle_white(game);
+    case CMD_WHITE_NON_OBSTACLE:
+        return handle_white_non_obstacle(game);
     case CMD_CROSS:
         return handle_cross(game);
     case CMD_VERIFY:
@@ -324,6 +336,7 @@ int undo_command(ParsedCommand *cmd, Tab *tab)
         toggle_marked(tab, coord.x, coord.y);
         return 0;
     }
+
     default:
     {
         return 1;
