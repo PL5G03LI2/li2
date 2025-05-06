@@ -70,10 +70,15 @@ static bool detect_conflict(Tab *tab)
     return false;
 }
 
-// Function to handle the help command
-// Helper function to record a command in history
-void record_hint_action(Game *game, CommandType cmd_type, int x, int y)
+/* record_hint_action now gets an explicit in_solve flag */
+void record_hint_action(Game *game,
+                        CommandType cmd_type,
+                        int x, int y,
+                        bool in_solve)
 {
+    if (in_solve)
+        return;
+
     char coordstr[16];
     write_coordinate((iVec2){x, y}, coordstr);
 
@@ -81,66 +86,59 @@ void record_hint_action(Game *game, CommandType cmd_type, int x, int y)
     hc->type = cmd_type;
     hc->tokens = calloc(2, sizeof(char *));
     hc->tokens[1] = strdup(coordstr);
-    hc->track = false;
+    hc->track = true;
     game->history = push_history(game->history, hc);
 }
 
 // Rule 1: cross duplicate for a white cell
-bool apply_rule_cross_duplicate(Game *game)
+bool apply_rule_cross_duplicate(Game *game, bool in_solve)
 {
     Tab *tab = game->tabuleiro;
     int max_i = tab->height * tab->width;
-
     bool *violated = calloc(max_i, sizeof(bool));
 
     for (int i = 0; i < max_i; i++)
     {
         Piece *p = &tab->data[i];
-
-        if (islower(tab->data[i].c) || tab->data[i].marked)
+        if (islower(p->c) || p->marked)
             continue;
-
         check_row(tab, p, i, violated);
         check_column(tab, p, i, violated);
     }
 
     for (int i = 0; i < max_i; i++)
     {
-        iVec2 pos = calc_pos(tab, i);
-
         if (!violated[i])
             continue;
-
+        iVec2 pos = calc_pos(tab, i);
         toggle_marked(tab, pos.x, pos.y);
 
-        record_hint_action(game, CMD_CROSS, pos.x, pos.y);
+        record_hint_action(game, CMD_CROSS, pos.x, pos.y, in_solve);
 
         char tmp[16];
         write_coordinate(pos, tmp);
-
         snprintf(game->info_str, 128, "Hint: crossed at %s", tmp);
 
+        free(violated);
         return true;
     }
 
     free(violated);
-
     return false;
 }
 
 // Rule 2: paint neighbor of a marked cell white
-bool apply_rule_paint_neighbors(Game *game)
+bool apply_rule_paint_neighbors(Game *game, bool in_solve)
 {
     Tab *tab = game->tabuleiro;
     int h = tab->height, w = tab->width;
+    const iVec2 dirs[4] = {{1, 0}, {0, 1}, {-1, 0}, {0, -1}};
 
     for (int i = 0; i < h * w; i++)
     {
         if (!tab->data[i].marked)
             continue;
-
         iVec2 pos = calc_pos(tab, i);
-        const iVec2 dirs[4] = {{1, 0}, {0, 1}, {-1, 0}, {0, -1}};
 
         for (int d = 0; d < 4; d++)
         {
@@ -152,77 +150,63 @@ bool apply_rule_paint_neighbors(Game *game)
             if (isupper(tab->data[ni].c))
                 continue;
 
-            // Apply white and record for undo
             toggle_branco(tab, np.x, np.y);
-            record_hint_action(game, CMD_WHITE, np.x, np.y);
+            record_hint_action(game, CMD_WHITE, np.x, np.y, in_solve);
 
             char tmp[16];
             write_coordinate(np, tmp);
-
             snprintf(game->info_str, 128, "Hint: painted at %s", tmp);
-
             return true;
         }
     }
-
     return false;
 }
 
-// Function to handle the help command
+// handle_help now invokes with in_solve=false
 int handle_help(Game *game)
 {
-    // Try applying Rule 1 (cross duplicates)
-    if (apply_rule_cross_duplicate(game))
+    if (apply_rule_cross_duplicate(game, false))
+        return 0;
+    if (apply_rule_paint_neighbors(game, false))
         return 0;
 
-    // Try applying Rule 2 (paint neighbors of marked cells)
-    if (apply_rule_paint_neighbors(game))
-        return 0;
-
-    // No single inference applicable
     snprintf(game->info_str, 128, "No hints available");
     return 1;
 }
 
-// Help all command: repeat single hints until none available
 int handle_help_all(Game *game)
 {
     while (!handle_help(game))
-        continue;
-
+    {
+    }
     return 0;
 }
 
-// Recursive solver: tries white vs cross for first unknown cell
+// backtrack_solve now invokes with in_solve=true
 bool backtrack_solve(Game *game)
 {
     Tab *tab = game->tabuleiro;
     int max_i = tab->height * tab->width;
 
-    // 1) exhaustively apply your two deterministic rules
     bool changed;
     do
     {
-        changed = apply_rule_cross_duplicate(game);
-        changed |= apply_rule_paint_neighbors(game);
+        changed = apply_rule_cross_duplicate(game, true);
+        changed |= apply_rule_paint_neighbors(game, true);
     } while (changed);
 
-    // 2) if we already violate a simple constraint, backtrack
     if (detect_conflict(tab))
         return false;
 
-    // 3) pick first unassigned cell (lower‐case and not marked) and branch white vs cross
     for (int i = 0; i < max_i; i++)
     {
         Piece *p = &tab->data[i];
         if (islower(p->c) && !p->marked)
         {
-            // backup
             Piece *backup = malloc(max_i * sizeof *backup);
             memcpy(backup, tab->data, max_i * sizeof *backup);
 
             iVec2 pos = calc_pos(tab, i);
-
             // TRY white
             toggle_branco(tab, pos.x, pos.y);
             if (backtrack_solve(game))
@@ -231,7 +215,7 @@ bool backtrack_solve(Game *game)
                 return true;
             }
 
-            // restore & TRY cross
+            // TRY cross
             memcpy(tab->data, backup, max_i * sizeof *backup);
             toggle_marked(tab, pos.x, pos.y);
             if (backtrack_solve(game))
@@ -240,18 +224,16 @@ bool backtrack_solve(Game *game)
                 return true;
             }
 
-            // restore & fail
+            // fail
             memcpy(tab->data, backup, max_i * sizeof *backup);
             free(backup);
             return false;
         }
     }
 
-    // no more unassigned => solved
     return true;
 }
 
-// Solve command: apply backtracking solver and report
 int handle_solve(Game *game)
 {
     if (backtrack_solve(game))
