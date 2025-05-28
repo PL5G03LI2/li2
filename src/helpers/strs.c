@@ -1,53 +1,26 @@
+#include <ncurses.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ncurses.h>
 
 #include "helpers/strs.h"
 
-int isLower(char c)
-{
-    return ('a' <= c && c <= 'z');
-}
+char *trim_str(char *str) {
+  if (!str)
+    return NULL;
 
-int isUpper(char c)
-{
-    return ('A' <= c && c <= 'Z');
-}
+  while (*str == ' ')
+    str++;
 
-char toUpper(char c)
-{
-    if (isLower(c))
-        return c - 32;
+  const char *end = str + strlen(str);
+  while (end > str && *(end - 1) == ' ')
+    end--;
 
-    return c;
-}
+  size_t len = end - str;
+  char *out = malloc(len + 1);
+  if (!out)
+    return NULL;
 
-char toLower(char c)
-{
-    if (isUpper(c))
-        return c + 32;
-
-    return c;
-}
-
-char *trim_str(char *str)
-{
-    if (!str)
-        return NULL;
-
-    while (*str == ' ')
-        str++;
-
-    const char *end = str + strlen(str);
-    while (end > str && *(end - 1) == ' ')
-        end--;
-
-    size_t len = end - str;
-    char *out = malloc(len + 1);
-    if (!out)
-        return NULL;
-
-    memcpy(out, str, len);
-    out[len] = '\0';
-    return out;
+  memcpy(out, str, len);
+  out[len] = '\0';
+  return out;
 }
