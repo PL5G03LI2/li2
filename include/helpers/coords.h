@@ -7,14 +7,15 @@
  *
  * @returns The resulting vector.
  */
-iVec2 add_vec2(iVec2 a, iVec2 b);
+#define add_vec2(a, b) ((iVec2){(a).x + (b).x, (a).y + (b).y});
 
 /**
  * Calculates the index of the position provided
  * @returns 0 <= index <= height * width;
  * @returns -1 if invalid;
  */
-int calc_index(Tab *tabuleiro, int x, int y);
+#define calc_index(tabuleiro, x, y)                                            \
+  ((assert_pos(tabuleiro, x, y)) ? (x * (tabuleiro)->width + y) : -1)
 
 /**
  * Calculates a position, given an index
@@ -23,25 +24,32 @@ int calc_index(Tab *tabuleiro, int x, int y);
  *  The calculated position, if valid;
  *  (-1, -1) otherwise;
  */
-iVec2 calc_pos(Tab *tabuleiro, int i);
+#define calc_pos(tabuleiro, i)                                                 \
+  ((assert_index(tabuleiro, i))                                                \
+       ? (iVec2){(i) / (tabuleiro)->width, (i) % (tabuleiro)->width}           \
+       : (iVec2){-1, -1})
 
 /**
  * Ensures valid string index.
  * @returns true if index is in bounds.
  * @returns false otherwise.
  */
-bool assert_index(Tab *tabuleiro, int i);
+#define assert_index(tabuleiro, i)                                             \
+  ((i) >= 0 && (i) < (tabuleiro)->height * (tabuleiro)->width)
 
 /**
  * Ensures a valid position.
  * @returns true if position is valid.
  * @returns false otherwise.
  */
-bool assert_pos(Tab *tabuleiro, int x, int y);
+#define assert_pos(tabuleiro, x, y)                                            \
+  ((x) >= 0 && (x) < (tabuleiro)->height && (y) >= 0 &&                        \
+   (y) < (tabuleiro)->width)
 
 /**
  * Reads a token and converts it to a Vector.
- * This function will add up the x components (a-z) and then convert y components.
+ * This function will add up the x components (a-z) and then convert y
+ * components.
  *
  * Ex: `read_coordinate("aa10") -> x: 27 + 1, y: 10.`
  *
