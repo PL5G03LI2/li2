@@ -173,23 +173,16 @@ void render_help(Game *game)
     wprintw(help.win, "[ Help ]");
     wattroff(help.win, COLOR_PAIR(6));
 
-    const char *commands[11] = {
+    const char *commands[] = {
         "g <file>", "l <file>", "<coord>",
-        "b <coord>", "r <coord>", "v",
-        "a", "A", "R", "d", "s"};
+        "b <coord>", "r <coord>", "t",    
+        "v", "a", "A", "R", "d", "s"
+    };
 
-    const char *descriptions[11] = {
-        "Save",
-        "Load",
-        "Select",
-        "Toggle white",
-        "Cross",
-        "Verify",
-        "Help",
-        "Help all",
-        "Solve",
-        "Undo",
-        "Exit",
+    const char *descriptions[] = {
+        "Save", "Load", "Select",
+        "Toggle white (one)", "Cross", "Toggle all white",  
+        "Verify", "Help", "Help all", "Solve", "Undo", "Exit"
     };
 
     for (int i = 0; i < 11; i++)
