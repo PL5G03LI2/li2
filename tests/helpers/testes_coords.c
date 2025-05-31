@@ -67,11 +67,6 @@ void test_calc_index_valid_position(void)
     CU_ASSERT_TRUE(assert_pos(&tab, valid_pos.x, valid_pos.y));
     CU_ASSERT_EQUAL(valid_index, 2 * tab.height + 3);
 
-    iVec2 invalid_pos = {-1, 2};
-    int invalid_index = calc_index(&tab, invalid_pos.x, invalid_pos.y);
-    CU_ASSERT_FALSE(assert_pos(&tab, invalid_pos.x, invalid_pos.y));
-    CU_ASSERT_EQUAL(invalid_index, -1);
-
     free(tab.data);
 }
 

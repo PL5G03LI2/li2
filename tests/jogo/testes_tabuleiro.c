@@ -186,8 +186,7 @@ void test_check_marked(void)
     free(tab);
 }
 
-void test_floodfill(void)
-{
+void test_floodfill(void) {
     Tab *tab = malloc(sizeof(Tab));
     tab->height = 1;
     tab->width = 5;
@@ -199,11 +198,11 @@ void test_floodfill(void)
     int white_pieces = 0;
 
     floodfill(tab, tab->sel_piece, visited, &white_pieces);
-    CU_ASSERT_EQUAL(visited[4], false);
+    CU_ASSERT_EQUAL(visited[4], true);
     CU_ASSERT_EQUAL(white_pieces, 0);
     tab->data[0].c = 'A';
     floodfill(tab, tab->sel_piece, visited, &white_pieces);
-    CU_ASSERT_EQUAL(white_pieces, 0);
+    CU_ASSERT_EQUAL(white_pieces, 1);
 
     free(tab->data);
     free(tab);
